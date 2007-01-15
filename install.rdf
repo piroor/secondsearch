@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+	<Description about="urn:mozilla:install-manifest">
+
+		<em:id>{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}</em:id>
+		<em:name>Second Search</em:name>
+		<em:version>0.2.2007010201</em:version>
+		<em:description>Shows tiny popup for the search bar, to allow you to search by another engine quickly.</em:description>
+		<em:creator>SHIMODA Hiroshi</em:creator>
+		<em:optionsURL>chrome://secondsearch/content/config.xul</em:optionsURL>
+		<em:homepageURL>http://piro.sakura.ne.jp/xul/_secondsearch.html.en</em:homepageURL>
+		<em:updateURL>http://piro.sakura.ne.jp/xul/xul.rdf.en</em:updateURL>
+		<em:file>
+			<Description about="urn:mozilla:extension:file:secondsearch.jar">
+				<em:package>content/secondsearch/</em:package>
+				<em:locale>locale/en-US/secondsearch/</em:locale>
+				<em:locale>locale/ja-JP/secondsearch/</em:locale>
+			</Description>
+		</em:file>
+
+		<em:targetApplication>
+			<Description>
+				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+				<em:minVersion>1.0</em:minVersion>
+				<em:maxVersion>2.0.0.*</em:maxVersion>
+			</Description>
+		</em:targetApplication>
+
+	</Description>
+
+</RDF>

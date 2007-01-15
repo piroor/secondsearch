@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % mainDTD SYSTEM "chrome://secondsearch/locale/secondsearch.dtd">
+%mainDTD;
+]>
+<overlay id="secondsearch-overlay"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script src="chrome://secondsearch/content/secondsearch.js"/>
+
+<toolbaritem id="search-container">
+	<menupopup id="secondsearch_popup"
+			ignorekeys="true"
+			oncommand="SecondSearch.doSearchBy(event.target, event);"
+			onpopupshowing="SecondSearch.onPopupShowing(event)"
+			onpopuphiding="SecondSearch.onPopupHiding(event)"
+			labelTemplate="&secondsearch.searchBy;">
+		<menu label="&secondsearch.searchByMore;"
+			id="secondsearch_popup_all">
+			<menupopup
+				onpopupshowing="this.shown = true; event.stopPropagation();"
+				onpopuphiding="this.shown = false; event.stopPropagation();"/>
+		</menu>
+	</menupopup>
+</toolbaritem>
+
+</overlay>
+

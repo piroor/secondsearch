@@ -1,0 +1,37 @@
+<!ENTITY secondsearch.searchBy     "&#37;sで検索">
+<!ENTITY secondsearch.searchByMore "他の検索エンジン">
+
+
+
+<!ENTITY secondsearch.config.title     "Second Searchの設定">
+<!ENTITY secondsearch.config.disabled  "Second Searchの設定ダイアログはFirefox 1.0に対応していません。設定を変更するには about:config において &quot;secondsearch.&quot; をキーとして検索してください。">
+
+<!ENTITY secondsearch.tab.general  "全般">
+<!ENTITY secondsearch.tab.advanced  "詳細">
+
+<!ENTITY secondsearch.caption.type "ポップアップの内容">
+
+<!ENTITY secondsearch.popup.type.0 "最近使った検索エンジンを表示">
+<!ENTITY secondsearch.popup.type.1 "すべての検索エンジンを表示">
+<!ENTITY secondsearch.popup.type.2 "すべての検索エンジンを表示（逆順）">
+
+<!ENTITY secondsearch.caption.position "ポップアップの表示位置">
+
+<!ENTITY secondsearch.popup.position.0 "検索バーの上（↑キーで表示）">
+<!ENTITY secondsearch.popup.position.1 "検索バーの下（↓キーで表示）">
+<!ENTITY secondsearch.popup.position.note "※ポップアップを検索バーの下に表示する場合、自動補完は無効になります。">
+
+<!ENTITY secondsearch.recentengines.num.before "最近使った検索エンジンを">
+<!ENTITY secondsearch.recentengines.num.after  "件まで記憶する">
+
+<!ENTITY secondsearch.caption.behavior  "挙動">
+
+<!ENTITY secondsearch.keyword.show        "スマートキーワードをエンジン一覧に加える">
+<!ENTITY secondsearch.switch.blank_input  "検索語句が空のときは標準の検索エンジンを切り替える">
+
+<!ENTITY secondsearch.caption.auto_show  "ポップアップの自動表示">
+
+<!ENTITY secondsearch.popup.auto_show     "文字を入力した時にポップアップを表示する">
+<!ENTITY secondsearch.popup.auto_show.dragdrop "ドラッグ＆ドロップした時にポップアップを表示する">
+
+<!ENTITY secondsearch.initialize.keywords  "スマートキーワードの一覧を取得しなおす">

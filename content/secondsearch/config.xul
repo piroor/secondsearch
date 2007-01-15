@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/"?>
+
+<!DOCTYPE prefwindow [
+<!ENTITY % mainDTD SYSTEM "chrome://secondsearch/locale/secondsearch.dtd">
+%mainDTD;
+]>
+
+<prefwindow id="secondsearch-config"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+	title="&secondsearch.config.title;"
+	disabledmessage="&secondsearch.config.disabled;"
+	onload="
+		if (!('preferencePanes' in document.documentElement)) {
+			document.getElementById('prefpane-general').setAttribute('hidden', true);
+			document.getElementById('prefpane-advanced').setAttribute('hidden', true);
+			document.documentElement.appendChild(document.createElement('description'));
+			document.documentElement.lastChild.appendChild(document.createTextNode(document.documentElement.getAttribute('disabledmessage')));
+			document.documentElement.lastChild.setAttribute('flex', 1);
+			document.documentElement.lastChild.setAttribute('style', 'width:30em;');
+			document.documentElement.appendChild(document.createElement('button'));
+		}
+		else {
+			document.getElementById('prefpane-general').removeAttribute('hidden');
+			document.getElementById('prefpane-advanced').removeAttribute('hidden');
+		}
+	">
+
+<prefpane id="prefpane-general" label="&secondsearch.tab.general;">
+	<preferences>
+		<preference id="secondsearch.popup.type"
+			name="secondsearch.popup.type"
+			type="int"/>
+		<preference id="secondsearch.recentengines.num"
+			name="secondsearch.recentengines.num"
+			type="int"/>
+
+		<preference id="secondsearch.popup.position"
+			name="secondsearch.popup.position"
+			type="int"/>
+
+		<preference id="secondsearch.keyword.cache.name"
+			name="secondsearch.keyword.cache.name"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.icon"
+			name="secondsearch.keyword.cache.icon"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.uri"
+			name="secondsearch.keyword.cache.uri"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.keyword"
+			name="secondsearch.keyword.cache.keyword"
+			type="string"/>
+	</preferences>
+
+	<groupbox>
+		<caption label="&secondsearch.caption.type;"/>
+		<radiogroup orient="vertical"
+			id="secondsearch.popup.type-radiogroup"
+			preference="secondsearch.popup.type">
+			<radio label="&secondsearch.popup.type.0;"
+				value="0"/>
+			<hbox align="center">
+				<spacer style="width:1em;"/>
+				<label value="&secondsearch.recentengines.num.before;"
+					control="secondsearch.recentengines.num-textbox"/>
+				<textbox id="secondsearch.recentengines.num-textbox"
+					preference="secondsearch.recentengines.num"
+					style="width: 5em;"
+					type="number" min="-1" increment="1"/>
+				<label value="&secondsearch.recentengines.num.after;"
+					control="secondsearch.recentengines.num-textbox"/>
+			</hbox>
+			<radio label="&secondsearch.popup.type.1;"
+				value="1"/>
+			<radio label="&secondsearch.popup.type.2;"
+				value="2"/>
+		</radiogroup>
+	</groupbox>
+
+	<groupbox>
+		<caption label="&secondsearch.caption.position;"/>
+		<radiogroup orient="vertical"
+			id="secondsearch.popup.position-radiogroup"
+			preference="secondsearch.popup.position">
+			<radio label="&secondsearch.popup.position.0;"
+				value="0"/>
+			<radio label="&secondsearch.popup.position.1;"
+				value="1"/>
+		</radiogroup>
+		<description value="&secondsearch.popup.position.note;"/>
+	</groupbox>
+
+	<button label="&secondsearch.initialize.keywords;"
+		oncommand="
+			setTextValue('secondsearch.keyword.cache.name-textbox', '');
+			setTextValue('secondsearch.keyword.cache.icon-textbox', '');
+			setTextValue('secondsearch.keyword.cache.uri-textbox', '');
+			setTextValue('secondsearch.keyword.cache.keyword-textbox', '');
+		"/>
+	<box collapsed="true">
+		<textbox id="secondsearch.keyword.cache.name-textbox"
+			preference="secondsearch.keyword.cache.name"/>
+		<textbox id="secondsearch.keyword.cache.icon-textbox"
+			preference="secondsearch.keyword.cache.icon"/>
+		<textbox id="secondsearch.keyword.cache.uri-textbox"
+			preference="secondsearch.keyword.cache.uri"/>
+		<textbox id="secondsearch.keyword.cache.keyword-textbox"
+			preference="secondsearch.keyword.cache.keyword"/>
+	</box>
+
+	<script type="application/x-javascript"><![CDATA[
+
+		function setTextValue(aID, aValue)
+		{
+			var node = document.getElementById(aID);
+			node.value = aValue;
+			var event = document.createEvent('UIEvents');
+			event.initUIEvent('input', true, false, window, 0);
+			node.dispatchEvent(event);
+		}
+
+	]]></script>
+
+</prefpane>
+
+<prefpane id="prefpane-advanced" label="&secondsearch.tab.advanced;">
+	<preferences>
+		<preference id="secondsearch.popup.auto_show"
+			name="secondsearch.popup.auto_show"
+			type="bool"/>
+		<preference id="secondsearch.popup.auto_show.dragdrop"
+			name="secondsearch.popup.auto_show.dragdrop"
+			type="bool"/>
+
+		<preference id="secondsearch.keyword.show"
+			name="secondsearch.keyword.show"
+			type="bool"/>
+		<preference id="secondsearch.switch.blank_input"
+			name="secondsearch.switch.blank_input"
+			type="bool"/>
+	</preferences>
+
+	<groupbox>
+		<caption label="&secondsearch.caption.auto_show;"/>
+		<checkbox id="secondsearch.popup.auto_show-check"
+			label="&secondsearch.popup.auto_show;"
+			preference="secondsearch.popup.auto_show"/>
+		<checkbox id="secondsearch.popup.auto_show.dragdrop-check"
+			label="&secondsearch.popup.auto_show.dragdrop;"
+			preference="secondsearch.popup.auto_show.dragdrop"/>
+	</groupbox>
+
+	<groupbox>
+		<caption label="&secondsearch.caption.behavior;"/>
+		<checkbox id="secondsearch.keyword.show-check"
+			label="&secondsearch.keyword.show;"
+			preference="secondsearch.keyword.show"/>
+		<checkbox id="secondsearch.switch.blank_input-check"
+			label="&secondsearch.switch.blank_input;"
+			preference="secondsearch.switch.blank_input"/>
+	</groupbox>
+
+</prefpane>
+
+</prefwindow>
