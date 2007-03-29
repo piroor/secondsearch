@@ -16,7 +16,7 @@ xmlns:chrome="http://www.mozilla.org/rdf/chrome#">
 	</RDF:Seq>
 
 	<RDF:Description RDF:about="urn:mozilla:package:secondsearch"
-		chrome:displayName="Second Search 0.2.2007032901"
+		chrome:displayName="Second Search 0.2.2007032902"
 		chrome:author="SHIMODA Hiroshi"
 		chrome:authorURL="http://piro.sakura.ne.jp/xul/secondsearch/"
 		chrome:name="secondsearch"

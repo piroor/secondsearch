@@ -169,8 +169,10 @@ var SecondSearch = {
 		textbox.addEventListener('blur', this.onBlur, false);
 
 		textbox.addEventListener('focus', this.onTextboxFocused, true);
+		this.popup.addEventListener('click', this.onTextboxFocused, true);
 		window.addEventListener('focus',  this.onSomethingFocusedOrBlured, true);
 		window.addEventListener('blur',   this.onSomethingFocusedOrBlured, true);
+		window.addEventListener('click',  this.onSomethingFocusedOrBlured, true);
 
 		textbox.disableAutoComplete = (this.popupPosition == 1);
 
@@ -262,8 +264,10 @@ var SecondSearch = {
 		textbox.removeEventListener('blur', this.onBlur, false);
 
 		textbox.removeEventListener('focus', this.onTextboxFocused, true);
+		this.popup.removeEventListener('click', this.onTextboxFocused, true);
 		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('blur',   this.onSomethingFocusedOrBlured, true);
+		window.removeEventListener('click',  this.onSomethingFocusedOrBlured, true);
 
 		textbox.disableAutoComplete = false;
 	},
@@ -288,6 +292,17 @@ var SecondSearch = {
  
 	onSomethingFocusedOrBlured : function(aEvent) 
 	{
+		var node = aEvent.originalTarget || aEvent.target;
+		if (node.ownerDocument == document) {
+			while (node.parentNode)
+			{
+				dump(node.id+'\n');
+				if (node == SecondSearch.textbox || node == SecondSearch.popup)
+					return;
+				node = node.parentNode;
+			}
+		}
+
 		window.setTimeout(function() {
 			if (!SecondSearch.textBoxFocused)
 				SecondSearch.hideSecondSearch();
