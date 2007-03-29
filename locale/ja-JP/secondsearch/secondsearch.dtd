@@ -28,6 +28,7 @@
 
 <!ENTITY secondsearch.keyword.show        "スマートキーワードをエンジン一覧に加える">
 <!ENTITY secondsearch.switch.blank_input  "検索語句が空のときは標準の検索エンジンを切り替える">
+<!ENTITY secondsearch.clear_after_search  "検索した後に検索バーの内容を空にする">
 
 <!ENTITY secondsearch.caption.auto_show  "ポップアップの自動表示">
 

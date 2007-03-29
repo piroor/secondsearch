@@ -1114,6 +1114,10 @@ try{
 				aEvent.preventDefault();
 				this.doSearchBy(current, aEvent);
 			}
+
+			if (this.getBoolPref('secondsearch.clear_after_search'))
+				window.setTimeout('SecondSearch.textbox.value = "";', 0);
+
 			return false;
 		}
 

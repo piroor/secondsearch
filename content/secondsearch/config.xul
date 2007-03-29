@@ -140,6 +140,10 @@
 		<preference id="secondsearch.switch.blank_input"
 			name="secondsearch.switch.blank_input"
 			type="bool"/>
+
+		<preference id="secondsearch.clear_after_search"
+			name="secondsearch.clear_after_search"
+			type="bool"/>
 	</preferences>
 
 	<groupbox>
@@ -160,6 +164,9 @@
 		<checkbox id="secondsearch.switch.blank_input-check"
 			label="&secondsearch.switch.blank_input;"
 			preference="secondsearch.switch.blank_input"/>
+		<checkbox id="secondsearch.clear_after_search-check"
+			label="&secondsearch.clear_after_search;"
+			preference="secondsearch.clear_after_search"/>
 	</groupbox>
 
 </prefpane>

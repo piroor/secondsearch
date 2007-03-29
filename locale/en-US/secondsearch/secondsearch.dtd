@@ -28,6 +28,7 @@
 
 <!ENTITY secondsearch.keyword.show        "Add smart keywords to the list of engines">
 <!ENTITY secondsearch.switch.blank_input  "Change the default engine when there is no search term">
+<!ENTITY secondsearch.clear_after_search  "Clear search term after doing search">
 
 <!ENTITY secondsearch.caption.auto_show  "Show popup automatically for">
 

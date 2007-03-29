@@ -5,6 +5,7 @@ pref("secondsearch.popup.type",         0); // 0 = recent used, 1 = all
 pref("secondsearch.recentengines.num",  3);
 pref("secondsearch.switch.blank_input", true);
 pref("secondsearch.keyword.show",       true);
+pref("secondsearch.clear_after_search", false);
 pref("secondsearch.timeout",            5000);
 
 
