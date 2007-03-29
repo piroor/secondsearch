@@ -456,6 +456,9 @@ var SecondSearch = {
 		this.selectedEngine = null;
 		window.setTimeout('SecondSearch.doingSearch = false;', 1);
 
+		if (this.getBoolPref('secondsearch.clear_after_search'))
+			this.textbox.value = '';
+
 		return retVal;
 	},
 	loadForSearch : function(aURI, aPostData, aEvent)
@@ -1101,6 +1104,8 @@ try{
 			var current = this.getCurrentItem(popup);
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
+				if (this.getBoolPref('secondsearch.clear_after_search'))
+					window.setTimeout('SecondSearch.textbox.value = "";', 0);
 			}
 			else {
 				if (current == this.allMenuItem) {
@@ -1116,10 +1121,6 @@ try{
 				aEvent.preventDefault();
 				this.doSearchBy(current, aEvent);
 			}
-
-			if (this.getBoolPref('secondsearch.clear_after_search'))
-				window.setTimeout('SecondSearch.textbox.value = "";', 0);
-
 			return false;
 		}
 
