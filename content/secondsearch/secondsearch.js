@@ -169,7 +169,8 @@ var SecondSearch = {
 		textbox.addEventListener('blur', this.onBlur, false);
 
 		textbox.addEventListener('focus', this.onTextboxFocused, true);
-		window.addEventListener('focus', this.onSomethingFocused, true);
+		window.addEventListener('focus',  this.onSomethingFocusedOrBlured, true);
+		window.addEventListener('blur',   this.onSomethingFocusedOrBlured, true);
 
 		textbox.disableAutoComplete = (this.popupPosition == 1);
 
@@ -261,7 +262,8 @@ var SecondSearch = {
 		textbox.removeEventListener('blur', this.onBlur, false);
 
 		textbox.removeEventListener('focus', this.onTextboxFocused, true);
-		window.removeEventListener('focus', this.onSomethingFocused, true);
+		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
+		window.removeEventListener('blur',   this.onSomethingFocusedOrBlured, true);
 
 		textbox.disableAutoComplete = false;
 	},
@@ -284,7 +286,7 @@ var SecondSearch = {
 	},
 	textBoxFocused : false,
  
-	onSomethingFocused : function(aEvent) 
+	onSomethingFocusedOrBlured : function(aEvent) 
 	{
 		window.setTimeout(function() {
 			if (!SecondSearch.textBoxFocused)
