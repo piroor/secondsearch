@@ -15,6 +15,7 @@
 	<menupopup id="secondsearch_popup"
 			ignorekeys="true"
 			oncommand="SecondSearch.doSearchBy(event.target, event);"
+			onclick="if (event.button == 1) SecondSearch.doSearchBy(event.target, event);"
 			onpopupshowing="SecondSearch.onPopupShowing(event)"
 			onpopuphiding="SecondSearch.onPopupHiding(event)"
 			labelTemplate="&secondsearch.searchBy;">

@@ -296,7 +296,6 @@ var SecondSearch = {
 		if (node.ownerDocument == document) {
 			while (node.parentNode)
 			{
-				dump(node.id+'\n');
 				if (node == SecondSearch.textbox || node == SecondSearch.popup)
 					return;
 				node = node.parentNode;
@@ -315,7 +314,10 @@ var SecondSearch = {
 	{
 		if (
 			(
-				SecondSearch.popup.shown &&
+				(
+					!SecondSearch.shouldShowAutomatically ||
+					SecondSearch.popup.shown
+				) &&
 				this.popup.selectedIndex < 0 &&
 				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP
 			) ||
@@ -464,7 +466,7 @@ var SecondSearch = {
 			}
 			else { // Firefox 1.5
 				var uri = this.getSearchURI(this.searchterm, engine.id);
-				retVal = SearchLoadURL(uri, (aEvent && aEvent.altKey));
+				retVal = SearchLoadURL(uri, (aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1));
 			}
 		}
 
@@ -478,7 +480,8 @@ var SecondSearch = {
 	},
 	loadForSearch : function(aURI, aPostData, aEvent)
 	{
-		var newTab = (aEvent && aEvent.altKey);
+		var newTab = (aEvent && aEvent.altKey) ||
+					(aEvent.type == 'click' && aEvent.button == 1);
 
 		var inBackground = false;
 		if ('TabbrowserService' in window) { // TBE
@@ -1071,7 +1074,11 @@ var SecondSearch = {
 			}
 
 			popup.shownBy = aReason;
+			document.popupNode = bar;
 			popup.showPopup(bar, -1, -1, 'popup', anchor, align);
+
+			var current = this.getCurrentItem(popup);
+			if (current) current.removeAttribute('_moz-menuactive');
 		}
 	},
  
