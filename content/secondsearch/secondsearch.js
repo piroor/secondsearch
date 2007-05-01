@@ -364,8 +364,12 @@ var SecondSearch = {
 	{
 		if (SecondSearch.getCurrentItem())
 			return false;
-		else
-			return this.__secondsearch__onTextEntered(aEvent);
+		else {
+			var retVal = this.__secondsearch__onTextEntered(aEvent);
+			if (SecondSearch.getBoolPref('secondsearch.clear_after_search'))
+				window.setTimeout('SecondSearch.clearTextBox();', 0);
+			return retVal;
+		}
 	},
  
 	onPopupShowing : function(aEvent) 
@@ -548,8 +552,6 @@ var SecondSearch = {
 		}
 		else {
 			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
-			if (SecondSearch.getBoolPref('secondsearch.clear_after_search'))
-				window.setTimeout('SecondSearch.clearTextBox();', 0);
 			return retVal;
 		}
 	},
