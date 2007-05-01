@@ -546,8 +546,12 @@ var SecondSearch = {
 			content.focus();
 			return;
 		}
-		else
-			return this.__secondsearch__doSearch(aData, aInNewTab);
+		else {
+			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
+			if (SecondSearch.getBoolPref('secondsearch.clear_after_search'))
+				window.setTimeout('SecondSearch.clearTextBox();', 0);
+			return retVal;
+		}
 	},
  
 	getSearchURI : function(aTerm, aEngine) 
@@ -1362,6 +1366,12 @@ catch(e) {
  
 	clearTextBox : function() 
 	{
+		if (
+			!this.textbox.value ||
+			this.searchbar.getAttribute('empty') == 'true'
+			)
+			return;
+
 		this.textbox.value = '';
 		if ('_displayCurrentEngine' in this.textbox)
 			this.textbox._displayCurrentEngine();
