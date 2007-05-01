@@ -2,7 +2,7 @@ var SecondSearch = {
 	SHOWN_BY_INPUT            : 1,
 	SHOWN_BY_MANUAL_OPERATION : 2,
 	SHOWN_BY_DRAGDROP         : 4,
-	
+	 
 /* preference values */ 
 	
 	get historyNum() 
@@ -153,7 +153,7 @@ var SecondSearch = {
 	},
   
 /* update searchbar */ 
-	
+	 
 	initBar : function() 
 	{
 		var search = this.searchbar;
@@ -273,7 +273,7 @@ var SecondSearch = {
 	},
   
 /* event handlers */ 
-	
+	 
 	onKeyPress : function(aEvent) 
 	{
 		SecondSearch.operateSecondSearch(aEvent);
@@ -394,6 +394,9 @@ var SecondSearch = {
 			!this.doingSearch
 			) {
 			this.textbox.onTextEntered(aEvent);
+
+			if (this.getBoolPref('secondsearch.clear_after_search'))
+				this.clearTextBox();
 		}
 
 		popup.shown = false;
@@ -408,7 +411,7 @@ var SecondSearch = {
 		catch(e) {
 		}
 	},
- 
+ 	
 	domain  : 'secondsearch', 
 	observe : function(aSubject, aTopic, aPrefName)
 	{
@@ -427,7 +430,7 @@ var SecondSearch = {
   
 /* do search */ 
 
-	
+	 
 	doSearchBy : function(aItem, aEvent) 
 	{
 		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
@@ -474,7 +477,7 @@ var SecondSearch = {
 		window.setTimeout('SecondSearch.doingSearch = false;', 1);
 
 		if (this.getBoolPref('secondsearch.clear_after_search'))
-			this.textbox.value = '';
+			this.clearTextBox();
 
 		return retVal;
 	},
@@ -896,7 +899,7 @@ var SecondSearch = {
 	},
    
 /* UI */ 
-	
+	 
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -1127,7 +1130,7 @@ try{
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
 				if (this.getBoolPref('secondsearch.clear_after_search'))
-					window.setTimeout('SecondSearch.textbox.value = "";', 0);
+					window.setTimeout('SecondSearch.clearTextBox();', 0);
 			}
 			else {
 				if (current == this.allMenuItem) {
@@ -1356,9 +1359,16 @@ catch(e) {
 		box.focus();
 		box.select();
 	},
+ 
+	clearTextBox : function() 
+	{
+		this.textbox.value = '';
+		if ('_displayCurrentEngine' in this.textbox)
+			this.textbox._displayCurrentEngine();
+	},
   
 /* keywords */ 
-	
+	 
 	initKeywords : function(aForceUpdate) 
 	{
 		this.keywords     = [];
