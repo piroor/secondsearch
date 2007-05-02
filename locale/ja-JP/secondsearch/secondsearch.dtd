@@ -6,7 +6,8 @@
 <!ENTITY secondsearch.config.title     "Second Searchの設定">
 <!ENTITY secondsearch.config.disabled  "Second Searchの設定ダイアログはFirefox 1.0に対応していません。設定を変更するには about:config において &quot;secondsearch.&quot; をキーとして検索してください。">
 
-<!ENTITY secondsearch.tab.general  "全般">
+<!ENTITY secondsearch.tab.general   "全般">
+<!ENTITY secondsearch.tab.auto_show "自動ポップアップ">
 <!ENTITY secondsearch.tab.advanced  "詳細">
 
 <!ENTITY secondsearch.caption.type "ポップアップの内容">
@@ -30,9 +31,12 @@
 <!ENTITY secondsearch.switch.blank_input  "検索語句が空のときは標準の検索エンジンを切り替える">
 <!ENTITY secondsearch.clear_after_search  "検索した後に検索バーの内容を空にする">
 
-<!ENTITY secondsearch.caption.auto_show  "ポップアップの自動表示">
+<!ENTITY secondsearch.popup.auto_show     "文字を入力した時に自動的にポップアップを表示する">
 
-<!ENTITY secondsearch.popup.auto_show     "文字を入力した時にポップアップを表示する">
-<!ENTITY secondsearch.popup.auto_show.dragdrop "ドラッグ＆ドロップした時にポップアップを表示する">
+<!ENTITY secondsearch.caption.auto_show.dragdrop "文字列をドラッグ＆ドロップした時の動作">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.-1 "何もしない">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "現在のエンジンで検索（Firefox標準）">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "ドラッグ中に、検索するエンジンをポップアップから選択">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "ドロップ後に、検索するエンジンをポップアップから選択">
 
 <!ENTITY secondsearch.initialize.keywords  "スマートキーワードの一覧を取得しなおす">

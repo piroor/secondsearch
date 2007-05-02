@@ -39,27 +39,6 @@
 		<preference id="secondsearch.popup.position"
 			name="secondsearch.popup.position"
 			type="int"/>
-
-		<preference id="secondsearch.keyword.cache.name"
-			name="secondsearch.keyword.cache.name"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.icon"
-			name="secondsearch.keyword.cache.icon"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.uri"
-			name="secondsearch.keyword.cache.uri"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.keyword"
-			name="secondsearch.keyword.cache.keyword"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.count"
-			name="secondsearch.keyword.cache.count"
-			instantApply="true"
-			type="int"/>
 	</preferences>
 
 	<groupbox>
@@ -100,6 +79,83 @@
 		<description value="&secondsearch.popup.position.note;"/>
 	</groupbox>
 
+</prefpane>
+
+<prefpane id="prefpane-auto_show" label="&secondsearch.tab.auto_show;">
+	<preferences>
+		<preference id="secondsearch.popup.auto_show"
+			name="secondsearch.popup.auto_show"
+			type="bool"/>
+		<preference id="secondsearch.popup.auto_show.dragdrop.mode"
+			name="secondsearch.popup.auto_show.dragdrop.mode"
+			type="int"/>
+	</preferences>
+
+	<checkbox id="secondsearch.popup.auto_show-check"
+		label="&secondsearch.popup.auto_show;"
+		preference="secondsearch.popup.auto_show"/>
+	<groupbox>
+		<caption label="&secondsearch.caption.auto_show.dragdrop;"/>
+		<radiogroup orient="vertical"
+			id="secondsearch.popup.auto_show.dragdrop.mode-radiogroup"
+			preference="secondsearch.popup.auto_show.dragdrop.mode">
+			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.-1;"
+				value="-1"/>
+			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.0;"
+				value="0"/>
+			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.1;"
+				value="1"/>
+			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.2;"
+				value="2"/>
+		</radiogroup>
+	</groupbox>
+</prefpane>
+
+<prefpane id="prefpane-advanced" label="&secondsearch.tab.advanced;">
+	<preferences>
+		<preference id="secondsearch.keyword.show"
+			name="secondsearch.keyword.show"
+			type="bool"/>
+		<preference id="secondsearch.switch.blank_input"
+			name="secondsearch.switch.blank_input"
+			type="bool"/>
+
+		<preference id="secondsearch.clear_after_search"
+			name="secondsearch.clear_after_search"
+			type="bool"/>
+
+		<preference id="secondsearch.keyword.cache.name"
+			name="secondsearch.keyword.cache.name"
+			instantApply="true"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.icon"
+			name="secondsearch.keyword.cache.icon"
+			instantApply="true"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.uri"
+			name="secondsearch.keyword.cache.uri"
+			instantApply="true"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.keyword"
+			name="secondsearch.keyword.cache.keyword"
+			instantApply="true"
+			type="string"/>
+		<preference id="secondsearch.keyword.cache.count"
+			name="secondsearch.keyword.cache.count"
+			instantApply="true"
+			type="int"/>
+	</preferences>
+
+	<checkbox id="secondsearch.keyword.show-check"
+		label="&secondsearch.keyword.show;"
+		preference="secondsearch.keyword.show"/>
+	<checkbox id="secondsearch.switch.blank_input-check"
+		label="&secondsearch.switch.blank_input;"
+		preference="secondsearch.switch.blank_input"/>
+	<checkbox id="secondsearch.clear_after_search-check"
+		label="&secondsearch.clear_after_search;"
+		preference="secondsearch.clear_after_search"/>
+
 	<button label="&secondsearch.initialize.keywords;"
 		oncommand="
 			setTextValue('secondsearch.keyword.cache.name-textbox', '');
@@ -133,52 +189,6 @@
 		}
 
 	]]></script>
-
-</prefpane>
-
-<prefpane id="prefpane-advanced" label="&secondsearch.tab.advanced;">
-	<preferences>
-		<preference id="secondsearch.popup.auto_show"
-			name="secondsearch.popup.auto_show"
-			type="bool"/>
-		<preference id="secondsearch.popup.auto_show.dragdrop"
-			name="secondsearch.popup.auto_show.dragdrop"
-			type="bool"/>
-
-		<preference id="secondsearch.keyword.show"
-			name="secondsearch.keyword.show"
-			type="bool"/>
-		<preference id="secondsearch.switch.blank_input"
-			name="secondsearch.switch.blank_input"
-			type="bool"/>
-
-		<preference id="secondsearch.clear_after_search"
-			name="secondsearch.clear_after_search"
-			type="bool"/>
-	</preferences>
-
-	<groupbox>
-		<caption label="&secondsearch.caption.auto_show;"/>
-		<checkbox id="secondsearch.popup.auto_show-check"
-			label="&secondsearch.popup.auto_show;"
-			preference="secondsearch.popup.auto_show"/>
-		<checkbox id="secondsearch.popup.auto_show.dragdrop-check"
-			label="&secondsearch.popup.auto_show.dragdrop;"
-			preference="secondsearch.popup.auto_show.dragdrop"/>
-	</groupbox>
-
-	<groupbox>
-		<caption label="&secondsearch.caption.behavior;"/>
-		<checkbox id="secondsearch.keyword.show-check"
-			label="&secondsearch.keyword.show;"
-			preference="secondsearch.keyword.show"/>
-		<checkbox id="secondsearch.switch.blank_input-check"
-			label="&secondsearch.switch.blank_input;"
-			preference="secondsearch.switch.blank_input"/>
-		<checkbox id="secondsearch.clear_after_search-check"
-			label="&secondsearch.clear_after_search;"
-			preference="secondsearch.clear_after_search"/>
-	</groupbox>
 
 </prefpane>
 

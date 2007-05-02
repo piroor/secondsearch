@@ -6,7 +6,8 @@
 <!ENTITY secondsearch.config.title     "Second Search Configuration">
 <!ENTITY secondsearch.config.disabled  "Second Search Configuration cannot work on Firefox 1.0. Go to &quot;about:config&quot; and find items with a key &quot;secondsearch.&quot;.">
 
-<!ENTITY secondsearch.tab.general  "General">
+<!ENTITY secondsearch.tab.general   "General">
+<!ENTITY secondsearch.tab.auto_show "Auto Popup">
 <!ENTITY secondsearch.tab.advanced  "Advanced">
 
 <!ENTITY secondsearch.caption.type "Popup type">
@@ -30,9 +31,14 @@
 <!ENTITY secondsearch.switch.blank_input  "Change the default engine when there is no search term">
 <!ENTITY secondsearch.clear_after_search  "Clear search term after doing search">
 
-<!ENTITY secondsearch.caption.auto_show  "Show popup automatically for">
-
-<!ENTITY secondsearch.popup.auto_show     "Key-types in the search bar">
+<!ENTITY secondsearch.popup.auto_show     "Show popup automatically for Key-types in the search bar">
 <!ENTITY secondsearch.popup.auto_show.dragdrop "Drag-and-drop into the search bar">
+
+<!ENTITY secondsearch.caption.auto_show.dragdrop "Drag-and-drop into the search bar">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.-1 "Do nothing">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "Search by the current engine (Firefox default)">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "Choose the engine from popup while dragging">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Choose the engine from popup after dropped">
+
 
 <!ENTITY secondsearch.initialize.keywords  "Rebuild the list of smart keywords">
