@@ -1,5 +1,7 @@
 pref("secondsearch.popup.auto_show",    true);
-pref("secondsearch.popup.auto_show.dragdrop", true);
+// 0 = nothing, 1 = on dragover, 2 = on drop (old)
+pref("secondsearch.popup.auto_show.dragdrop.mode", 1);
+pref("secondsearch.popup.auto_show.dragdrop.delay", 350);
 pref("secondsearch.popup.position",     0); // 0 = above, 1 = below
 pref("secondsearch.popup.type",         0); // 0 = recent used, 1 = all
 pref("secondsearch.recentengines.num",  3);

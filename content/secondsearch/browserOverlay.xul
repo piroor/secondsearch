@@ -18,12 +18,20 @@
 			onclick="if (event.button == 1) SecondSearch.doSearchBy(event.target, event);"
 			onpopupshowing="SecondSearch.onPopupShowing(event)"
 			onpopuphiding="SecondSearch.onPopupHiding(event)"
+			ondragenter="SecondSearch.handleEvent(event);"
+			ondragexit="SecondSearch.handleEvent(event);"
+			ondragover="SecondSearch.handleEvent(event);"
+			ondragdrop="SecondSearch.handleEvent(event);"
 			labelTemplate="&secondsearch.searchBy;">
 		<menu label="&secondsearch.searchByMore;"
 			id="secondsearch_popup_all">
 			<menupopup
 				onpopupshowing="this.shown = true; event.stopPropagation();"
-				onpopuphiding="this.shown = false; event.stopPropagation();"/>
+				onpopuphiding="this.shown = false; event.stopPropagation();"
+				ondragenter="SecondSearch.handleEvent(event);"
+				ondragexit="SecondSearch.handleEvent(event);"
+				ondragover="SecondSearch.handleEvent(event);"
+				ondragdrop="SecondSearch.handleEvent(event);"/>
 		</menu>
 	</menupopup>
 </toolbaritem>

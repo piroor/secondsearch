@@ -1,7 +1,12 @@
 var SecondSearch = { 
 	SHOWN_BY_INPUT            : 1,
 	SHOWN_BY_MANUAL_OPERATION : 2,
-	SHOWN_BY_DRAGDROP         : 4,
+	SHOWN_BY_DROP             : 4,
+	SHOWN_BY_DRAGOVER         : 8,
+
+	DRAGDROP_MODE_DISABLED : 0,
+	DRAGDROP_MODE_DRAGOVER : 1,
+	DRAGDROP_MODE_DROP     : 2,
 	 
 /* preference values */ 
 	
@@ -60,16 +65,27 @@ var SecondSearch = {
 	},
 	defaultShouldShowAutomatically : true,
  
-	get shouldShowAutomaticallyDragDrop() 
+	get autoShowDragdropMode() 
 	{
-		var val = this.getBoolPref('secondsearch.popup.auto_show.dragdrop');
+		var val = this.getIntPref('secondsearch.popup.auto_show.dragdrop.mode');
 		if (val === null) {
-			val = this.defaultShouldShowAutomaticallyDragDrop;
-			this.setBoolPref('secondsearch.popup.auto_show.dragdrop', val);
+			val = this.defaultAutoShowDragdropMode;
+			this.setIntPref('secondsearch.popup.auto_show.dragdrop.mode', val);
 		}
 		return val;
 	},
-	defaultShouldShowAutomaticallyDragDrop : true,
+	defaultAutoShowDragdropMode : 1,
+ 
+	get autoShowDragdropDelay() 
+	{
+		var val = this.getIntPref('secondsearch.popup.auto_show.dragdrop.delay');
+		if (val === null) {
+			val = this.defaultAutoShowDragdropDelay;
+			this.setIntPref('secondsearch.popup.auto_show.dragdrop.delay', val);
+		}
+		return Math.max(0, val);
+	},
+	defaultAutoShowDragdropDelay : 350,
  
 	get shouldShowKeywords() 
 	{
@@ -116,6 +132,15 @@ var SecondSearch = {
 			) : null ;
 	},
  
+	get engineButton() 
+	{
+		var bar = this.searchbar;
+		return bar ? (
+				bar._engineButton || /* Firefox 2 */
+				document.getAnonymousElementByAttribute(bar, 'id', 'searchbar-dropmarker') /* Firefox 1.5 */
+			) : null ;
+	},
+ 
 	get searchterm() 
 	{
 		var box = this.textbox;
@@ -153,7 +178,7 @@ var SecondSearch = {
 	},
   
 /* UI */ 
-	 
+	
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -383,8 +408,7 @@ try{
 			var current = this.getCurrentItem(popup);
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
-				if (this.getBoolPref('secondsearch.clear_after_search'))
-					window.setTimeout('SecondSearch.clearTextBox();', 0);
+				window.setTimeout('SecondSearch.clearAfterSearch();', 0);
 			}
 			else {
 				if (current == this.allMenuItem) {
@@ -543,7 +567,7 @@ catch(e) {
 	dump(e+'\n');
 }
 	},
-	 
+	
 	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
 	{
 		var xpathResult;
@@ -577,7 +601,7 @@ catch(e) {
 	{
 		return this.getNextOrPrevItem(aPopup.firstChild, -1, true);
 	},
-  	
+  
 	operateSuggesList : function(aEvent) 
 	{
 		if (
@@ -633,9 +657,15 @@ catch(e) {
 		if ('_displayCurrentEngine' in this.textbox)
 			this.textbox._displayCurrentEngine();
 	},
+ 
+	clearAfterSearch : function() 
+	{
+		if (!this.getBoolPref('secondsearch.clear_after_search')) return;
+		this.clearTextBox();
+	},
   
 /* update searchbar */ 
-	 
+	
 	initBar : function() 
 	{
 		var search = this.searchbar;
@@ -653,6 +683,12 @@ catch(e) {
 		textbox.addEventListener('focus',    this, true);
 		this.popup.addEventListener('click', this, true);
 
+		var bar = this.searchbar;
+		bar.addEventListener('dragenter', this, false);
+		bar.addEventListener('dragover',  this, false);
+		bar.addEventListener('dragexit',  this, false);
+		bar.addEventListener('dragdrop',  this, false);
+
 		window.addEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.addEventListener('blur',  this.onSomethingFocusedOrBlured, true);
 		window.addEventListener('click', this.onSomethingFocusedOrBlured, true);
@@ -669,8 +705,8 @@ catch(e) {
 			'textbox.searchbarDNDObserver.onDrop = '+
 				textbox.searchbarDNDObserver.onDrop.toSource()
 					.replace('this.mOuter.onTextEntered',
-						'if (SecondSearch.shouldShowAutomaticallyDragDrop) {'+
-							'SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DRAGDROP);'+
+						'if (SecondSearch.autoShowDragdropDelay == SecondSearch.DRAGDROP_MODE_DROP) {'+
+							'SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DROP);'+
 							'return;'+
 						'};'+
 						'this.mOuter.onTextEntered'
@@ -749,6 +785,12 @@ catch(e) {
 		textbox.removeEventListener('focus',    this, true);
 		this.popup.removeEventListener('click', this, true);
 
+		var bar = this.searchbar;
+		bar.removeEventListener('dragenter', this, false);
+		bar.removeEventListener('dragover',  this, false);
+		bar.removeEventListener('dragexit',  this, false);
+		bar.removeEventListener('dragdrop',  this, false);
+
 		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('blur',  this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('click', this.onSomethingFocusedOrBlured, true);
@@ -781,6 +823,20 @@ catch(e) {
 
 			case 'blur':
 				this.hideSecondSearch();
+				break;
+
+
+			case 'dragenter':
+				nsDragAndDrop.dragEnter(aEvent, this.searchDNDObserver);
+				break;
+			case 'dragover':
+				nsDragAndDrop.dragOver(aEvent, this.searchDNDObserver);
+				break;
+			case 'dragexit':
+				nsDragAndDrop.dragExit(aEvent, this.searchDNDObserver);
+				break;
+			case 'dragdrop':
+				nsDragAndDrop.drop(aEvent, this.searchDNDObserver);
 				break;
 
 
@@ -873,8 +929,7 @@ catch(e) {
 			return false;
 		else {
 			var retVal = this.__secondsearch__onTextEntered(aEvent);
-			if (SecondSearch.getBoolPref('secondsearch.clear_after_search'))
-				window.setTimeout('SecondSearch.clearTextBox();', 0);
+			window.setTimeout('SecondSearch.clearAfterSearch();', 0);
 			return retVal;
 		}
 	},
@@ -901,13 +956,11 @@ catch(e) {
 		var popup = this.popup;
 
 		if (
-			popup.shownBy == this.SHOWN_BY_DRAGDROP &&
+			popup.shownBy == this.SHOWN_BY_DROP &&
 			!this.doingSearch
 			) {
 			this.textbox.onTextEntered(aEvent);
-
-			if (this.getBoolPref('secondsearch.clear_after_search'))
-				this.clearTextBox();
+			this.clearAfterSearch();
 		}
 
 		popup.shown = false;
@@ -923,6 +976,164 @@ catch(e) {
 		}
 	},
   
+/* drag and drop */ 
+	 
+	searchDNDObserver : { 
+	 
+		onDragEnter : function(aEvent, aDragSession) 
+		{
+			if (SecondSearch.autoShowDragdropMode != SecondSearch.DRAGDROP_MODE_DRAGOVER)
+				return;
+
+			if (aEvent.target.localName == 'menuitem' ||
+				aEvent.target.localName == 'menu') {
+				aEvent.target.setAttribute('_moz-menuactive', true);
+			}
+			if (aEvent.target.localName == 'menuitem') {
+				return;
+			}
+
+			if (!aDragSession.canDrop)
+				return;
+
+			var popup = this.getPopup(aEvent);
+
+			if (this.isPlatformNotSupported) return;
+			if (this.isTimerSupported || !aDragSession.sourceNode) {
+				window.clearTimeout(this.showTimer);
+				if (aEvent.target == aDragSession.sourceNode) return;
+				popup.showTimer = window.setTimeout(function() {
+					if (popup == SecondSearch.popup)
+						SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DRAGOVER);
+					else
+						popup.showPopup();
+				}, SecondSearch.autoShowDragdropDelay);
+			}
+			else {
+				var now = (new Date()).getTime();
+				popup.showTimer  = now;
+				popup.showTarget = aEvent.target;
+			}
+		},
+ 
+		onDragExit : function(aEvent, aDragSession) 
+		{
+			if (SecondSearch.autoShowDragdropMode != SecondSearch.DRAGDROP_MODE_DRAGOVER)
+				return;
+
+			if (aEvent.target.localName == 'menuitem' ||
+				aEvent.target.localName == 'menu') {
+				aEvent.target.removeAttribute('_moz-menuactive');
+			}
+			if (aEvent.target.localName == 'menuitem') {
+				return;
+			}
+
+			var popup = this.getPopup(aEvent);
+
+			if (this.isPlatformNotSupported) return;
+			if (this.isTimerSupported || !aDragSession.sourceNode) {
+				window.clearTimeout(this.hideTimer);
+				popup.hideTimer = window.setTimeout(function() {
+					if (popup == SecondSearch.popup)
+						SecondSearch.hideSecondSearch();
+					else
+						popup.hidePopup();
+				}, SecondSearch.autoShowDragdropDelay);
+			}
+			else {
+				var now = (new Date()).getTime();
+				popup.hideTimer  = now;
+				popup.hideTarget = aEvent.target;
+				popup.showTimer  = null;
+				popup.showTarget = null;
+
+				if (aDragSession.sourceNode.localName != 'menuitem' &&
+					aDragSession.sourceNode.localName != 'menu')
+					window.setTimeout(function () {
+						SecondSearch.searchDNDObserver.showTimer = null;
+						SecondSearch.searchDNDObserver.showTarget = null;
+						if (popup == SecondSearch.popup)
+							SecondSearch.hideSecondSearch();
+						else
+							popup.hidePopup();
+					}, 0);
+			}
+		},
+ 
+		onDragOver : function(aEvent, aFlavour, aDragSession) 
+		{
+			if (this.isPlatformNotSupported) return;
+			if (this.isTimerSupported || !aDragSession.sourceNode) return;
+
+			var now   = (new Date()).getTime();
+			var delay = SecondSearch.autoShowDragdropDelay;
+			var popup = this.getPopup(aEvent);
+
+			if (popup.hideTimer && (now - delay > popup.hideTimer)) {
+				if (SecondSearch.getCurrentItem(popup)) return;
+
+				if (popup == SecondSearch.popup)
+					SecondSearch.hideSecondSearch();
+				else
+					popup.hidePopup();
+
+				popup.hideTimer  = null;
+				popup.hideTarget = null;
+			}
+			if (popup.showTimer && (now - delay > popup.showTimer)) {
+				if (popup == SecondSearch.popup)
+					SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DRAGOVER);
+				else
+					popup.showPopup();
+
+				popup.showTimer  = null;
+				popup.showTarget = null;
+			}
+		},
+ 
+		getPopup : function(aEvent) 
+		{
+			var allItem = SecondSearch.allMenuItem;
+			if (aEvent.target == allItem ||
+				aEvent.target.parentNode == allItem ||
+				aEvent.target.parentNode.parentNode == allItem)
+				return SecondSearch.allMenuItem.firstChild;
+
+			return SecondSearch.popup;
+		},
+ 
+		isPlatformNotSupported : navigator.platform.indexOf('Mac') != -1, // see bug 136524 
+		isTimerSupported       : navigator.platform.indexOf('Win') == -1, // see bug 232795.
+ 
+		onDrop : function(aEvent, aXferData, aDragSession) 
+		{
+			var string = aXferData.data.replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
+
+			var bar = SecondSearch.searchbar;
+			bar.removeAttribute('empty');
+
+			var textbox = SecondSearch.textbox;
+			textbox.value = string;
+
+			if (aEvent.target == bar) {
+				textbox.onTextEntered(aEvent);
+			}
+			else if (aEvent.target.localName == 'menuitem') {
+				SecondSearch.doSearchBy(aEvent.target, aEvent);
+			}
+			window.setTimeout('SecondSearch.clearAfterSearch(); SecondSearch.hideSecondSearch();', 0);
+		},
+ 
+		getSupportedFlavours : function() 
+		{
+			var flavourSet = new FlavourSet();
+			flavourSet.appendFlavour('text/unicode');
+			return flavourSet;
+		}
+	},
+
+ 	  
 /* do search */ 
 
 	 
@@ -971,12 +1182,12 @@ catch(e) {
 		this.selectedEngine = null;
 		window.setTimeout('SecondSearch.doingSearch = false;', 1);
 
-		if (this.getBoolPref('secondsearch.clear_after_search'))
-			this.clearTextBox();
+		this.clearAfterSearch();
 
 		return retVal;
 	},
-	loadForSearch : function(aURI, aPostData, aEvent)
+	 
+	loadForSearch : function(aURI, aPostData, aEvent) 
 	{
 		var newTab = (aEvent && aEvent.altKey) ||
 					(aEvent.type == 'click' && aEvent.button == 1);
@@ -1012,9 +1223,10 @@ catch(e) {
 
 		content.focus();
 	},
-	selectedEngine : null,
-	doingSearch : false,
  
+	selectedEngine : null, 
+	doingSearch : false,
+  
 	doSearchbarSearch : function(aData, aInNewTab, aOverride) 
 	{ // Firefox 2
 		if (aOverride) {
@@ -1076,7 +1288,7 @@ catch(e) {
 	},
   
 /* operate engines */ 
-	 
+	
 	getSearchEngineFromName : function(aName) 
 	{ // Firefox 2
 		var bar = this.searchbar;
@@ -1654,7 +1866,7 @@ catch(e) {
 	},
   
 /* initializing */ 
-	 
+	
 	init : function() { 
 		this.initBar();
 		window.removeEventListener('load', this, false);
