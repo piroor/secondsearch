@@ -884,7 +884,7 @@ catch(e) {
 		}
 	},
 	textBoxFocused : false,
- 	
+ 
 	onInput : function(aEvent) 
 	{
 		var popup = this.popup;
@@ -1025,9 +1025,6 @@ catch(e) {
 				aEvent.target.localName == 'menu') {
 				aEvent.target.setAttribute('_moz-menuactive', true);
 			}
-			if (aEvent.target.localName == 'menuitem') {
-				return;
-			}
 
 			if (!aDragSession.canDrop)
 				return;
@@ -1051,7 +1048,7 @@ catch(e) {
 				popup.showTarget = aEvent.target;
 			}
 		},
- 
+ 	
 		onDragExit : function(aEvent, aDragSession) 
 		{
 			if (SecondSearch.autoShowDragdropMode != SecondSearch.DRAGDROP_MODE_DRAGOVER)
@@ -1060,9 +1057,6 @@ catch(e) {
 			if (aEvent.target.localName == 'menuitem' ||
 				aEvent.target.localName == 'menu') {
 				aEvent.target.removeAttribute('_moz-menuactive');
-			}
-			if (aEvent.target.localName == 'menuitem') {
-				return;
 			}
 
 			var popup = this.getPopup(aEvent);
