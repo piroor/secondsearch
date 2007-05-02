@@ -10,7 +10,7 @@ var SecondSearch = {
 	DRAGDROP_MODE_DROP     : 2,
 	 
 /* preference values */ 
-	 
+	
 	get historyNum() 
 	{
 		var val = this.getIntPref('secondsearch.recentengines.num');
@@ -122,7 +122,7 @@ var SecondSearch = {
 	defaultSwitch : true,
   
 /* elements */ 
-	 
+	
 	get searchbar() 
 	{
 		var bar = document.getElementsByTagName('searchbar');
@@ -570,7 +570,7 @@ catch(e) {
 	dump(e+'\n');
 }
 	},
-	 
+	
 	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
 	{
 		var xpathResult;
@@ -668,7 +668,7 @@ catch(e) {
 	},
   
 /* update searchbar */ 
-	 
+	
 	initBar : function() 
 	{
 		var search = this.searchbar;
@@ -1015,6 +1015,8 @@ catch(e) {
 /* drag and drop */ 
 	 
 	searchDNDObserver : { 
+		showTimer : -1,
+		hideTimer : -1,
 	 
 		onDragEnter : function(aEvent, aDragSession) 
 		{
@@ -1030,10 +1032,11 @@ catch(e) {
 				return;
 
 			var popup = this.getPopup(aEvent);
+			var now = (new Date()).getTime();
 
 			if (this.isPlatformNotSupported) return;
 			if (this.isTimerSupported || !aDragSession.sourceNode) {
-				window.clearTimeout(this.showTimer);
+				window.clearTimeout(popup.showTimer);
 				if (aEvent.target == aDragSession.sourceNode) return;
 				popup.showTimer = window.setTimeout(function() {
 					if (popup == SecondSearch.popup)
@@ -1041,14 +1044,14 @@ catch(e) {
 					else
 						popup.showPopup();
 				}, SecondSearch.autoShowDragdropDelay);
+				this.showTimer = now;
 			}
 			else {
-				var now = (new Date()).getTime();
 				popup.showTimer  = now;
 				popup.showTarget = aEvent.target;
 			}
 		},
- 	
+ 
 		onDragExit : function(aEvent, aDragSession) 
 		{
 			if (SecondSearch.autoShowDragdropMode != SecondSearch.DRAGDROP_MODE_DRAGOVER)
@@ -1060,19 +1063,21 @@ catch(e) {
 			}
 
 			var popup = this.getPopup(aEvent);
+			var now = (new Date()).getTime();
 
 			if (this.isPlatformNotSupported) return;
 			if (this.isTimerSupported || !aDragSession.sourceNode) {
-				window.clearTimeout(this.hideTimer);
+				window.clearTimeout(popup.hideTimer);
 				popup.hideTimer = window.setTimeout(function() {
+					if (SecondSearch.searchDNDObserver.showTimer > SecondSearch.searchDNDObserver.hideTimer) return;
 					if (popup == SecondSearch.popup)
 						SecondSearch.hideSecondSearch();
 					else
 						popup.hidePopup();
 				}, SecondSearch.autoShowDragdropDelay);
+				this.hideTimer = now;
 			}
 			else {
-				var now = (new Date()).getTime();
 				popup.hideTimer  = now;
 				popup.hideTarget = aEvent.target;
 				popup.showTimer  = null;
@@ -1134,7 +1139,7 @@ catch(e) {
  
 		isPlatformNotSupported : navigator.platform.indexOf('Mac') != -1, // see bug 136524 
 		isTimerSupported       : navigator.platform.indexOf('Win') == -1, // see bug 232795.
- 
+ 	
 		onDrop : function(aEvent, aXferData, aDragSession) 
 		{
 			var string = aXferData.data.replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
