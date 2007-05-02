@@ -42,16 +42,24 @@
 
 		<preference id="secondsearch.keyword.cache.name"
 			name="secondsearch.keyword.cache.name"
+			instantApply="true"
 			type="string"/>
 		<preference id="secondsearch.keyword.cache.icon"
 			name="secondsearch.keyword.cache.icon"
+			instantApply="true"
 			type="string"/>
 		<preference id="secondsearch.keyword.cache.uri"
 			name="secondsearch.keyword.cache.uri"
+			instantApply="true"
 			type="string"/>
 		<preference id="secondsearch.keyword.cache.keyword"
 			name="secondsearch.keyword.cache.keyword"
+			instantApply="true"
 			type="string"/>
+		<preference id="secondsearch.keyword.cache.count"
+			name="secondsearch.keyword.cache.count"
+			instantApply="true"
+			type="int"/>
 	</preferences>
 
 	<groupbox>
@@ -98,6 +106,7 @@
 			setTextValue('secondsearch.keyword.cache.icon-textbox', '');
 			setTextValue('secondsearch.keyword.cache.uri-textbox', '');
 			setTextValue('secondsearch.keyword.cache.keyword-textbox', '');
+			setTextValue('secondsearch.keyword.cache.count-textbox', -1);
 		"/>
 	<box collapsed="true">
 		<textbox id="secondsearch.keyword.cache.name-textbox"
@@ -108,6 +117,8 @@
 			preference="secondsearch.keyword.cache.uri"/>
 		<textbox id="secondsearch.keyword.cache.keyword-textbox"
 			preference="secondsearch.keyword.cache.keyword"/>
+		<textbox id="secondsearch.keyword.cache.count-textbox"
+			preference="secondsearch.keyword.cache.count"/>
 	</box>
 
 	<script type="application/x-javascript"><![CDATA[

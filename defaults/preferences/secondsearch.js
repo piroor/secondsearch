@@ -8,6 +8,7 @@ pref("secondsearch.keyword.show",       true);
 pref("secondsearch.clear_after_search", false);
 pref("secondsearch.timeout",            5000);
 
+pref("secondsearch.keyword.updating", false);
 
 pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.name", "chrome://secondsearch/locale/secondsearch.properties");
 pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.description", "chrome://secondsearch/locale/secondsearch.properties");

@@ -152,760 +152,8 @@ var SecondSearch = {
 		return document.evaluate(aExpression, aContextNode, resolver, type, null);
 	},
   
-/* update searchbar */ 
-	 
-	initBar : function() 
-	{
-		var search = this.searchbar;
-		if (!search || search.secondsearchInitialized) return;
-
-		search.secondsearchInitialized = true;
-
-		this.addPrefListener(this);
-
-		var textbox = this.textbox;
-		textbox.addEventListener('input', this.onInput, true);
-		textbox.addEventListener('keypress', this.onKeyPress, true);
-		textbox.addEventListener('blur', this.onBlur, false);
-
-		textbox.addEventListener('focus', this.onTextboxFocused, true);
-		this.popup.addEventListener('click', this.onTextboxFocused, true);
-		window.addEventListener('focus',  this.onSomethingFocusedOrBlured, true);
-		window.addEventListener('blur',   this.onSomethingFocusedOrBlured, true);
-		window.addEventListener('click',  this.onSomethingFocusedOrBlured, true);
-
-		textbox.disableAutoComplete = (this.popupPosition == 1);
-
-		textbox.__secondsearch__onTextEntered = textbox.onTextEntered;
-		textbox.onTextEntered = this.onTextEntered;
-
-		textbox.__secondsearch__onKeyPress = textbox.onKeyPress;
-		textbox.onKeyPress = this.onTextboxKeyPress;
-
-		eval(
-			'textbox.searchbarDNDObserver.onDrop = '+
-				textbox.searchbarDNDObserver.onDrop.toSource()
-					.replace('this.mOuter.onTextEntered',
-						'if (SecondSearch.shouldShowAutomaticallyDragDrop) {'+
-							'SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DRAGDROP);'+
-							'return;'+
-						'};'+
-						'this.mOuter.onTextEntered'
-					)
-		);
-
-		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) { // Firefox 2
-			eval(
-				'search.handleSearchCommand = '+
-					search.handleSearchCommand.toSource()
-						.replace(')', ', aOverride)')
-						.replace(/doSearch\(([^\)]+)\)/, 'doSearch($1, aOverride)')
-			);
-			eval(
-				'search.onEnginePopupCommand = '+
-					search.onEnginePopupCommand.toSource()
-						.replace('this.currentEngine = aTarget.engine',
-							'{'+
-								'SecondSearch.addEngineToRecentList(SecondSearch.getCurrentEngine());'+
-								'this.currentEngine = aTarget.engine;'+
-							'};'
-						)
-			);
-			search.__secondsearch__doSearch = search.doSearch;
-			search.doSearch = this.doSearchbarSearch;
-		}
-		else { // Firefox 1.5
-			eval(
-				'textbox.onEnginePopupCommand = '+
-					textbox.onEnginePopupCommand.toSource()
-						.replace('this.currentEngine = target.id',
-							'SecondSearch.addEngineToRecentList(SecondSearch.getCurrentEngine());'+
-							'this.currentEngine = target.id'
-						)
-			);
-		}
-
-		// GSuggest
-		if ('GSuggest' in window && !GSuggest.__secondsearch__operateSuggesList) {
-			GSuggest.__secondsearch__operateSuggesList = GSuggest.operateSuggesList;
-			GSuggest.operateSuggesList = this.operateSuggesList;
-		}
-
-		// Tab Mix Plus, only Firefox 2?
-		if ('handleSearchCommand' in search &&
-			'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
-			window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
-			eval(
-				'window.TMP_SearchLoadURL = '+
-					window.TMP_SearchLoadURL.toSource()
-						.replace('var submission = searchbar.currentEngine',
-							'var overrideEngine = null;'+
-							'if (SecondSearch.selectedEngine) {'+
-								'overrideEngine = SecondSearch.getSearchEngineFromName(SecondSearch.selectedEngine.name);'+
-							'};'+
-							'var submission = (overrideEngine || searchbar.currentEngine)'
-						)
-			);
-		}
-	},
- 
-	destroyBar : function() 
-	{
-		var search = this.searchbar;
-		if (!search || !search.secondsearchInitialized) return;
-
-		search.secondsearchInitialized = false;
-
-		this.removePrefListener(this);
-
-		var textbox = this.textbox;
-		textbox.removeEventListener('input', this.onInput, true);
-		textbox.removeEventListener('keypress', this.onKeyPress, true);
-		textbox.removeEventListener('blur', this.onBlur, false);
-
-		textbox.removeEventListener('focus', this.onTextboxFocused, true);
-		this.popup.removeEventListener('click', this.onTextboxFocused, true);
-		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
-		window.removeEventListener('blur',   this.onSomethingFocusedOrBlured, true);
-		window.removeEventListener('click',  this.onSomethingFocusedOrBlured, true);
-
-		textbox.disableAutoComplete = false;
-	},
-  
-/* event handlers */ 
-	 
-	onKeyPress : function(aEvent) 
-	{
-		SecondSearch.operateSecondSearch(aEvent);
-	},
- 
-	onBlur : function(aEvent) 
-	{
-		SecondSearch.hideSecondSearch();
-	},
- 
-	onTextboxFocused : function(aEvent) 
-	{
-		SecondSearch.textBoxFocused = true;
-	},
-	textBoxFocused : false,
- 
-	onSomethingFocusedOrBlured : function(aEvent) 
-	{
-		var node = aEvent.originalTarget || aEvent.target;
-		if (node.ownerDocument == document) {
-			while (node.parentNode)
-			{
-				if (node == SecondSearch.textbox || node == SecondSearch.popup)
-					return;
-				node = node.parentNode;
-			}
-		}
-
-		window.setTimeout(function() {
-			if (!SecondSearch.textBoxFocused)
-				SecondSearch.hideSecondSearch();
-
-			SecondSearch.textBoxFocused = false;
-		}, 0);
-	},
- 
-	onTextboxKeyPress : function(aEvent) 
-	{
-		if (
-			(
-				(
-					!SecondSearch.shouldShowAutomatically ||
-					SecondSearch.popup.shown
-				) &&
-				this.popup.selectedIndex < 0 &&
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP
-			) ||
-			(
-				SecondSearch.getCurrentItem() &&
-				(
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT
-				)
-			)
-			)
-			return false;
-		else
-			return this.__secondsearch__onKeyPress(aEvent);
-	},
- 
-	onInput : function(aEvent) 
-	{
-		var popup = SecondSearch.popup;
-		if (popup.shown) {
-				var current = SecondSearch.getCurrentItem(popup);
-				if (current) {
-					current.removeAttribute('_moz-menuactive');
-				}
-		}
-		if (SecondSearch.autoHideTimer) {
-			window.clearTimeout(SecondSearch.autoHideTimer);
-			SecondSearch.autoHideTimer = null;
-		}
-
-		if (SecondSearch.searchterm &&
-			SecondSearch.shouldShowAutomatically) {
-			SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_INPUT);
-			SecondSearch.autoHideTimer = window.setTimeout('SecondSearch.hideSecondSearch();', SecondSearch.timeout);
-		}
-		else
-			SecondSearch.hideSecondSearch();
-	},
-	autoHideTimer : null,
- 
-	onTextEntered : function(aEvent) 
-	{
-		if (SecondSearch.getCurrentItem())
-			return false;
-		else {
-			var retVal = this.__secondsearch__onTextEntered(aEvent);
-			if (SecondSearch.getBoolPref('secondsearch.clear_after_search'))
-				window.setTimeout('SecondSearch.clearTextBox();', 0);
-			return retVal;
-		}
-	},
- 
-	onPopupShowing : function(aEvent) 
-	{
-		var popup = this.popup;
-		popup.shown = true;
-
-		var typeFlag = this.popupType;
-		if (typeFlag == 0) {
-			this.initRecentEngines(popup);
-			this.initAllEngines(this.allMenuItem.firstChild, popup);
-			this.allMenuItem.removeAttribute('hidden');
-		}
-		else {
-			this.initAllEngines(popup, null, typeFlag == 2);
-			this.allMenuItem.setAttribute('hidden', true);
-		}
-	},
- 
-	onPopupHiding : function(aEvent) 
-	{
-		var popup = this.popup;
-
-		if (
-			popup.shownBy == this.SHOWN_BY_DRAGDROP &&
-			!this.doingSearch
-			) {
-			this.textbox.onTextEntered(aEvent);
-
-			if (this.getBoolPref('secondsearch.clear_after_search'))
-				this.clearTextBox();
-		}
-
-		popup.shown = false;
-		popup.shownBy = 0;
-
-		var current = this.getCurrentItem(popup);
-		if (current) current.removeAttribute('_moz-menuactive');
-
-		try {
-			this.allMenuItem.hidePopup();
-		}
-		catch(e) {
-		}
-	},
- 	
-	domain  : 'secondsearch', 
-	observe : function(aSubject, aTopic, aPrefName)
-	{
-		if (aTopic != 'nsPref:changed') return;
-
-		switch (aPrefName)
-		{
-			default:
-				return;
-
-			case 'secondsearch.popup.position':
-				this.textbox.disableAutoComplete = (this.popupPosition == 1);
-				return;
-		}
-	},
-  
-/* do search */ 
-
-	 
-	doSearchBy : function(aItem, aEvent) 
-	{
-		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
-		this.selectedEngine = engine;
-		this.doingSearch = true;
-
-		var bar = this.searchbar;
-		var retVal;
-
-		this.hideSecondSearch(true);
-
-		if (!this.searchterm &&
-			this.switchBlankInput) {
-			if (!engine.keyword) {
-				aEvent.stopPropagation();
-				aEvent.preventDefault();
-				this.switchTo(engine);
-				retVal = false;
-			}
-		}
-		else {
-			this.addEngineToRecentList(engine);
-			if (engine.keyword) {
-				var postData = {};
-				var uri = ('getShortcutOrURL' in window) ?
-					getShortcutOrURL(engine.keyword+' '+this.searchterm, postData) :
-					getShortcutOrURI(engine.keyword+' '+this.searchterm, postData);
-
-				if (!uri)
-					return retVal;
-
-				this.loadForSearch(uri, (postData.value || null), aEvent);
-			}
-			else if ('handleSearchCommand' in bar) { // Firefox 2
-				retVal = bar.handleSearchCommand(aEvent, true);
-			}
-			else { // Firefox 1.5
-				var uri = this.getSearchURI(this.searchterm, engine.id);
-				retVal = SearchLoadURL(uri, (aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1));
-			}
-		}
-
-		this.selectedEngine = null;
-		window.setTimeout('SecondSearch.doingSearch = false;', 1);
-
-		if (this.getBoolPref('secondsearch.clear_after_search'))
-			this.clearTextBox();
-
-		return retVal;
-	},
-	loadForSearch : function(aURI, aPostData, aEvent)
-	{
-		var newTab = (aEvent && aEvent.altKey) ||
-					(aEvent.type == 'click' && aEvent.button == 1);
-
-		var inBackground = false;
-		if ('TabbrowserService' in window) { // TBE
-			var behavior = this.getIntPref('browser.tabs.opentabfor.searchbar.behavior');
-			newTab = behavior > 0 ? !newTab : newTab ;
-			inBackground = behavior == 2;
-		}
-		else if ('TM_init' in window) { // Tab Mix Plus
-			newTab = this.getBoolPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
-			inBackground = this.getBoolPref('extensions.tabmix.loadSearchInBackground');
-		}
-		else { // Firefox 2
-			newTab = this.getBoolPref('browser.search.openintab') ? !newTab : newTab ;
-		}
-
-		if (gBrowser.localName == 'tabbrowser' && newTab) {
-			content.focus();
-			var t = 'loadOneTab' in gBrowser ?
-				gBrowser.loadOneTab(aURI, null, null, aPostData, false, true) :
-				gBrowser.addTab(uri, null, null, aPostData);
-			if (inBackground)
-				gBrowser.selectedTab = t;
-			if (gURLBar)
-				gURLBar.value = uri;
-		}
-		else if ('loadURL' in window)
-			loadURL(aURI, null, aPostData, true);
-		else
-			loadURI(aURI, null, aPostData, true);
-
-		content.focus();
-	},
-	selectedEngine : null,
-	doingSearch : false,
- 
-	doSearchbarSearch : function(aData, aInNewTab, aOverride) 
-	{ // Firefox 2
-		if (aOverride) {
-			var engine = SecondSearch.getRecentEngines()[0];
-			engine = SecondSearch.getSearchEngineFromName(engine.name);
-			if (!engine) return;
-
-			var postData = null;
-			var url = 'about:blank';
-			var submission = engine.getSubmission(aData, null);
-			if (submission) {
-				url = submission.uri.spec;
-				postData = submission.postData;
-			}
-			if (aInNewTab) {
-				content.focus();
-				gBrowser.loadOneTab(url, null, null, postData, false, false);
-				if (gURLBar)
-					gURLBar.value = url;
-			}
-			else
-				loadURI(url, null, postData, false);
-
-			content.focus();
-			return;
-		}
-		else {
-			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
-			return retVal;
-		}
-	},
- 
-	getSearchURI : function(aTerm, aEngine) 
-	{
-		var bar = this.searchbar;
-		var current = bar.getAttribute('searchengine');
-		if (current) { // Firefox 1.5
-			var ISEARCHSVC = Components.classes['@mozilla.org/rdf/datasource;1?name=internetsearch'].getService(Components.interfaces.nsIInternetSearchService);
-			if (aEngine) current = aEngine;
-			try {
-				current = ISEARCHSVC.GetInternetSearchURL(current, (aTerm || ''), 0, 0, {value:0});
-				if (!aTerm) {
-					var uri = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService).newURI(current, null, null);
-					try {
-						current = uri.host;
-					}
-					catch (e) {
-					}
-				}
-			}
-			catch(e) {
-			}
-		}
-		if (!current && 'currentEngine' in this.searchbar) { // Firefox 2
-			var engine = bar.currentEngine;
-			current = engine.getSubmission((aTerm || ''), null).uri.spec;
-		}
-		return current;
-	},
-  
-/* prefs */ 
-	
-	get Prefs() 
-	{
-		if (!this.mPrefs)
-			this.mPrefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch(null);
-		return this.mPrefs;
-	},
-	mPrefs : null,
-	knsISupportsString : ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString,
- 
-	getBoolPref : function(aKey) 
-	{
-		var value;
-		try {
-			value = this.Prefs.getBoolPref(aKey);
-		}
-		catch(e) {
-			value = null;
-		}
-		return value;
-	},
- 
-	setBoolPref : function(aKey, aValue) 
-	{
-		try {
-			this.Prefs.setBoolPref(aKey, aValue);
-		}
-		catch(e) {
-		}
-	},
- 
-	getIntPref : function(aKey) 
-	{
-		var value;
-		try {
-			value = this.Prefs.getIntPref(aKey);
-		}
-		catch(e) {
-			value = null;
-		}
-		return value;
-	},
- 
-	setIntPref : function(aKey, aValue) 
-	{
-		try {
-			this.Prefs.setIntPref(aKey, aValue);
-		}
-		catch(e) {
-		}
-	},
- 
-	getCharPref : function(aKey) 
-	{
-		var value;
-		try {
-			value = this.Prefs.getComplexValue(aKey, this.knsISupportsString).data;
-		}
-		catch(e) {
-			value = null;
-		}
-		return value;
-	},
- 
-	setCharPref : function(aKey, aValue) 
-	{
-		var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
-				Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
-				Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-		string.data = aValue;
-		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
-		return aValue;
-	},
- 
-	addPrefListener : function(aObserver) 
-	{
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			pbi.addObserver(aObserver.domain, aObserver, false);
-		}
-		catch(e) {
-		}
-	},
- 
-	removePrefListener : function(aObserver) 
-	{
-		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-			pbi.removeObserver(aObserver.domain, aObserver, false);
-		}
-		catch(e) {
-		}
-	},
-  
-/* operate engines */ 
-	
-	getSearchEngineFromName : function(aName) 
-	{ // Firefox 2
-		var bar = this.searchbar;
-		for (var i = 0, maxi = bar._engines.length; i < maxi; i++)
-		{
-			if (bar._engines[i].name == aName)
-				return bar._engines[i];
-		}
-		return null;
-	},
- 
-	getEngineFromName : function(aName, aNot) 
-	{
-		var bar = this.searchbar;
-		var engine;
-
-		aName = aName.split('\n');
-		if (aName.length > 1) {
-			for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
-			{
-				if (aNot ?
-						this.keywords[i].keyword == aName[1] :
-						this.keywords[i].keyword != aName[1]
-					) continue;
-
-				engine = {
-					name    : this.keywords[i].name,
-					icon    : this.keywords[i].icon,
-					uri     : this.keywords[i].uri,
-					keyword : this.keywords[i].keyword,
-					id      : ''
-				};
-				break;
-			}
-			return engine;
-		}
-
-		aName = aName[0];
-
-		if ('_engines' in bar) { // Firefox 2
-			for (var i = 0, maxi = bar._engines.length; i < maxi; i++)
-			{
-				if (aNot ?
-						bar._engines[i].name == aName :
-						bar._engines[i].name != aName
-					) continue;
-
-				engine = {
-					name    : bar._engines[i].name,
-					icon    : bar._engines[i].iconURI.spec,
-					uri     : bar._engines[i].getSubmission('', null).uri.spec,
-					keyword : '',
-					id      : ''
-				};
-				break;
-			}
-		}
-		else { // Firefox 1.5
-			var source = this.source;
-			for (var i = 0, maxi = source.childNodes.length; i < maxi; i++)
-			{
-				if (
-					!source.childNodes[i].id ||
-					(aNot ?
-						source.childNodes[i].getAttribute('label') == aName :
-						source.childNodes[i].getAttribute('label') != aName
-					)
-					) continue;
-
-				engine = {
-					name    : source.childNodes[i].getAttribute('label'),
-					icon    : source.childNodes[i].getAttribute('src'),
-					uri     : this.getSearchURI('', source.childNodes[i].id),
-					keyword : '',
-					id      : source.childNodes[i].id
-				};
-				break;
-			}
-		}
-
-
-		return engine;
-	},
- 
-	getCurrentEngine : function() 
-	{
-		var bar = this.searchbar;
-		var engine;
-		if ('_engines' in bar) { // Firefox 2
-			engine = {
-				name    : bar.currentEngine.name,
-				icon    : bar.currentEngine.iconURI.spec,
-				uri     : bar.currentEngine.getSubmission('', null).uri.spec,
-				keyword : '',
-				id      : ''
-			};
-		}
-		else { // Firefox 1.5
-			var box = this.textbox;
-			var engineRes = box.rdfService.GetResource(box.currentEngine);
-			const kNC_Name = box.rdfService.GetResource('http://home.netscape.com/NC-rdf#Name');
-			var name = box.readRDFString(engineRes, kNC_Name);
-			engine = {
-				name    : name,
-				icon    : bar.getAttribute('src'),
-				uri     : this.getSearchURI('', box.currentEngine),
-				keyword : '',
-				id      : box.currentEngine
-			};
-		}
-		return engine;
-	},
- 
-	getRecentEngines : function(aName) 
-	{
-		var names    = (this.getCharPref('secondsearch.recentengines.name') || '').split('|');
-		var icons    = (this.getCharPref('secondsearch.recentengines.icon') || '').split('|');
-		var uris     = (this.getCharPref('secondsearch.recentengines.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
-		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
-
-		var list = [];
-		var source = this.source;
-
-		for (var i = 0, maxi = uris.length; i < maxi; i++)
-		{
-			if (
-				keywords[i] ?
-					!(decodeURIComponent(uris[i]) in this.keywordsHash) :
-					(
-						!uris[i] ||
-						!source.getElementsByAttribute('label', decodeURIComponent(names[i])).length
-					)
-				)
-				continue;
-
-			list.push({
-				name    : decodeURIComponent(names[i]),
-				icon    : decodeURIComponent(icons[i]),
-				uri     : decodeURIComponent(uris[i]),
-				keyword : decodeURIComponent(keywords[i]),
-				id      : decodeURIComponent(ids[i])
-			});
-		}
-
-		if (!list.length) {
-			var engine = this.getEngineFromName(this.getCurrentEngine().name, true);
-			this.addEngineToRecentList(engine);
-			list.push(engine);
-		}
-
-		return list;
-	},
- 
-	updateRecentList : function(aOperation, aEngine) 
-	{
-		var names    = (this.getCharPref('secondsearch.recentengines.name') || '').split('|');
-		var icons    = (this.getCharPref('secondsearch.recentengines.icon') || '').split('|');
-		var uris     = (this.getCharPref('secondsearch.recentengines.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
-		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
-
-		if (aOperation == 'add' ||
-			aOperation == 'remove' ||
-			aOperation == 'check') {
-			for (var i = 0, maxi = names.length; i < maxi; i++)
-			{
-				if (decodeURIComponent(names[i]) != aEngine.name) continue;
-				if (aOperation == 'check') return true;
-				names.splice(i, 1);
-				icons.splice(i, 1);
-				uris.splice(i, 1);
-				keywords.splice(i, 1);
-				ids.splice(i, 1);
-				break;
-			}
-		}
-
-		if (aOperation == 'add') {
-			names.splice(0, 0, encodeURIComponent(aEngine.name));
-			icons.splice(0, 0, encodeURIComponent(aEngine.icon));
-			uris.splice(0, 0, encodeURIComponent(aEngine.uri));
-			keywords.splice(0, 0, encodeURIComponent(aEngine.keyword));
-			ids.splice(0, 0, encodeURIComponent(aEngine.id));
-		}
-
-		var history = this.historyNum;
-		if (history > -1) {
-			while (uris.length > history)
-			{
-				names.splice(names.length-1, 1);
-				icons.splice(icons.length-1, 1);
-				uris.splice(uris.length-1, 1);
-				keywords.splice(keywords.length-1, 1);
-				ids.splice(ids.length-1, 1);
-			}
-		}
-
-		this.setCharPref('secondsearch.recentengines.name',    names.join('|'));
-		this.setCharPref('secondsearch.recentengines.icon',    icons.join('|'));
-		this.setCharPref('secondsearch.recentengines.uri',     uris.join('|'));
-		this.setCharPref('secondsearch.recentengines.keyword', keywords.join('|'));
-		this.setCharPref('secondsearch.recentengines.id',      ids.join('|'));
-	},
-	
-	addEngineToRecentList : function(aEngine) 
-	{
-		if (!aEngine) return;
-		this.updateRecentList('add', aEngine);
-	},
- 
-	removeEngineFromRecentList : function(aEngine) 
-	{
-		if (!aEngine) return;
-		this.updateRecentList('remove', aEngine);
-	},
- 
-	isEngineInRecentList : function(aEngine) 
-	{
-		var retVal = this.updateRecentList('check', aEngine);
-		return retVal ? true : false ;
-	},
-   
 /* UI */ 
-	 
+	
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -1379,6 +627,672 @@ catch(e) {
 			this.textbox._displayCurrentEngine();
 	},
   
+/* update searchbar */ 
+	 
+	initBar : function() 
+	{
+		var search = this.searchbar;
+		if (!search || search.secondsearchInitialized) return;
+
+		search.secondsearchInitialized = true;
+
+		this.addPrefListener(this);
+
+		var textbox = this.textbox;
+		textbox.addEventListener('input',    this, true);
+		textbox.addEventListener('keypress', this, true);
+		textbox.addEventListener('blur',     this, false);
+
+		textbox.addEventListener('focus',    this, true);
+		this.popup.addEventListener('click', this, true);
+
+		window.addEventListener('focus', this.onSomethingFocusedOrBlured, true);
+		window.addEventListener('blur',  this.onSomethingFocusedOrBlured, true);
+		window.addEventListener('click', this.onSomethingFocusedOrBlured, true);
+
+		textbox.disableAutoComplete = (this.popupPosition == 1);
+
+		textbox.__secondsearch__onTextEntered = textbox.onTextEntered;
+		textbox.onTextEntered = this.onTextEntered;
+
+		textbox.__secondsearch__onKeyPress = textbox.onKeyPress;
+		textbox.onKeyPress = this.onTextboxKeyPress;
+
+		eval(
+			'textbox.searchbarDNDObserver.onDrop = '+
+				textbox.searchbarDNDObserver.onDrop.toSource()
+					.replace('this.mOuter.onTextEntered',
+						'if (SecondSearch.shouldShowAutomaticallyDragDrop) {'+
+							'SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DRAGDROP);'+
+							'return;'+
+						'};'+
+						'this.mOuter.onTextEntered'
+					)
+		);
+
+		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) { // Firefox 2
+			eval(
+				'search.handleSearchCommand = '+
+					search.handleSearchCommand.toSource()
+						.replace(')', ', aOverride)')
+						.replace(/doSearch\(([^\)]+)\)/, 'doSearch($1, aOverride)')
+			);
+			eval(
+				'search.onEnginePopupCommand = '+
+					search.onEnginePopupCommand.toSource()
+						.replace('this.currentEngine = aTarget.engine',
+							'{'+
+								'SecondSearch.addEngineToRecentList(SecondSearch.getCurrentEngine());'+
+								'this.currentEngine = aTarget.engine;'+
+							'};'
+						)
+			);
+			search.__secondsearch__doSearch = search.doSearch;
+			search.doSearch = this.doSearchbarSearch;
+		}
+		else { // Firefox 1.5
+			eval(
+				'textbox.onEnginePopupCommand = '+
+					textbox.onEnginePopupCommand.toSource()
+						.replace('this.currentEngine = target.id',
+							'SecondSearch.addEngineToRecentList(SecondSearch.getCurrentEngine());'+
+							'this.currentEngine = target.id'
+						)
+			);
+		}
+
+		// GSuggest
+		if ('GSuggest' in window && !GSuggest.__secondsearch__operateSuggesList) {
+			GSuggest.__secondsearch__operateSuggesList = GSuggest.operateSuggesList;
+			GSuggest.operateSuggesList = this.operateSuggesList;
+		}
+
+		// Tab Mix Plus, only Firefox 2?
+		if ('handleSearchCommand' in search &&
+			'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
+			window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
+			eval(
+				'window.TMP_SearchLoadURL = '+
+					window.TMP_SearchLoadURL.toSource()
+						.replace('var submission = searchbar.currentEngine',
+							'var overrideEngine = null;'+
+							'if (SecondSearch.selectedEngine) {'+
+								'overrideEngine = SecondSearch.getSearchEngineFromName(SecondSearch.selectedEngine.name);'+
+							'};'+
+							'var submission = (overrideEngine || searchbar.currentEngine)'
+						)
+			);
+		}
+	},
+ 
+	destroyBar : function() 
+	{
+		var search = this.searchbar;
+		if (!search || !search.secondsearchInitialized) return;
+
+		search.secondsearchInitialized = false;
+
+		this.removePrefListener(this);
+
+		var textbox = this.textbox;
+		textbox.removeEventListener('input',    this, true);
+		textbox.removeEventListener('keypress', this, true);
+		textbox.removeEventListener('blur',     this, false);
+
+		textbox.removeEventListener('focus',    this, true);
+		this.popup.removeEventListener('click', this, true);
+
+		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
+		window.removeEventListener('blur',  this.onSomethingFocusedOrBlured, true);
+		window.removeEventListener('click', this.onSomethingFocusedOrBlured, true);
+
+		textbox.disableAutoComplete = false;
+	},
+  
+/* event handlers */ 
+	 
+	handleEvent : function(aEvent) 
+	{
+		switch (aEvent.type)
+		{
+			case 'load':
+				this.init();
+				break;
+
+			case 'unload':
+				this.destroy();
+				break;
+
+
+			case 'input':
+				this.onInput(aEvent);
+				break;
+
+			case 'keypress':
+				this.operateSecondSearch(aEvent);
+				break;
+
+			case 'blur':
+				this.hideSecondSearch();
+				break;
+
+
+			case 'focus':
+			case 'click':
+				this.textBoxFocused = true;
+				break;
+
+		}
+	},
+	textBoxFocused : false,
+ 
+	onInput : function(aEvent) 
+	{
+		var popup = this.popup;
+		if (popup.shown) {
+				var current = this.getCurrentItem(popup);
+				if (current) {
+					current.removeAttribute('_moz-menuactive');
+				}
+		}
+		if (this.autoHideTimer) {
+			window.clearTimeout(SecondSearch.autoHideTimer);
+			this.autoHideTimer = null;
+		}
+
+		if (this.searchterm &&
+			this.shouldShowAutomatically) {
+			this.showSecondSearch(this.SHOWN_BY_INPUT);
+			this.autoHideTimer = window.setTimeout('SecondSearch.hideSecondSearch();', this.timeout);
+		}
+		else
+			this.hideSecondSearch();
+	},
+	autoHideTimer : null,
+ 
+	onSomethingFocusedOrBlured : function(aEvent) 
+	{
+		var node = aEvent.originalTarget || aEvent.target;
+		if (node.ownerDocument == document) {
+			while (node.parentNode)
+			{
+				if (node == SecondSearch.textbox || node == SecondSearch.popup)
+					return;
+				node = node.parentNode;
+			}
+		}
+
+		window.setTimeout(function() {
+			if (!SecondSearch.textBoxFocused)
+				SecondSearch.hideSecondSearch();
+
+			SecondSearch.textBoxFocused = false;
+		}, 0);
+	},
+ 
+	onTextboxKeyPress : function(aEvent) 
+	{
+		if (
+			(
+				(
+					!SecondSearch.shouldShowAutomatically ||
+					SecondSearch.popup.shown
+				) &&
+				this.popup.selectedIndex < 0 &&
+				(
+					(this.popupPosition == 0) ?
+						aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP :
+						aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN
+				)
+			) ||
+			(
+				SecondSearch.getCurrentItem() &&
+				(
+				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN ||
+				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP ||
+				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT ||
+				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT
+				)
+			)
+			)
+			return false;
+		else
+			return this.__secondsearch__onKeyPress(aEvent);
+	},
+ 
+	onTextEntered : function(aEvent) 
+	{
+		if (SecondSearch.getCurrentItem())
+			return false;
+		else {
+			var retVal = this.__secondsearch__onTextEntered(aEvent);
+			if (SecondSearch.getBoolPref('secondsearch.clear_after_search'))
+				window.setTimeout('SecondSearch.clearTextBox();', 0);
+			return retVal;
+		}
+	},
+ 
+	onPopupShowing : function(aEvent) 
+	{
+		var popup = this.popup;
+		popup.shown = true;
+
+		var typeFlag = this.popupType;
+		if (typeFlag == 0) {
+			this.initRecentEngines(popup);
+			this.initAllEngines(this.allMenuItem.firstChild, popup);
+			this.allMenuItem.removeAttribute('hidden');
+		}
+		else {
+			this.initAllEngines(popup, null, typeFlag == 2);
+			this.allMenuItem.setAttribute('hidden', true);
+		}
+	},
+ 
+	onPopupHiding : function(aEvent) 
+	{
+		var popup = this.popup;
+
+		if (
+			popup.shownBy == this.SHOWN_BY_DRAGDROP &&
+			!this.doingSearch
+			) {
+			this.textbox.onTextEntered(aEvent);
+
+			if (this.getBoolPref('secondsearch.clear_after_search'))
+				this.clearTextBox();
+		}
+
+		popup.shown = false;
+		popup.shownBy = 0;
+
+		var current = this.getCurrentItem(popup);
+		if (current) current.removeAttribute('_moz-menuactive');
+
+		try {
+			this.allMenuItem.hidePopup();
+		}
+		catch(e) {
+		}
+	},
+  
+/* do search */ 
+
+	
+	doSearchBy : function(aItem, aEvent) 
+	{
+		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
+		this.selectedEngine = engine;
+		this.doingSearch = true;
+
+		var bar = this.searchbar;
+		var retVal;
+
+		this.hideSecondSearch(true);
+
+		if (!this.searchterm &&
+			this.switchBlankInput) {
+			if (!engine.keyword) {
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
+				this.switchTo(engine);
+				retVal = false;
+			}
+		}
+		else {
+			this.addEngineToRecentList(engine);
+			if (engine.keyword) {
+				var postData = {};
+				var uri = ('getShortcutOrURL' in window) ?
+					getShortcutOrURL(engine.keyword+' '+this.searchterm, postData) :
+					getShortcutOrURI(engine.keyword+' '+this.searchterm, postData);
+
+				if (!uri)
+					return retVal;
+
+				this.loadForSearch(uri, (postData.value || null), aEvent);
+			}
+			else if ('handleSearchCommand' in bar) { // Firefox 2
+				retVal = bar.handleSearchCommand(aEvent, true);
+			}
+			else { // Firefox 1.5
+				var uri = this.getSearchURI(this.searchterm, engine.id);
+				retVal = SearchLoadURL(uri, (aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1));
+			}
+		}
+
+		this.selectedEngine = null;
+		window.setTimeout('SecondSearch.doingSearch = false;', 1);
+
+		if (this.getBoolPref('secondsearch.clear_after_search'))
+			this.clearTextBox();
+
+		return retVal;
+	},
+	loadForSearch : function(aURI, aPostData, aEvent)
+	{
+		var newTab = (aEvent && aEvent.altKey) ||
+					(aEvent.type == 'click' && aEvent.button == 1);
+
+		var inBackground = false;
+		if ('TabbrowserService' in window) { // TBE
+			var behavior = this.getIntPref('browser.tabs.opentabfor.searchbar.behavior');
+			newTab = behavior > 0 ? !newTab : newTab ;
+			inBackground = behavior == 2;
+		}
+		else if ('TM_init' in window) { // Tab Mix Plus
+			newTab = this.getBoolPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
+			inBackground = this.getBoolPref('extensions.tabmix.loadSearchInBackground');
+		}
+		else { // Firefox 2
+			newTab = this.getBoolPref('browser.search.openintab') ? !newTab : newTab ;
+		}
+
+		if (gBrowser.localName == 'tabbrowser' && newTab) {
+			content.focus();
+			var t = 'loadOneTab' in gBrowser ?
+				gBrowser.loadOneTab(aURI, null, null, aPostData, false, true) :
+				gBrowser.addTab(uri, null, null, aPostData);
+			if (inBackground)
+				gBrowser.selectedTab = t;
+			if (gURLBar)
+				gURLBar.value = uri;
+		}
+		else if ('loadURL' in window)
+			loadURL(aURI, null, aPostData, true);
+		else
+			loadURI(aURI, null, aPostData, true);
+
+		content.focus();
+	},
+	selectedEngine : null,
+	doingSearch : false,
+ 
+	doSearchbarSearch : function(aData, aInNewTab, aOverride) 
+	{ // Firefox 2
+		if (aOverride) {
+			var engine = SecondSearch.getRecentEngines()[0];
+			engine = SecondSearch.getSearchEngineFromName(engine.name);
+			if (!engine) return;
+
+			var postData = null;
+			var url = 'about:blank';
+			var submission = engine.getSubmission(aData, null);
+			if (submission) {
+				url = submission.uri.spec;
+				postData = submission.postData;
+			}
+			if (aInNewTab) {
+				content.focus();
+				gBrowser.loadOneTab(url, null, null, postData, false, false);
+				if (gURLBar)
+					gURLBar.value = url;
+			}
+			else
+				loadURI(url, null, postData, false);
+
+			content.focus();
+			return;
+		}
+		else {
+			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
+			return retVal;
+		}
+	},
+ 
+	getSearchURI : function(aTerm, aEngine) 
+	{
+		var bar = this.searchbar;
+		var current = bar.getAttribute('searchengine');
+		if (current) { // Firefox 1.5
+			var ISEARCHSVC = Components.classes['@mozilla.org/rdf/datasource;1?name=internetsearch'].getService(Components.interfaces.nsIInternetSearchService);
+			if (aEngine) current = aEngine;
+			try {
+				current = ISEARCHSVC.GetInternetSearchURL(current, (aTerm || ''), 0, 0, {value:0});
+				if (!aTerm) {
+					var uri = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService).newURI(current, null, null);
+					try {
+						current = uri.host;
+					}
+					catch (e) {
+					}
+				}
+			}
+			catch(e) {
+			}
+		}
+		if (!current && 'currentEngine' in this.searchbar) { // Firefox 2
+			var engine = bar.currentEngine;
+			current = engine.getSubmission((aTerm || ''), null).uri.spec;
+		}
+		return current;
+	},
+  
+/* operate engines */ 
+	
+	getSearchEngineFromName : function(aName) 
+	{ // Firefox 2
+		var bar = this.searchbar;
+		for (var i = 0, maxi = bar._engines.length; i < maxi; i++)
+		{
+			if (bar._engines[i].name == aName)
+				return bar._engines[i];
+		}
+		return null;
+	},
+ 
+	getEngineFromName : function(aName, aNot) 
+	{
+		var bar = this.searchbar;
+		var engine;
+
+		aName = aName.split('\n');
+		if (aName.length > 1) {
+			for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
+			{
+				if (aNot ?
+						this.keywords[i].keyword == aName[1] :
+						this.keywords[i].keyword != aName[1]
+					) continue;
+
+				engine = {
+					name    : this.keywords[i].name,
+					icon    : this.keywords[i].icon,
+					uri     : this.keywords[i].uri,
+					keyword : this.keywords[i].keyword,
+					id      : ''
+				};
+				break;
+			}
+			return engine;
+		}
+
+		aName = aName[0];
+
+		if ('_engines' in bar) { // Firefox 2
+			for (var i = 0, maxi = bar._engines.length; i < maxi; i++)
+			{
+				if (aNot ?
+						bar._engines[i].name == aName :
+						bar._engines[i].name != aName
+					) continue;
+
+				engine = {
+					name    : bar._engines[i].name,
+					icon    : bar._engines[i].iconURI.spec,
+					uri     : bar._engines[i].getSubmission('', null).uri.spec,
+					keyword : '',
+					id      : ''
+				};
+				break;
+			}
+		}
+		else { // Firefox 1.5
+			var source = this.source;
+			for (var i = 0, maxi = source.childNodes.length; i < maxi; i++)
+			{
+				if (
+					!source.childNodes[i].id ||
+					(aNot ?
+						source.childNodes[i].getAttribute('label') == aName :
+						source.childNodes[i].getAttribute('label') != aName
+					)
+					) continue;
+
+				engine = {
+					name    : source.childNodes[i].getAttribute('label'),
+					icon    : source.childNodes[i].getAttribute('src'),
+					uri     : this.getSearchURI('', source.childNodes[i].id),
+					keyword : '',
+					id      : source.childNodes[i].id
+				};
+				break;
+			}
+		}
+
+
+		return engine;
+	},
+ 
+	getCurrentEngine : function() 
+	{
+		var bar = this.searchbar;
+		var engine;
+		if ('_engines' in bar) { // Firefox 2
+			engine = {
+				name    : bar.currentEngine.name,
+				icon    : bar.currentEngine.iconURI.spec,
+				uri     : bar.currentEngine.getSubmission('', null).uri.spec,
+				keyword : '',
+				id      : ''
+			};
+		}
+		else { // Firefox 1.5
+			var box = this.textbox;
+			var engineRes = box.rdfService.GetResource(box.currentEngine);
+			const kNC_Name = box.rdfService.GetResource('http://home.netscape.com/NC-rdf#Name');
+			var name = box.readRDFString(engineRes, kNC_Name);
+			engine = {
+				name    : name,
+				icon    : bar.getAttribute('src'),
+				uri     : this.getSearchURI('', box.currentEngine),
+				keyword : '',
+				id      : box.currentEngine
+			};
+		}
+		return engine;
+	},
+ 
+	getRecentEngines : function(aName) 
+	{
+		var names    = (this.getCharPref('secondsearch.recentengines.name') || '').split('|');
+		var icons    = (this.getCharPref('secondsearch.recentengines.icon') || '').split('|');
+		var uris     = (this.getCharPref('secondsearch.recentengines.uri') || '').split('|');
+		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
+		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
+
+		var list = [];
+		var source = this.source;
+
+		for (var i = 0, maxi = uris.length; i < maxi; i++)
+		{
+			if (
+				keywords[i] ?
+					!(decodeURIComponent(uris[i]) in this.keywordsHash) :
+					(
+						!uris[i] ||
+						!source.getElementsByAttribute('label', decodeURIComponent(names[i])).length
+					)
+				)
+				continue;
+
+			list.push({
+				name    : decodeURIComponent(names[i]),
+				icon    : decodeURIComponent(icons[i]),
+				uri     : decodeURIComponent(uris[i]),
+				keyword : decodeURIComponent(keywords[i]),
+				id      : decodeURIComponent(ids[i])
+			});
+		}
+
+		if (!list.length) {
+			var engine = this.getEngineFromName(this.getCurrentEngine().name, true);
+			this.addEngineToRecentList(engine);
+			list.push(engine);
+		}
+
+		return list;
+	},
+ 
+	updateRecentList : function(aOperation, aEngine) 
+	{
+		var names    = (this.getCharPref('secondsearch.recentengines.name') || '').split('|');
+		var icons    = (this.getCharPref('secondsearch.recentengines.icon') || '').split('|');
+		var uris     = (this.getCharPref('secondsearch.recentengines.uri') || '').split('|');
+		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
+		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
+
+		if (aOperation == 'add' ||
+			aOperation == 'remove' ||
+			aOperation == 'check') {
+			for (var i = 0, maxi = names.length; i < maxi; i++)
+			{
+				if (decodeURIComponent(names[i]) != aEngine.name) continue;
+				if (aOperation == 'check') return true;
+				names.splice(i, 1);
+				icons.splice(i, 1);
+				uris.splice(i, 1);
+				keywords.splice(i, 1);
+				ids.splice(i, 1);
+				break;
+			}
+		}
+
+		if (aOperation == 'add') {
+			names.splice(0, 0, encodeURIComponent(aEngine.name));
+			icons.splice(0, 0, encodeURIComponent(aEngine.icon));
+			uris.splice(0, 0, encodeURIComponent(aEngine.uri));
+			keywords.splice(0, 0, encodeURIComponent(aEngine.keyword));
+			ids.splice(0, 0, encodeURIComponent(aEngine.id));
+		}
+
+		var history = this.historyNum;
+		if (history > -1) {
+			while (uris.length > history)
+			{
+				names.splice(names.length-1, 1);
+				icons.splice(icons.length-1, 1);
+				uris.splice(uris.length-1, 1);
+				keywords.splice(keywords.length-1, 1);
+				ids.splice(ids.length-1, 1);
+			}
+		}
+
+		this.setCharPref('secondsearch.recentengines.name',    names.join('|'));
+		this.setCharPref('secondsearch.recentengines.icon',    icons.join('|'));
+		this.setCharPref('secondsearch.recentengines.uri',     uris.join('|'));
+		this.setCharPref('secondsearch.recentengines.keyword', keywords.join('|'));
+		this.setCharPref('secondsearch.recentengines.id',      ids.join('|'));
+	},
+	
+	addEngineToRecentList : function(aEngine) 
+	{
+		if (!aEngine) return;
+		this.updateRecentList('add', aEngine);
+	},
+ 
+	removeEngineFromRecentList : function(aEngine) 
+	{
+		if (!aEngine) return;
+		this.updateRecentList('remove', aEngine);
+	},
+ 
+	isEngineInRecentList : function(aEngine) 
+	{
+		var retVal = this.updateRecentList('check', aEngine);
+		return retVal ? true : false ;
+	},
+   
 /* keywords */ 
 	 
 	initKeywords : function(aForceUpdate) 
@@ -1391,9 +1305,11 @@ catch(e) {
 		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
 		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
 		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+		var count = this.getIntPref('secondsearch.keyword.cache.count');
 		if (
 			!aForceUpdate &&
-			this.getIntPref('secondsearch.keyword.cache.count') !== null
+			count !== null &&
+			count != -1
 			) {
 			for (var i = 0, maxi = uris.length; i < maxi; i++)
 			{
@@ -1416,6 +1332,7 @@ catch(e) {
 				name,
 				icon;
 			var shortcuts = [];
+			var doneKeywords = {};
 			while (resources.hasMoreElements())
 			{
 				res = resources.getNext();
@@ -1424,7 +1341,8 @@ catch(e) {
 					shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
 					if (!shortcut) continue;
 					shortcut = shortcut.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral);
-					if (shortcut.Value) {
+					dump('keyword '+shortcut.Value+'\n');
+					if (shortcut.Value && !(shortcut.Value in doneKeywords)) {
 						name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
 						icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
 
@@ -1441,6 +1359,7 @@ catch(e) {
 						icons.push(encodeURIComponent(this.keywords[this.keywords.length-1].icon));
 						uris.push(encodeURIComponent(this.keywords[this.keywords.length-1].uri));
 						keywords.push(encodeURIComponent(this.keywords[this.keywords.length-1].keyword));
+						doneKeywords[shortcut.Value] = true;
 					}
 				}
 				catch(e) {
@@ -1606,10 +1525,132 @@ catch(e) {
 		}
 	},
   
+/* prefs */ 
+	 
+	domain  : 'secondsearch', 
+ 
+	observe : function(aSubject, aTopic, aPrefName) 
+	{
+		if (aTopic != 'nsPref:changed') return;
+
+		switch (aPrefName)
+		{
+			default:
+				return;
+
+			case 'secondsearch.popup.position':
+				this.textbox.disableAutoComplete = (this.popupPosition == 1);
+				return;
+
+			case 'secondsearch.keyword.cache.count':
+				if (this.getIntPref(aPrefName) == -1 &&
+					!this.getBoolPref('secondsearch.keyword.updating')) {
+					this.setBoolPref('secondsearch.keyword.updating', true);
+					this.initKeywords(true);
+					window.setTimeout('SecondSearch.setBoolPref("secondsearch.keyword.updating", false);', 100);
+				}
+				return;
+		}
+	},
+ 	
+	get Prefs() 
+	{
+		if (!this.mPrefs)
+			this.mPrefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch(null);
+		return this.mPrefs;
+	},
+	mPrefs : null,
+	knsISupportsString : ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString,
+ 
+	getBoolPref : function(aKey) 
+	{
+		var value;
+		try {
+			value = this.Prefs.getBoolPref(aKey);
+		}
+		catch(e) {
+			value = null;
+		}
+		return value;
+	},
+ 
+	setBoolPref : function(aKey, aValue) 
+	{
+		try {
+			this.Prefs.setBoolPref(aKey, aValue);
+		}
+		catch(e) {
+		}
+	},
+ 
+	getIntPref : function(aKey) 
+	{
+		var value;
+		try {
+			value = this.Prefs.getIntPref(aKey);
+		}
+		catch(e) {
+			value = null;
+		}
+		return value;
+	},
+ 
+	setIntPref : function(aKey, aValue) 
+	{
+		try {
+			this.Prefs.setIntPref(aKey, aValue);
+		}
+		catch(e) {
+		}
+	},
+ 
+	getCharPref : function(aKey) 
+	{
+		var value;
+		try {
+			value = this.Prefs.getComplexValue(aKey, this.knsISupportsString).data;
+		}
+		catch(e) {
+			value = null;
+		}
+		return value;
+	},
+ 
+	setCharPref : function(aKey, aValue) 
+	{
+		var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
+				Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
+				Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
+		string.data = aValue;
+		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
+		return aValue;
+	},
+ 
+	addPrefListener : function(aObserver) 
+	{
+		try {
+			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			pbi.addObserver(aObserver.domain, aObserver, false);
+		}
+		catch(e) {
+		}
+	},
+ 
+	removePrefListener : function(aObserver) 
+	{
+		try {
+			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			pbi.removeObserver(aObserver.domain, aObserver, false);
+		}
+		catch(e) {
+		}
+	},
+  
+/* initializing */ 
+	 
 	init : function() { 
-		SecondSearch.initBar();
-		window.removeEventListener('load', SecondSearch.init, false);
-		window.addEventListener('unload', SecondSearch.destroy, false);
+		this.initBar();
+		window.removeEventListener('load', this, false);
 
 		var originalBrowserCustomizeToolbar = window.BrowserCustomizeToolbar;
 		window.BrowserCustomizeToolbar = function() {
@@ -1635,25 +1676,28 @@ catch(e) {
 
 		if (!('PlacesController' in window)) {
 			try {
-				SecondSearch.bookmarksDS.AddObserver(SecondSearch.bookmarksRDFObserver);
+				this.bookmarksDS.AddObserver(this.bookmarksRDFObserver);
 			}
 			catch(e) {
 			}
 		}
 		window.setTimeout('SecondSearch.initKeywords();', 100);
 	},
-	destroy : function() {
-		SecondSearch.destroyBar();
-		window.removeEventListener('unload', SecondSearch.destroy, false);
+ 
+	destroy : function() { 
+		this.destroyBar();
+		window.removeEventListener('unload', this, false);
 		if (!('PlacesController' in window)) {
 			try {
-				SecondSearch.bookmarksDS.RemoveObserver(SecondSearch.bookmarksRDFObserver);
+				this.bookmarksDS.RemoveObserver(this.bookmarksRDFObserver);
 			}
 			catch(e) {
 			}
 		}
 	}
-};
+   
+}; 
 
-window.addEventListener('load', SecondSearch.init, false);
-  
+window.addEventListener('load', SecondSearch, false);
+window.addEventListener('unload', SecondSearch, false);
+ 
