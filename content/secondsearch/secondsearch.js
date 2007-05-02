@@ -4,12 +4,13 @@ var SecondSearch = {
 	SHOWN_BY_DROP             : 4,
 	SHOWN_BY_DRAGOVER         : 8,
 
-	DRAGDROP_MODE_DISABLED : 0,
+	DRAGDROP_MODE_NONE     : -1,
+	DRAGDROP_MODE_DEFAULT  : 0,
 	DRAGDROP_MODE_DRAGOVER : 1,
 	DRAGDROP_MODE_DROP     : 2,
 	 
 /* preference values */ 
-	
+	 
 	get historyNum() 
 	{
 		var val = this.getIntPref('secondsearch.recentengines.num');
@@ -87,6 +88,17 @@ var SecondSearch = {
 	},
 	defaultAutoShowDragdropDelay : 350,
  
+	get handleDragdropOnlyOnButton() 
+	{
+		var val = this.getBoolPref('secondsearch.handle_dragdrop_only_on_button');
+		if (val === null) {
+			val = this.defaultHandleDragdropOnlyOnButton;
+			this.setBoolPref('secondsearch.handle_dragdrop_only_on_button', val);
+		}
+		return val;
+	},
+	defaultHandleDragdropOnlyOnButton : false,
+ 
 	get shouldShowKeywords() 
 	{
 		var val = this.getBoolPref('secondsearch.keyword.show');
@@ -110,7 +122,7 @@ var SecondSearch = {
 	defaultSwitch : true,
   
 /* elements */ 
-	
+	 
 	get searchbar() 
 	{
 		var bar = document.getElementsByTagName('searchbar');
@@ -178,7 +190,7 @@ var SecondSearch = {
 	},
   
 /* UI */ 
-	 
+	
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -656,7 +668,7 @@ catch(e) {
 	},
   
 /* update searchbar */ 
-	
+	 
 	initBar : function() 
 	{
 		var search = this.searchbar;
@@ -674,11 +686,10 @@ catch(e) {
 		textbox.addEventListener('focus',    this, true);
 		this.popup.addEventListener('click', this, true);
 
-		var bar = this.searchbar;
-		bar.addEventListener('dragenter', this, false);
-		bar.addEventListener('dragover',  this, false);
-		bar.addEventListener('dragexit',  this, false);
-		bar.addEventListener('dragdrop',  this, false);
+		search.addEventListener('dragenter', this, false);
+		search.addEventListener('dragover',  this, false);
+		search.addEventListener('dragexit',  this, false);
+		search.addEventListener('dragdrop',  this, false);
 
 		window.addEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.addEventListener('blur',  this.onSomethingFocusedOrBlured, true);
@@ -696,11 +707,30 @@ catch(e) {
 			'textbox.searchbarDNDObserver.onDrop = '+
 				textbox.searchbarDNDObserver.onDrop.toSource()
 					.replace('this.mOuter.onTextEntered',
-						'if (SecondSearch.autoShowDragdropDelay == SecondSearch.DRAGDROP_MODE_DROP) {'+
+						'if (SecondSearch.autoShowDragdropMode == SecondSearch.DRAGDROP_MODE_DROP) {'+
 							'SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_DROP);'+
 							'return;'+
-						'};'+
+						'}'+
+						'else if (SecondSearch.autoShowDragdropMode == SecondSearch.DRAGDROP_MODE_NONE || SecondSearch.handleDragdropOnlyOnButton) {'+
+							'return;'+
+						'}'+
 						'this.mOuter.onTextEntered'
+					)
+		);
+		eval(
+			'textbox.searchbarDNDObserver.getSupportedFlavours = '+
+				textbox.searchbarDNDObserver.getSupportedFlavours.toSource()
+					.replace('flavourSet.appendFlavour',
+						'if ('+
+							'('+
+								'SecondSearch.autoShowDragdropMode == SecondSearch.DRAGDROP_MODE_NONE ||'+
+								'SecondSearch.handleDragdropOnlyOnButton'+
+							') &&'+
+							'("handleSearchCommand" in SecondSearch.searchbar ? (SecondSearch.searchbar.getAttribute("empty") != "true") : SecondSearch.textbox.value )'+
+							') {'+
+							'return flavourSet;'+
+						'};'+
+						'flavourSet.appendFlavour'
 					)
 		);
 
@@ -776,11 +806,10 @@ catch(e) {
 		textbox.removeEventListener('focus',    this, true);
 		this.popup.removeEventListener('click', this, true);
 
-		var bar = this.searchbar;
-		bar.removeEventListener('dragenter', this, false);
-		bar.removeEventListener('dragover',  this, false);
-		bar.removeEventListener('dragexit',  this, false);
-		bar.removeEventListener('dragdrop',  this, false);
+		search.removeEventListener('dragenter', this, false);
+		search.removeEventListener('dragover',  this, false);
+		search.removeEventListener('dragexit',  this, false);
+		search.removeEventListener('dragdrop',  this, false);
 
 		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('blur',  this.onSomethingFocusedOrBlured, true);
@@ -818,16 +847,32 @@ catch(e) {
 
 
 			case 'dragenter':
-				nsDragAndDrop.dragEnter(aEvent, this.searchDNDObserver);
-				break;
 			case 'dragover':
-				nsDragAndDrop.dragOver(aEvent, this.searchDNDObserver);
-				break;
 			case 'dragexit':
-				nsDragAndDrop.dragExit(aEvent, this.searchDNDObserver);
-				break;
 			case 'dragdrop':
-				nsDragAndDrop.drop(aEvent, this.searchDNDObserver);
+				var bar = this.searchbar;
+				if (this.handleDragdropOnlyOnButton && aEvent.target == bar) {
+					var target = aEvent.originalTarget;
+					var textbox = this.textbox;
+					while (target != bar && target != textbox)
+						target = target.parentNode;
+					if (target == textbox) return;
+				}
+				switch (aEvent.type)
+				{
+					case 'dragenter':
+						nsDragAndDrop.dragEnter(aEvent, this.searchDNDObserver);
+						break;
+					case 'dragover':
+						nsDragAndDrop.dragOver(aEvent, this.searchDNDObserver);
+						break;
+					case 'dragexit':
+						nsDragAndDrop.dragExit(aEvent, this.searchDNDObserver);
+						break;
+					case 'dragdrop':
+						nsDragAndDrop.drop(aEvent, this.searchDNDObserver);
+						break;
+				}
 				break;
 
 
@@ -839,7 +884,7 @@ catch(e) {
 		}
 	},
 	textBoxFocused : false,
- 
+ 	
 	onInput : function(aEvent) 
 	{
 		var popup = this.popup;
@@ -913,7 +958,7 @@ catch(e) {
 		else
 			return this.__secondsearch__onKeyPress(aEvent);
 	},
- 	
+ 
 	onTextEntered : function(aEvent) 
 	{
 		if (SecondSearch.getCurrentItem())

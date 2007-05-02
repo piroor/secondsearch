@@ -99,8 +99,6 @@
 		<radiogroup orient="vertical"
 			id="secondsearch.popup.auto_show.dragdrop.mode-radiogroup"
 			preference="secondsearch.popup.auto_show.dragdrop.mode">
-			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.-1;"
-				value="-1"/>
 			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.0;"
 				value="0"/>
 			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.1;"
@@ -119,9 +117,11 @@
 		<preference id="secondsearch.switch.blank_input"
 			name="secondsearch.switch.blank_input"
 			type="bool"/>
-
 		<preference id="secondsearch.clear_after_search"
 			name="secondsearch.clear_after_search"
+			type="bool"/>
+		<preference id="secondsearch.handle_dragdrop_only_on_button"
+			name="secondsearch.handle_dragdrop_only_on_button"
 			type="bool"/>
 
 		<preference id="secondsearch.keyword.cache.name"
@@ -155,6 +155,12 @@
 	<checkbox id="secondsearch.clear_after_search-check"
 		label="&secondsearch.clear_after_search;"
 		preference="secondsearch.clear_after_search"/>
+	<checkbox id="secondsearch.handle_dragdrop_only_on_button-check"
+		label="&secondsearch.handle_dragdrop_only_on_button;"
+		preference="secondsearch.handle_dragdrop_only_on_button"/>
+	<description flex="1">
+		&secondsearch.handle_dragdrop_only_on_button.description;
+	</description>
 
 	<button label="&secondsearch.initialize.keywords;"
 		oncommand="
