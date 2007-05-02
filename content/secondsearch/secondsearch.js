@@ -178,7 +178,7 @@ var SecondSearch = {
 	},
   
 /* UI */ 
-	
+	 
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -473,23 +473,14 @@ try{
 					}
 
 					this.showSecondSearch(this.SHOWN_BY_MANUAL_OPERATION);
-					window.setTimeout(function(aEvent) {
-						SecondSearch.popup.shown = true;
-						SecondSearch.operateSecondSearch({
-							keyCode         : aEvent.keyCode,
-							stopPropagation : function() {},
-							preventDefault  : function() {}
-						});
-					}, 0, aEvent);
-					aEvent.stopPropagation();
-					aEvent.preventDefault();
 
-					var current = isUpKey ?
-						 ((this.popupPosition == 0) ? this.getLastItem(popup) : null ) :
-						 ((this.popupPosition == 1) ? this.getFirstItem(popup) : null );
+					var current = (this.popupPosition == 0) ? this.getLastItem(popup) : this.getFirstItem(popup) ;
 					if (current) {
 						current.setAttribute('_moz-menuactive', true);
 					}
+
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
 					return false;
 				}
 				if (this.autoHideTimer) {
@@ -567,7 +558,7 @@ catch(e) {
 	dump(e+'\n');
 }
 	},
-	
+	 
 	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
 	{
 		var xpathResult;
@@ -903,9 +894,9 @@ catch(e) {
 				) &&
 				this.popup.selectedIndex < 0 &&
 				(
-					(this.popupPosition == 0) ?
-						aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP :
-						aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN
+					(SecondSearch.popupPosition == 0) ?
+						(aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP) :
+						(aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN)
 				)
 			) ||
 			(
@@ -922,7 +913,7 @@ catch(e) {
 		else
 			return this.__secondsearch__onKeyPress(aEvent);
 	},
- 
+ 	
 	onTextEntered : function(aEvent) 
 	{
 		if (SecondSearch.getCurrentItem())
@@ -1015,7 +1006,7 @@ catch(e) {
 				popup.showTarget = aEvent.target;
 			}
 		},
- 	
+ 
 		onDragExit : function(aEvent, aDragSession) 
 		{
 			if (SecondSearch.autoShowDragdropMode != SecondSearch.DRAGDROP_MODE_DRAGOVER)
