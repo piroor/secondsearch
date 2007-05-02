@@ -153,7 +153,7 @@ var SecondSearch = {
 	},
   
 /* UI */ 
-	
+	 
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -459,6 +459,13 @@ try{
 					}, 0, aEvent);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
+
+					var current = isUpKey ?
+						 ((this.popupPosition == 0) ? this.getLastItem(popup) : null ) :
+						 ((this.popupPosition == 1) ? this.getFirstItem(popup) : null );
+					if (current) {
+						current.setAttribute('_moz-menuactive', true);
+					}
 					return false;
 				}
 				if (this.autoHideTimer) {
@@ -486,7 +493,7 @@ try{
 				}
 				else {
 					current = isUpKey ?
-						 ((this.popupPosition == 0) ? this.getLastItem(popup) : null ) :
+						 this.getLastItem(popup) :
 						 ((this.popupPosition == 1) ? this.getFirstItem(popup) : null );
 				}
 				if (current) {
@@ -536,7 +543,7 @@ catch(e) {
 	dump(e+'\n');
 }
 	},
-	
+	 
 	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
 	{
 		var xpathResult;
@@ -570,7 +577,7 @@ catch(e) {
 	{
 		return this.getNextOrPrevItem(aPopup.firstChild, -1, true);
 	},
-  
+  	
 	operateSuggesList : function(aEvent) 
 	{
 		if (
@@ -918,7 +925,7 @@ catch(e) {
   
 /* do search */ 
 
-	
+	 
 	doSearchBy : function(aItem, aEvent) 
 	{
 		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
@@ -1069,7 +1076,7 @@ catch(e) {
 	},
   
 /* operate engines */ 
-	
+	 
 	getSearchEngineFromName : function(aName) 
 	{ // Firefox 2
 		var bar = this.searchbar;
@@ -1274,7 +1281,7 @@ catch(e) {
 		this.setCharPref('secondsearch.recentengines.keyword', keywords.join('|'));
 		this.setCharPref('secondsearch.recentengines.id',      ids.join('|'));
 	},
-	
+	 
 	addEngineToRecentList : function(aEngine) 
 	{
 		if (!aEngine) return;
@@ -1526,7 +1533,7 @@ catch(e) {
 	},
   
 /* prefs */ 
-	 
+	
 	domain  : 'secondsearch', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -1552,7 +1559,7 @@ catch(e) {
 				return;
 		}
 	},
- 	
+ 
 	get Prefs() 
 	{
 		if (!this.mPrefs)
