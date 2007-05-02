@@ -1489,7 +1489,7 @@ catch(e) {
 					this.keywordsHash[aSource].keyword = shortcut;
 					names.push(encodeURIComponent(name));
 					icons.push(encodeURIComponent(icon));
-					uris.push(encodeURIComponent(uri));
+					uris.push(encodeURIComponent(aSource));
 					keywords.push(encodeURIComponent(shortcut));
 				}
 				else {
@@ -1505,7 +1505,7 @@ catch(e) {
 						if (uris[i] == aSource) {
 							names.splice(i, 1, encodeURIComponent(name));
 							icons.splice(i, 1, encodeURIComponent(icon));
-							uris.splice(i, 1, encodeURIComponent(uri));
+							uris.splice(i, 1, encodeURIComponent(aSource));
 							keywords.splice(i, 1, encodeURIComponent(shortcut));
 							break;
 						}
