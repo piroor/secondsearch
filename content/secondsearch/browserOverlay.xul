@@ -27,7 +27,7 @@
 			id="secondsearch_popup_all">
 			<menupopup
 				onpopupshowing="this.shown = true; event.stopPropagation();"
-				onpopuphiding="this.shown = false; event.stopPropagation();"
+				onpopuphiding="this.shown = false; event.stopPropagation(); var current = SecondSearch.getCurrentItem(this); if (current) current.removeAttribute('_moz-menuactive');"
 				ondragenter="SecondSearch.handleEvent(event);"
 				ondragexit="SecondSearch.handleEvent(event);"
 				ondragover="SecondSearch.handleEvent(event);"

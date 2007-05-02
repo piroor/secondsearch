@@ -1015,7 +1015,7 @@ catch(e) {
 				popup.showTarget = aEvent.target;
 			}
 		},
- 
+ 	
 		onDragExit : function(aEvent, aDragSession) 
 		{
 			if (SecondSearch.autoShowDragdropMode != SecondSearch.DRAGDROP_MODE_DRAGOVER)
@@ -1071,15 +1071,14 @@ catch(e) {
 			var popup = this.getPopup(aEvent);
 
 			if (popup.hideTimer && (now - delay > popup.hideTimer)) {
-				if (SecondSearch.getCurrentItem(popup)) return;
-
-				if (popup == SecondSearch.popup)
-					SecondSearch.hideSecondSearch();
-				else
-					popup.hidePopup();
-
-				popup.hideTimer  = null;
-				popup.hideTarget = null;
+				if (!SecondSearch.getCurrentItem(popup)) {
+					if (popup == SecondSearch.popup)
+						SecondSearch.hideSecondSearch();
+					else
+						popup.hidePopup();
+					popup.hideTimer  = null;
+					popup.hideTarget = null;
+				}
 			}
 			if (popup.showTimer && (now - delay > popup.showTimer)) {
 				if (popup == SecondSearch.popup)
@@ -1133,7 +1132,7 @@ catch(e) {
 		}
 	},
 
- 	  
+   
 /* do search */ 
 
 	 
