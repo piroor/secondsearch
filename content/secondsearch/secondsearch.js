@@ -1210,11 +1210,11 @@ catch(e) {
 			content.focus();
 			var t = 'loadOneTab' in gBrowser ?
 				gBrowser.loadOneTab(aURI, null, null, aPostData, false, true) :
-				gBrowser.addTab(uri, null, null, aPostData);
+				gBrowser.addTab(aURI, null, null, aPostData);
 			if (inBackground)
 				gBrowser.selectedTab = t;
 			if (gURLBar)
-				gURLBar.value = uri;
+				gURLBar.value = aURI;
 		}
 		else if ('loadURL' in window)
 			loadURL(aURI, null, aPostData, true);
