@@ -1,4 +1,5 @@
-pref("secondsearch.popup.auto_show",    true);
+pref("secondsearch.popup.auto_show",       true);
+pref("secondsearch.popup.auto_show.delay", 0);
 // 0 = nothing, 1 = on dragover, 2 = on drop (old)
 pref("secondsearch.popup.auto_show.dragdrop.mode", 1);
 pref("secondsearch.popup.auto_show.dragdrop.delay", 350);

@@ -22,6 +22,17 @@ var SecondSearch = {
 	},
 	defaultHistoryNum : 3,
  
+	get delay() 
+	{
+		var val = this.getIntPref('secondsearch.popup.auto_show.delay');
+		if (val === null) {
+			val = this.defaultDelay;
+			this.setIntPref('secondsearch.popup.auto_show.delay', val);
+		}
+		return Math.max(0, val);
+	},
+	defaultDelay : 0,
+ 
 	get timeout() 
 	{
 		var val = this.getIntPref('secondsearch.timeout');
@@ -901,12 +912,26 @@ catch(e) {
 
 		if (this.searchterm &&
 			this.shouldShowAutomatically) {
-			this.showSecondSearch(this.SHOWN_BY_INPUT);
-			this.autoHideTimer = window.setTimeout('SecondSearch.hideSecondSearch();', this.timeout);
+			var delay = this.delay;
+			if (delay) {
+				if (this.autoShowTimer) window.clearInterval(this.autoShowTimer);
+				this.autoShowTimer = window.setTimeout('SecondSearch.showPopupOnInput();', delay);
+			}
+			else {
+				this.showPopupOnInput();
+			}
 		}
 		else
 			this.hideSecondSearch();
 	},
+	showPopupOnInput : function()
+	{
+		if (!this.searchterm) return;
+		this.showSecondSearch(this.SHOWN_BY_INPUT);
+		this.autoHideTimer = window.setTimeout('SecondSearch.hideSecondSearch();', this.timeout);
+		this.autoShowTimer = null;
+	},
+	autoShowTimer : null,
 	autoHideTimer : null,
  
 	onSomethingFocusedOrBlured : function(aEvent) 
