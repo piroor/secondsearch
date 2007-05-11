@@ -765,7 +765,7 @@ catch(e) {
 			search.__secondsearch__doSearch = search.doSearch;
 			search.doSearch = this.doSearchbarSearch;
 		}
-		else { // Firefox 1.5
+		else if ('onEnginePopupCommand' in textbox && textbox.onEnginePopupCommand.toSource().indexOf('SecondSearch') < 0) { // Firefox 1.5
 			eval(
 				'textbox.onEnginePopupCommand = '+
 					textbox.onEnginePopupCommand.toSource()
