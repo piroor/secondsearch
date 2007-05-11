@@ -1544,10 +1544,19 @@ catch(e) {
 			});
 		}
 
-		if (!list.length) {
-			var engine = this.getEngineFromName(this.getCurrentEngine().name, true);
-			this.addEngineToRecentList(engine);
-			list.push(engine);
+		if (list.length < this.historyNum) {
+			var engine = this.getCurrentEngine();
+			for (var i = 0, maxi = this.historyNum, childNum = source.childNodes.length; list.length < maxi; i++)
+			{
+				if (i == childNum) break;
+				if (source.childNodes[i].localName != 'menuitem' ||
+					source.childNodes[i].getAttribute('label') == engine.name ||
+					source.childNodes[i].getAttribute('anonid') == 'open-engine-manager')
+					continue;
+
+				list.push(this.getEngineFromName(source.childNodes[i].getAttribute('label')));
+				this.addEngineToRecentList(list[list.length-1]);
+			}
 		}
 
 		return list;
