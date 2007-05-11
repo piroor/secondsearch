@@ -123,6 +123,12 @@
 		<preference id="secondsearch.handle_dragdrop_only_on_button"
 			name="secondsearch.handle_dragdrop_only_on_button"
 			type="bool"/>
+		<preference id="secondsearch.popup.type.context"
+			name="secondsearch.popup.type.context"
+			type="int"/>
+		<preference id="secondsearch.popup.type.dragdrop"
+			name="secondsearch.popup.type.dragdrop"
+			type="int"/>
 
 		<preference id="secondsearch.keyword.cache.name"
 			name="secondsearch.keyword.cache.name"
@@ -161,6 +167,41 @@
 	<description flex="1">
 		&secondsearch.handle_dragdrop_only_on_button.description;
 	</description>
+
+
+	<groupbox>
+		<caption label="&secondsearch.caption.type.dragdrop;"/>
+		<radiogroup orient="horizontal"
+			id="secondsearch.popup.type.dragdrop-radiogroup"
+			preference="secondsearch.popup.type.dragdrop">
+			<radio label="&secondsearch.popup.type.dragdrop.-1;"
+				value="-1"/>
+			<radio label="&secondsearch.popup.type.dragdrop.0;"
+				value="0"/>
+			<radio label="&secondsearch.popup.type.dragdrop.1;"
+				value="1"/>
+			<radio label="&secondsearch.popup.type.dragdrop.2;"
+				value="2"/>
+		</radiogroup>
+	</groupbox>
+
+	<groupbox>
+		<caption label="&secondsearch.caption.type.context;"/>
+		<radiogroup orient="horizontal"
+			id="secondsearch.popup.type.context-radiogroup"
+			preference="secondsearch.popup.type.context">
+			<radio label="&secondsearch.popup.type.context.-1;"
+				value="-1"/>
+			<radio label="&secondsearch.popup.type.context.0;"
+				value="0"/>
+			<radio label="&secondsearch.popup.type.context.1;"
+				value="1"/>
+			<radio label="&secondsearch.popup.type.context.2;"
+				value="2"/>
+		</radiogroup>
+	</groupbox>
+
+
 
 	<button label="&secondsearch.initialize.keywords;"
 		oncommand="

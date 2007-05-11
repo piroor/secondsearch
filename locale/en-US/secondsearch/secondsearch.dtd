@@ -43,4 +43,17 @@
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Choose the engine from popup after dropped">
 
 
+<!ENTITY secondsearch.caption.type.dragdrop "Popup type for drag-and-drop">
+<!ENTITY secondsearch.popup.type.dragdrop.-1 "Same to normal">
+<!ENTITY secondsearch.popup.type.dragdrop.0  "Recently used">
+<!ENTITY secondsearch.popup.type.dragdrop.1  "All">
+<!ENTITY secondsearch.popup.type.dragdrop.2  "All (reversed order)">
+
+<!ENTITY secondsearch.caption.type.context "Popup type for the context menu on the engine button">
+<!ENTITY secondsearch.popup.type.context.-1 "Same to normal">
+<!ENTITY secondsearch.popup.type.context.0  "Recently used">
+<!ENTITY secondsearch.popup.type.context.1  "All">
+<!ENTITY secondsearch.popup.type.context.2  "All (reversed order)">
+
+
 <!ENTITY secondsearch.initialize.keywords  "Rebuild the list of smart keywords">

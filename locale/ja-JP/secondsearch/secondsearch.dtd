@@ -41,4 +41,18 @@
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "ドラッグ中に、検索するエンジンをポップアップから選択">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "ドロップ後に、検索するエンジンをポップアップから選択">
 
+
+<!ENTITY secondsearch.caption.type.dragdrop "ドラッグ＆ドロップ時のポップアップの内容">
+<!ENTITY secondsearch.popup.type.dragdrop.-1 "通常と同じ">
+<!ENTITY secondsearch.popup.type.dragdrop.0  "最近使った検索エンジン">
+<!ENTITY secondsearch.popup.type.dragdrop.1  "すべて">
+<!ENTITY secondsearch.popup.type.dragdrop.2  "すべて（逆順）">
+
+<!ENTITY secondsearch.caption.type.context "エンジン切り替えボタン上でのコンテキストメニューの内容">
+<!ENTITY secondsearch.popup.type.context.-1 "通常と同じ">
+<!ENTITY secondsearch.popup.type.context.0  "最近使った検索エンジン">
+<!ENTITY secondsearch.popup.type.context.1  "すべて">
+<!ENTITY secondsearch.popup.type.context.2  "すべて（逆順）">
+
+
 <!ENTITY secondsearch.initialize.keywords  "スマートキーワードの一覧を取得しなおす">

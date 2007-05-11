@@ -193,8 +193,9 @@ var SecondSearch = {
  
 	get searchterm() 
 	{
+		var bar = this.searchbar;
 		var box = this.textbox;
-		return box ? box.value : '' ;
+		return (box && bar && bar.getAttribute('empty') != 'true') ? box.value : '' ;
 	},
  
 	get popup() 
