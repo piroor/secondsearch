@@ -1314,6 +1314,7 @@ catch(e) {
 		}
 		else {
 			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
+			SecondSearch.clearAfterSearch();
 			return retVal;
 		}
 	},
