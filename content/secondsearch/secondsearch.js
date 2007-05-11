@@ -1521,6 +1521,7 @@ catch(e) {
 		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
 
 		var list = [];
+		var listDone = {};
 		var source = this.source;
 
 		for (var i = 0, maxi = uris.length; i < maxi; i++)
@@ -1542,10 +1543,12 @@ catch(e) {
 				keyword : decodeURIComponent(keywords[i]),
 				id      : decodeURIComponent(ids[i])
 			});
+			listDone[names[i]+':'+uris[i]] = true;
 		}
 
 		if (list.length < this.historyNum) {
 			var engine = this.getCurrentEngine();
+			var item;
 			for (var i = 0, maxi = this.historyNum, childNum = source.childNodes.length; list.length < maxi; i++)
 			{
 				if (i == childNum) break;
@@ -1554,7 +1557,11 @@ catch(e) {
 					source.childNodes[i].getAttribute('anonid') == 'open-engine-manager')
 					continue;
 
-				list.push(this.getEngineFromName(source.childNodes[i].getAttribute('label')));
+				item = this.getEngineFromName(source.childNodes[i].getAttribute('label'));
+				if (encodeURIComponent(item.name)+':'+encodeURIComponent(item.uri) in listDone)
+					continue;
+
+				list.push(item);
 				this.addEngineToRecentList(list[list.length-1]);
 			}
 		}
@@ -1570,13 +1577,28 @@ catch(e) {
 		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
 		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
 
+		for (var i = uris.length-1; i > -1; i--)
+		{
+			if (uris[i] || keywords[i]) continue;
+			names.splice(i, 1);
+			icons.splice(i, 1);
+			uris.splice(i, 1);
+			keywords.splice(i, 1);
+			ids.splice(i, 1);
+		}
+
+		var retVal;
+
 		if (aOperation == 'add' ||
 			aOperation == 'remove' ||
 			aOperation == 'check') {
 			for (var i = 0, maxi = names.length; i < maxi; i++)
 			{
 				if (decodeURIComponent(names[i]) != aEngine.name) continue;
-				if (aOperation == 'check') return true;
+				if (aOperation == 'check') {
+					retVal = true;
+					break;
+				}
 				names.splice(i, 1);
 				icons.splice(i, 1);
 				uris.splice(i, 1);
@@ -1611,6 +1633,8 @@ catch(e) {
 		this.setCharPref('secondsearch.recentengines.uri',     uris.join('|'));
 		this.setCharPref('secondsearch.recentengines.keyword', keywords.join('|'));
 		this.setCharPref('secondsearch.recentengines.id',      ids.join('|'));
+
+		return retVal;
 	},
 	 
 	addEngineToRecentList : function(aEngine) 
