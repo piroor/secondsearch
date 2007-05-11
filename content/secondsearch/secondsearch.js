@@ -1,8 +1,11 @@
 var SecondSearch = { 
 	SHOWN_BY_INPUT            : 1,
 	SHOWN_BY_MANUAL_OPERATION : 2,
-	SHOWN_BY_DROP             : 4,
-	SHOWN_BY_DRAGOVER         : 8,
+	SHOWN_BY_CONTEXT          : 4,
+	SHOWN_BY_DROP             : 8,
+	SHOWN_BY_DRAGOVER         : 16,
+
+	SHOWN_BY_DRAGDROP         : 24,
 
 	DRAGDROP_MODE_NONE     : -1,
 	DRAGDROP_MODE_DEFAULT  : 0,
@@ -54,6 +57,30 @@ var SecondSearch = {
 		return val;
 	},
 	defaultPopupType : 0,
+ 
+	get popupTypeDragdrop() 
+	{
+		var val = this.getIntPref('secondsearch.popup.type.dragdrop');
+		if (val === null) {
+			val = this.defaultPopupTypeDragdrop;
+			this.setIntPref('secondsearch.popup.type.dragdrop', val);
+		}
+		if (val < 0) val = this.popupType;
+		return val;
+	},
+	defaultPopupTypeDragdrop : -1,
+ 
+	get popupTypeContext() 
+	{
+		var val = this.getIntPref('secondsearch.popup.type.context');
+		if (val === null) {
+			val = this.defaultPopupTypeContext;
+			this.setIntPref('secondsearch.popup.type.context', val);
+		}
+		if (val < 0) val = this.popupType;
+		return val;
+	},
+	defaultPopupTypeContext : -1,
  
 	get popupPosition() 
 	{
@@ -351,8 +378,11 @@ var SecondSearch = {
 		var pos = this.popupPosition;
 		if (!popup.shown) {
 			var bar  = this.searchbar;
-			var type = this.popupType;
-			var num  = type == 0 ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length : this.source.getElementsByTagName('menuitem').length + this.keywords.length ;
+			var type = (aReason && aReason & this.SHOWN_BY_CONTEXT) ? this.popupTypeContext :
+					(aReason && aReason & this.SHOWN_BY_DRAGDROP) ? this.popupTypeDragdrop :
+					this.popupType;
+
+			var num = (type == 0) ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length : this.source.getElementsByTagName('menuitem').length + this.keywords.length ;
 			var anchor, align;
 
 			if (pos == 0 &&
@@ -697,7 +727,7 @@ catch(e) {
 		textbox.addEventListener('focus',    this, true);
 		this.popup.addEventListener('click', this, true);
 
-		this.engineButton.addEventListener('click', this, true);
+		this.engineButton.addEventListener('contextmenu', this, true);
 
 		search.addEventListener('dragenter', this, false);
 		search.addEventListener('dragover',  this, false);
@@ -819,7 +849,7 @@ catch(e) {
 		textbox.removeEventListener('focus',    this, true);
 		this.popup.removeEventListener('click', this, true);
 
-		this.engineButton.removeEventListener('click', this, true);
+		this.engineButton.removeEventListener('contextmenu', this, true);
 
 		search.removeEventListener('dragenter', this, false);
 		search.removeEventListener('dragover',  this, false);
@@ -890,15 +920,13 @@ catch(e) {
 				}
 				break;
 
+			case 'contextmenu':
+				window.setTimeout('SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_CONTEXT);', 0);
+				aEvent.preventDefault();
+				aEvent.stopPropagation();
+				break;
 
 			case 'click':
-				if (aEvent.target == this.engineButton &&
-					aEvent.button == 2) {
-					window.setTimeout('SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_MANUAL_OPERATION);', 0);
-					aEvent.preventDefault();
-					aEvent.stopPropagation();
-					return;
-				}
 			case 'focus':
 				this.textBoxFocused = true;
 				break;
@@ -1011,7 +1039,10 @@ catch(e) {
 		var popup = this.popup;
 		popup.shown = true;
 
-		var typeFlag = this.popupType;
+		var typeFlag = (popup.shownBy && popup.shownBy & this.SHOWN_BY_CONTEXT) ? this.popupTypeContext :
+				(popup.shownBy && popup.shownBy & this.SHOWN_BY_DRAGDROP) ? this.popupTypeDragdrop :
+				this.popupType;
+
 		if (typeFlag == 0) {
 			this.initRecentEngines(popup);
 			this.initAllEngines(this.allMenuItem.firstChild, popup);

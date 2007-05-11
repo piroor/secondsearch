@@ -4,7 +4,9 @@ pref("secondsearch.popup.auto_show.delay", 200);
 pref("secondsearch.popup.auto_show.dragdrop.mode", 1);
 pref("secondsearch.popup.auto_show.dragdrop.delay", 350);
 pref("secondsearch.popup.position",     0); // 0 = above, 1 = below
-pref("secondsearch.popup.type",         0); // 0 = recent used, 1 = all
+pref("secondsearch.popup.type",         0); // 0 = recent used, 1 = all, 2 = all (reversed)
+pref("secondsearch.popup.type.context",  -1); // -1 = default
+pref("secondsearch.popup.type.dragdrop", -1); // -1 = default
 pref("secondsearch.recentengines.num",  5);
 pref("secondsearch.switch.blank_input", true);
 pref("secondsearch.keyword.show",       true);
