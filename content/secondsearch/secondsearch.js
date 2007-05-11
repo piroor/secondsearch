@@ -1712,6 +1712,7 @@ catch(e) {
 		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
 		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
 		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+		var encodedSource = encodeURIComponent(aSource);
 
 		var res = this.RDF.GetResource(aSource);
 		var shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
@@ -1733,10 +1734,16 @@ catch(e) {
 					this.keywordsHash[aSource].icon    = icon;
 					this.keywordsHash[aSource].uri     = aSource;
 					this.keywordsHash[aSource].keyword = shortcut;
-					names.push(encodeURIComponent(name));
-					icons.push(encodeURIComponent(icon));
-					uris.push(encodeURIComponent(aSource));
-					keywords.push(encodeURIComponent(shortcut));
+					for (var i = 0, maxi = uris.length; i < maxi; i++)
+					{
+						if (uris[i] == encodedSource) {
+							names.splice(i, 1, encodeURIComponent(name));
+							icons.splice(i, 1, encodeURIComponent(icon));
+							uris.splice(i, 1, encodeURIComponent(aSource));
+							keywords.splice(i, 1, encodeURIComponent(shortcut));
+							break;
+						}
+					}
 				}
 				else {
 					this.keywords.push({
@@ -1746,16 +1753,10 @@ catch(e) {
 						keyword : shortcut
 					});
 					this.keywordsHash[aSource] = this.keywords[this.keywords.length-1];
-					for (var i = 0, maxi = uris.length; i < maxi; i++)
-					{
-						if (uris[i] == aSource) {
-							names.splice(i, 1, encodeURIComponent(name));
-							icons.splice(i, 1, encodeURIComponent(icon));
-							uris.splice(i, 1, encodeURIComponent(aSource));
-							keywords.splice(i, 1, encodeURIComponent(shortcut));
-							break;
-						}
-					}
+					names.push(encodeURIComponent(name));
+					icons.push(encodeURIComponent(icon));
+					uris.push(encodeURIComponent(aSource));
+					keywords.push(encodeURIComponent(shortcut));
 				}
 				break;
 
@@ -1770,7 +1771,7 @@ catch(e) {
 				}
 				for (var i = 0, maxi = uris.length; i < maxi; i++)
 				{
-					if (uris[i] == aSource) {
+					if (uris[i] == encodedSource) {
 						names.splice(i, 1);
 						icons.splice(i, 1);
 						uris.splice(i, 1);
@@ -1846,8 +1847,17 @@ catch(e) {
 		onEndUpdateBatch: function (aDataSource) {},
 		setOverflowTimeout: function (aSource, aProperty, aMode)
 		{
-			if (aProperty.Value == 'http://home.netscape.com/NC-rdf#ShortcutURL' ||
-				aSource.Value in SecondSearch.keywordsHash)
+			if (
+				aProperty.Value == 'http://home.netscape.com/NC-rdf#ShortcutURL' ||
+				(
+					aSource.Value in SecondSearch.keywordsHash &&
+					(
+						aProperty.Value == 'http://home.netscape.com/NC-rdf#ShortcutURL' ||
+						aProperty.Value == 'http://home.netscape.com/NC-rdf#Name' ||
+						aProperty.Value == 'http://home.netscape.com/NC-rdf#Icon'
+					)
+				)
+				)
 				SecondSearch.updateKeyword(aSource.Value, aMode);
 		}
 	},
@@ -2001,6 +2011,11 @@ catch(e) {
 			};
 		}
 
+		window.setTimeout('SecondSearch.delayedInit();', 100);
+	},
+	delayedInit : function()
+	{
+		this.initKeywords();
 		if (!('PlacesController' in window)) {
 			try {
 				this.bookmarksDS.AddObserver(this.bookmarksRDFObserver);
@@ -2008,7 +2023,6 @@ catch(e) {
 			catch(e) {
 			}
 		}
-		window.setTimeout('SecondSearch.initKeywords();', 100);
 	},
  
 	destroy : function() { 
