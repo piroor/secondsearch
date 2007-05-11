@@ -1312,6 +1312,7 @@ catch(e) {
 		}
 		else { // Firefox 2
 			newTab = this.getBoolPref('browser.search.openintab') ? !newTab : newTab ;
+			inBackground = this.getBoolPref('browser.tabs.loadInBackground');
 		}
 
 		if (gBrowser.localName == 'tabbrowser' && newTab) {
