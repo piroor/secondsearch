@@ -914,7 +914,7 @@ catch(e) {
 			this.shouldShowAutomatically) {
 			var delay = this.delay;
 			if (delay) {
-				if (this.autoShowTimer) window.clearInterval(this.autoShowTimer);
+				if (this.autoShowTimer) window.clearTimeout(this.autoShowTimer);
 				this.autoShowTimer = window.setTimeout('SecondSearch.showPopupOnInput();', delay);
 			}
 			else {
