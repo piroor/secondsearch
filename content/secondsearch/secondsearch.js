@@ -13,7 +13,7 @@ var SecondSearch = {
 	DRAGDROP_MODE_DROP     : 2,
 	 
 /* preference values */ 
-	
+	 
 	get historyNum() 
 	{
 		var val = this.getIntPref('secondsearch.recentengines.num');
@@ -49,14 +49,24 @@ var SecondSearch = {
  
 	get popupType() 
 	{
+		var popup = this.popup;
+		if (!popup || !popup.shownBy) return this.popupTypeNormal;
+
+		return (popup.shownBy & this.SHOWN_BY_CONTEXT) ? this.popupTypeContext :
+				(popup.shownBy & this.SHOWN_BY_DRAGDROP) ? this.popupTypeDragdrop :
+				this.popupTypeNormal;
+	},
+	 
+	get popupTypeNormal() 
+	{
 		var val = this.getIntPref('secondsearch.popup.type');
 		if (val === null) {
-			val = this.defaultPopupType;
+			val = this.defaultPopupTypeNormal;
 			this.setIntPref('secondsearch.popup.type', val);
 		}
 		return val;
 	},
-	defaultPopupType : 0,
+	defaultPopupTypeNormal : 0,
  
 	get popupTypeDragdrop() 
 	{
@@ -65,7 +75,7 @@ var SecondSearch = {
 			val = this.defaultPopupTypeDragdrop;
 			this.setIntPref('secondsearch.popup.type.dragdrop', val);
 		}
-		if (val < 0) val = this.popupType;
+		if (val < 0) val = this.popupTypeNormal;
 		return val;
 	},
 	defaultPopupTypeDragdrop : -1,
@@ -77,11 +87,11 @@ var SecondSearch = {
 			val = this.defaultPopupTypeContext;
 			this.setIntPref('secondsearch.popup.type.context', val);
 		}
-		if (val < 0) val = this.popupType;
+		if (val < 0) val = this.popupTypeNormal;
 		return val;
 	},
 	defaultPopupTypeContext : -1,
- 
+ 	 
 	get popupPosition() 
 	{
 		var val = this.getIntPref('secondsearch.popup.position');
@@ -378,10 +388,10 @@ var SecondSearch = {
 		var popup = this.popup;
 		var pos = this.popupPosition;
 		if (!popup.shown) {
+			popup.shownBy = aReason;
+
 			var bar  = this.searchbar;
-			var type = (aReason && aReason & this.SHOWN_BY_CONTEXT) ? this.popupTypeContext :
-					(aReason && aReason & this.SHOWN_BY_DRAGDROP) ? this.popupTypeDragdrop :
-					this.popupType;
+			var type = this.popupType;
 
 			var num = (type == 0) ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length : this.source.getElementsByTagName('menuitem').length + this.keywords.length ;
 			var anchor, align;
@@ -409,7 +419,6 @@ var SecondSearch = {
 				align  = 'bottomright';
 			}
 
-			popup.shownBy = aReason;
 			document.popupNode = bar;
 			popup.showPopup(bar, -1, -1, 'popup', anchor, align);
 
@@ -1040,10 +1049,7 @@ catch(e) {
 		var popup = this.popup;
 		popup.shown = true;
 
-		var typeFlag = (popup.shownBy && popup.shownBy & this.SHOWN_BY_CONTEXT) ? this.popupTypeContext :
-				(popup.shownBy && popup.shownBy & this.SHOWN_BY_DRAGDROP) ? this.popupTypeDragdrop :
-				this.popupType;
-
+		var typeFlag = this.popupType;
 		if (typeFlag == 0) {
 			this.initRecentEngines(popup);
 			this.initAllEngines(this.allMenuItem.firstChild, popup);
@@ -1207,7 +1213,7 @@ catch(e) {
  
 		isPlatformNotSupported : navigator.platform.indexOf('Mac') != -1, // see bug 136524 
 		isTimerSupported       : navigator.platform.indexOf('Win') == -1, // see bug 232795.
- 	
+ 
 		onDrop : function(aEvent, aXferData, aDragSession) 
 		{
 			var string = aXferData.data.replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
@@ -1663,7 +1669,6 @@ catch(e) {
 					shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
 					if (!shortcut) continue;
 					shortcut = shortcut.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral);
-					dump('keyword '+shortcut.Value+'\n');
 					if (shortcut.Value && !(shortcut.Value in doneKeywords)) {
 						name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
 						icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
