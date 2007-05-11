@@ -697,6 +697,8 @@ catch(e) {
 		textbox.addEventListener('focus',    this, true);
 		this.popup.addEventListener('click', this, true);
 
+		this.engineButton.addEventListener('click', this, true);
+
 		search.addEventListener('dragenter', this, false);
 		search.addEventListener('dragover',  this, false);
 		search.addEventListener('dragexit',  this, false);
@@ -817,6 +819,8 @@ catch(e) {
 		textbox.removeEventListener('focus',    this, true);
 		this.popup.removeEventListener('click', this, true);
 
+		this.engineButton.removeEventListener('click', this, true);
+
 		search.removeEventListener('dragenter', this, false);
 		search.removeEventListener('dragover',  this, false);
 		search.removeEventListener('dragexit',  this, false);
@@ -887,8 +891,15 @@ catch(e) {
 				break;
 
 
-			case 'focus':
 			case 'click':
+				if (aEvent.target == this.engineButton &&
+					aEvent.button == 2) {
+					window.setTimeout('SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_MANUAL_OPERATION);', 0);
+					aEvent.preventDefault();
+					aEvent.stopPropagation();
+					return;
+				}
+			case 'focus':
 				this.textBoxFocused = true;
 				break;
 
