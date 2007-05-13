@@ -7,7 +7,7 @@ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
 		<em:id>{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}</em:id>
 		<em:name>Second Search</em:name>
-		<em:version>0.3.2007051201</em:version>
+		<em:version>0.3.2007051401</em:version>
 		<em:description>Shows tiny popup for the search bar, to allow you to search by another engine quickly.</em:description>
 		<em:creator>SHIMODA Hiroshi</em:creator>
 		<em:optionsURL>chrome://secondsearch/content/config.xul</em:optionsURL>

@@ -383,7 +383,7 @@ var SecondSearch = {
 		}
 	},
  
-	showSecondSearch : function(aReason) 
+	showSecondSearch : function(aReason, aX, aY) 
 	{
 		var popup = this.popup;
 		var pos = this.popupPosition;
@@ -396,31 +396,44 @@ var SecondSearch = {
 			var num = (type == 0) ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length : this.source.getElementsByTagName('menuitem').length + this.keywords.length ;
 			var anchor, align;
 
-			if (pos == 0 &&
-				bar.boxObject.screenY >= document.documentElement.boxObject.y + (bar.boxObject.height * (num+1) * 0.8)) { // above
-//dump('above\n');
-				anchor = 'topleft';
-				align  = 'bottomleft';
+			if (aReason == this.SHOWN_BY_CONTEXT) {
+				document.popupNode = this.engineButton;
+				popup.showPopup(
+					bar,
+					aX - document.documentElement.boxObject.screenX,
+					aY - document.documentElement.boxObject.screenY,
+					'menupopup',
+					null,
+					null
+				);
 			}
-			else if (pos == 1 &&
-				bar.boxObject.screenY + bar.boxObject.height + this.textbox.popup.boxObject.height <= document.documentElement.boxObject.y + document.documentElement.boxObject.height - (bar.boxObject.height * (num+1) * 0.8)) { // below
-//dump('below\n');
-				anchor = 'bottomleft';
-				align  = 'topleft';
-			}
-			else if (bar.boxObject.screenX < document.documentElement.boxObject.y+bar.boxObject.width) { // right
-//dump('right\n');
-				anchor = 'bottomright';
-				align  = 'bottomleft';
-			}
-			else { // left
-//dump('left\n');
-				anchor = 'bottomleft';
-				align  = 'bottomright';
-			}
+			else {
+				if (pos == 0 &&
+					bar.boxObject.screenY >= document.documentElement.boxObject.y + (bar.boxObject.height * (num+1) * 0.8)) { // above
+	//dump('above\n');
+					anchor = 'topleft';
+					align  = 'bottomleft';
+				}
+				else if (pos == 1 &&
+					bar.boxObject.screenY + bar.boxObject.height + this.textbox.popup.boxObject.height <= document.documentElement.boxObject.y + document.documentElement.boxObject.height - (bar.boxObject.height * (num+1) * 0.8)) { // below
+	//dump('below\n');
+					anchor = 'bottomleft';
+					align  = 'topleft';
+				}
+				else if (bar.boxObject.screenX < document.documentElement.boxObject.y+bar.boxObject.width) { // right
+	//dump('right\n');
+					anchor = 'bottomright';
+					align  = 'bottomleft';
+				}
+				else { // left
+	//dump('left\n');
+					anchor = 'bottomleft';
+					align  = 'bottomright';
+				}
 
-			document.popupNode = bar;
-			popup.showPopup(bar, -1, -1, 'popup', anchor, align);
+				document.popupNode = bar;
+				popup.showPopup(bar, -1, -1, 'menupopup', anchor, align);
+			}
 
 			var current = this.getCurrentItem(popup);
 			if (current) current.removeAttribute('_moz-menuactive');
@@ -931,7 +944,7 @@ catch(e) {
 				break;
 
 			case 'contextmenu':
-				window.setTimeout('SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_CONTEXT);', 0);
+				window.setTimeout('SecondSearch.showSecondSearch(SecondSearch.SHOWN_BY_CONTEXT, '+aEvent.screenX+', '+aEvent.screenY+');', 0);
 				aEvent.preventDefault();
 				aEvent.stopPropagation();
 				break;
