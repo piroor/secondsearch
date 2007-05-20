@@ -39,6 +39,14 @@
 		<preference id="secondsearch.popup.position"
 			name="secondsearch.popup.position"
 			type="int"/>
+
+		<preference id="browser.search.openintab"
+			name="browser.search.openintab"
+			type="bool"/>
+		<preference id="secondsearch.loadInBackground"
+			name="secondsearch.loadInBackground"
+			type="bool"
+			inverted="true"/>
 	</preferences>
 
 	<groupbox>
@@ -78,6 +86,13 @@
 		</radiogroup>
 		<description value="&secondsearch.popup.position.note;"/>
 	</groupbox>
+
+	<checkbox id="browser.search.openintab-check"
+		label="&secondsearch.openintab;"
+		preference="browser.search.openintab"/>
+	<checkbox id="secondsearch.loadInBackground-check"
+		label="&secondsearch.loadInBackground;"
+		preference="secondsearch.loadInBackground"/>
 
 </prefpane>
 

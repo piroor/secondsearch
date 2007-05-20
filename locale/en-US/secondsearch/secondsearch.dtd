@@ -25,6 +25,11 @@
 <!ENTITY secondsearch.recentengines.num.before "Show recent">
 <!ENTITY secondsearch.recentengines.num.after  "engines">
 
+
+<!ENTITY secondsearch.openintab         "Open search results in a new tabs">
+<!ENTITY secondsearch.loadInBackground  "When I open the search result in a new tab, switch to it immediately">
+
+
 <!ENTITY secondsearch.caption.behavior  "Behavior">
 
 <!ENTITY secondsearch.keyword.show        "Add smart keywords to the list of engines">

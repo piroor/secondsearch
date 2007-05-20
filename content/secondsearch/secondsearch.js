@@ -56,7 +56,7 @@ var SecondSearch = {
 				(popup.shownBy & this.SHOWN_BY_DRAGDROP) ? this.popupTypeDragdrop :
 				this.popupTypeNormal;
 	},
-	 
+	
 	get popupTypeNormal() 
 	{
 		var val = this.getIntPref('secondsearch.popup.type');
@@ -91,7 +91,7 @@ var SecondSearch = {
 		return val;
 	},
 	defaultPopupTypeContext : -1,
- 	 
+  
 	get popupPosition() 
 	{
 		var val = this.getIntPref('secondsearch.popup.position');
@@ -168,7 +168,28 @@ var SecondSearch = {
 		return val;
 	},
 	defaultSwitch : true,
-  
+ 
+	get openintab() 
+	{
+		var val = this.getBoolPref('browser.search.openintab');
+		if (val === null) {
+			val = this.defaultOpenintab;
+			this.setBoolPref('browser.search.openintab', val);
+		}
+		return val;
+	},
+	defaultOpenintab : false,
+ 
+	get loadInBackground() 
+	{
+		var val = this.getBoolPref('secondsearch.loadInBackground');
+		if (val === null) {
+			val = this.getBoolPref('browser.tabs.loadInBackground');
+			this.setBoolPref('secondsearch.loadInBackground', val);
+		}
+		return val;
+	},
+ 	 
 /* elements */ 
 	
 	get searchbar() 
@@ -822,13 +843,13 @@ catch(e) {
 					search.doSearch.toSource()
 						.replace(
 							'content.focus()',
-							'if (!SecondSearch.getBoolPref("browser.tabs.loadInBackground")) content.focus()'
+							'if (!SecondSearch.loadInBackground) content.focus()'
 						).replace(
 							/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
-							'$1 SecondSearch.getBoolPref("browser.tabs.loadInBackground") $2'
+							'$1 SecondSearch.loadInBackground $2'
 						).replace(
 							'if (gURLBar)',
-							'if (gURLBar && !SecondSearch.getBoolPref("browser.tabs.loadInBackground"))'
+							'if (gURLBar && !SecondSearch.loadInBackground)'
 						)
 			);
 			search.__secondsearch__doSearch = search.doSearch;
@@ -1310,7 +1331,7 @@ catch(e) {
 			}
 			else { // Firefox 1.5
 				var uri = this.getSearchURI(this.searchterm, engine.id);
-				retVal = SearchLoadURL(uri, (aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1));
+				retVal = SearchLoadURL(uri, ((aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1) ^ this.openintab));
 			}
 		}
 
@@ -1338,8 +1359,8 @@ catch(e) {
 			inBackground = this.getBoolPref('extensions.tabmix.loadSearchInBackground');
 		}
 		else { // Firefox 2
-			newTab = this.getBoolPref('browser.search.openintab') ? !newTab : newTab ;
-			inBackground = this.getBoolPref('browser.tabs.loadInBackground');
+			newTab = this.openintab ? !newTab : newTab ;
+			inBackground = this.loadInBackground;
 		}
 
 		if (gBrowser.localName == 'tabbrowser' && newTab) {
@@ -1377,7 +1398,7 @@ catch(e) {
 				url = submission.uri.spec;
 				postData = submission.postData;
 			}
-			var loadInBackground = SecondSearch.getBoolPref('browser.tabs.loadInBackground');
+			var loadInBackground = SecondSearch.loadInBackground;
 			if (aInNewTab) {
 				if (!loadInBackground) content.focus();
 				gBrowser.loadOneTab(url, null, null, postData, loadInBackground, false);

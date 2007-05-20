@@ -25,6 +25,11 @@
 <!ENTITY secondsearch.recentengines.num.before "最近使った検索エンジンを">
 <!ENTITY secondsearch.recentengines.num.after  "件まで記憶する">
 
+
+<!ENTITY secondsearch.openintab         "検索結果を新しいタブで開く">
+<!ENTITY secondsearch.loadInBackground  "検索結果を新しいタブで開いたとき、すぐにそのタブに切り替える">
+
+
 <!ENTITY secondsearch.caption.behavior  "挙動">
 
 <!ENTITY secondsearch.keyword.show        "スマートキーワードをエンジン一覧に加える">
