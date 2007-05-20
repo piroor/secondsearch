@@ -4,3 +4,4 @@ overlay	chrome://browser/content/browser.xul	chrome://secondsearch/content/brows
 
 locale	secondsearch	en-US	jar:chrome/secondsearch.jar!/locale/en-US/secondsearch/
 locale	secondsearch	ja-JP	jar:chrome/secondsearch.jar!/locale/ja-JP/secondsearch/
+locale	secondsearch	hu-HU	jar:chrome/secondsearch.jar!/locale/hu-HU/secondsearch/

@@ -10,6 +10,7 @@ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 		<em:version>0.3.2007052001</em:version>
 		<em:description>Shows tiny popup for the search bar, to allow you to search by another engine quickly.</em:description>
 		<em:creator>SHIMODA Hiroshi</em:creator>
+		<em:translator>Mikes Kaszman Istvan (hu-HU locale)</em:translator>
 		<em:optionsURL>chrome://secondsearch/content/config.xul</em:optionsURL>
 		<em:homepageURL>http://piro.sakura.ne.jp/xul/_secondsearch.html.en</em:homepageURL>
 		<em:updateURL>http://piro.sakura.ne.jp/xul/xul.rdf.en</em:updateURL>
@@ -18,6 +19,7 @@ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 				<em:package>content/secondsearch/</em:package>
 				<em:locale>locale/en-US/secondsearch/</em:locale>
 				<em:locale>locale/ja-JP/secondsearch/</em:locale>
+				<em:locale>locale/hu-HU/secondsearch/</em:locale>
 			</Description>
 		</em:file>
 
