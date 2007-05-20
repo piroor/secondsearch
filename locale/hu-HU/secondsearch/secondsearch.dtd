@@ -5,23 +5,23 @@
 <!ENTITY secondsearch.config.disabled  "Second Search beállítások nem működik a Firefox 1.0 változatával. Nyissa meg az &quot;about:config&quot; oldalt és keresse meg a &quot;secondsearch.&quot; mezőket.">
 
 <!ENTITY secondsearch.tab.general   "Általános">
-<!ENTITY secondsearch.tab.auto_show "Előbukkanó ablak automatikus megjelenítése">
+<!ENTITY secondsearch.tab.auto_show "Automatikus megjelenítés">
 <!ENTITY secondsearch.tab.advanced  "Haladó">
 
-<!ENTITY secondsearch.caption.type "Előbukkanó ablak típusa">
+<!ENTITY secondsearch.caption.type "Az előbukkanó ablak tartalma">
 
 <!ENTITY secondsearch.popup.type.0 "Legutóbb használt keresőszolgáltatások">
 <!ENTITY secondsearch.popup.type.1 "Összes keresőszolgáltatás (normális sorrend)">
 <!ENTITY secondsearch.popup.type.2 "Összes keresőszolgáltatás (fordított sorrend)">
 
-<!ENTITY secondsearch.caption.position "Előbukkanó ablak pozíciója">
+<!ENTITY secondsearch.caption.position "Az előbukkanó ablak pozíciója">
 
 <!ENTITY secondsearch.popup.position.0 "Keresősáv felett (Felfelé billentyű)">
 <!ENTITY secondsearch.popup.position.1 "Keresősáv alatt (Lefelé billentyű)">
 <!ENTITY secondsearch.popup.position.note "* Automatikus befejezés letiltva, ha az előbukkanó ablak a keresősáv alatt jelenik meg.">
 
-<!ENTITY secondsearch.recentengines.num.before "Legutóbb használt megjelenítése">
-<!ENTITY secondsearch.recentengines.num.after  "keresőszolgáltatások">
+<!ENTITY secondsearch.recentengines.num.before "Legutóbb használt">
+<!ENTITY secondsearch.recentengines.num.after  "keresőszolgáltatás megjelenítése">
 
 <!ENTITY secondsearch.openintab         "Open search results in a new tabs">
 <!ENTITY secondsearch.loadInBackground  "When I open the search result in a new tab, switch to it immediately">
@@ -31,28 +31,28 @@
 
 <!ENTITY secondsearch.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
 <!ENTITY secondsearch.switch.blank_input  "Alapértelmezett szolgáltatás visszaállítása, ha a keresősáv üres">
-<!ENTITY secondsearch.clear_after_search  "Keresés után a keresősáv törlése">
+<!ENTITY secondsearch.clear_after_search  "A keresősáv tartalmának törlése keresés után">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button "Keresősáv 'Fogd és vidd' opciójának engedélyezése">
-<!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'fogd és vidd' segítségével.">
+<!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'Fogd és vidd' segítségével.">
 
-<!ENTITY secondsearch.popup.auto_show     "Ablak automatikus megjelenítése, ha a keresősáv tartalma kulcs-típusú">
-<!ENTITY secondsearch.popup.auto_show.dragdrop "'Fogd és vidd' a keresősávba">
+<!ENTITY secondsearch.popup.auto_show     "Az előbukkanó ablak automatikus megjelenítése, ha a keresősáv tartalma kulcsszó">
+<!ENTITY secondsearch.popup.auto_show.dragdrop "Keresősáv 'Fogd és vidd' opciója">
 
-<!ENTITY secondsearch.caption.auto_show.dragdrop "'Fogd és vidd' a keresősávba">
+<!ENTITY secondsearch.caption.auto_show.dragdrop "Keresősáv 'Fogd és vidd' opciója">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.-1 "nincs művelet">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "Keresés a Firefox alapértelmezett keresőszolgáltatásával">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "Keresőszolgáltatás választása az előbukkanó ablakból a 'fogd és vidd' közben">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Keresőszolgáltatás választása az előbukkanó ablakból a 'fogd és vidd' után">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' közben">
+<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' után">
 
 
-<!ENTITY secondsearch.caption.type.dragdrop "Fogd és vidd opció előbukkanó ablakának típusa">
-<!ENTITY secondsearch.popup.type.dragdrop.-1 "Mint a normális">
+<!ENTITY secondsearch.caption.type.dragdrop "Előbukkanó ablak típusa a 'Fogd és vidd'-nél">
+<!ENTITY secondsearch.popup.type.dragdrop.-1 "Normális">
 <!ENTITY secondsearch.popup.type.dragdrop.0  "Legutóbb használt">
 <!ENTITY secondsearch.popup.type.dragdrop.1  "Mindegyik">
 <!ENTITY secondsearch.popup.type.dragdrop.2  "Mindegyik (fordított sorrend)">
 
-<!ENTITY secondsearch.caption.type.context "A helyi menü előbukkanó ablakának típusa a keresőszolgáltatás gombon">
-<!ENTITY secondsearch.popup.type.context.-1 "Mint a normális">
+<!ENTITY secondsearch.caption.type.context "Helyi menü típusa a keresőszolgáltatás gombon">
+<!ENTITY secondsearch.popup.type.context.-1 "Normális">
 <!ENTITY secondsearch.popup.type.context.0  "Legutóbb használt">
 <!ENTITY secondsearch.popup.type.context.1  "Mindegyik">
 <!ENTITY secondsearch.popup.type.context.2  "Mindegyik (fordított sorrend)">
