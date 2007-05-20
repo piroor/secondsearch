@@ -817,6 +817,20 @@ catch(e) {
 							'};'
 						)
 			);
+			eval(
+				'search.doSearch = '+
+					search.doSearch.toSource()
+						.replace(
+							'content.focus()',
+							'if (!SecondSearch.getBoolPref("browser.tabs.loadInBackground")) content.focus()'
+						).replace(
+							/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
+							'$1 SecondSearch.getBoolPref("browser.tabs.loadInBackground") $2'
+						).replace(
+							'if (gURLBar)',
+							'if (gURLBar && !SecondSearch.getBoolPref("browser.tabs.loadInBackground"))'
+						)
+			);
 			search.__secondsearch__doSearch = search.doSearch;
 			search.doSearch = this.doSearchbarSearch;
 		}
@@ -1333,7 +1347,7 @@ catch(e) {
 			var t = 'loadOneTab' in gBrowser ?
 				gBrowser.loadOneTab(aURI, null, null, aPostData, false, true) :
 				gBrowser.addTab(aURI, null, null, aPostData);
-			if (inBackground)
+			if (!inBackground)
 				gBrowser.selectedTab = t;
 			if (gURLBar)
 				gURLBar.value = aURI;
@@ -1363,10 +1377,11 @@ catch(e) {
 				url = submission.uri.spec;
 				postData = submission.postData;
 			}
+			var loadInBackground = SecondSearch.getBoolPref('browser.tabs.loadInBackground');
 			if (aInNewTab) {
-				content.focus();
-				gBrowser.loadOneTab(url, null, null, postData, false, false);
-				if (gURLBar)
+				if (!loadInBackground) content.focus();
+				gBrowser.loadOneTab(url, null, null, postData, loadInBackground, false);
+				if (gURLBar && !loadInBackground)
 					gURLBar.value = url;
 			}
 			else
