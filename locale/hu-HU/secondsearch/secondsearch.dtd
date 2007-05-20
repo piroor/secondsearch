@@ -23,6 +23,10 @@
 <!ENTITY secondsearch.recentengines.num.before "Legutóbb használt megjelenítése">
 <!ENTITY secondsearch.recentengines.num.after  "keresőszolgáltatások">
 
+<!ENTITY secondsearch.openintab         "Open search results in a new tabs">
+<!ENTITY secondsearch.loadInBackground  "When I open the search result in a new tab, switch to it immediately">
+
+
 <!ENTITY secondsearch.caption.behavior  "Viselkedés">
 
 <!ENTITY secondsearch.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
