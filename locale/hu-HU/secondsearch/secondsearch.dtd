@@ -23,15 +23,15 @@
 <!ENTITY secondsearch.recentengines.num.before "Legutóbb használt">
 <!ENTITY secondsearch.recentengines.num.after  "keresőszolgáltatás megjelenítése">
 
-<!ENTITY secondsearch.openintab         "Open search results in a new tabs">
-<!ENTITY secondsearch.loadInBackground  "When I open the search result in a new tab, switch to it immediately">
+<!ENTITY secondsearch.openintab         "Keresés eredményének megjelenítése új lapon">
+<!ENTITY secondsearch.loadInBackground  "Ha a keresés eredménye új lapon jelenik meg, azonnal váltson át arra a lapra">
 
 
 <!ENTITY secondsearch.caption.behavior  "Viselkedés">
 
 <!ENTITY secondsearch.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
 <!ENTITY secondsearch.switch.blank_input  "Alapértelmezett szolgáltatás visszaállítása, ha a keresősáv üres">
-<!ENTITY secondsearch.clear_after_search  "A keresősáv tartalmának törlése keresés után">
+<!ENTITY secondsearch.clear_after_search  "A keresősáv tartalmának törlése a keresés után">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button "Keresősáv 'Fogd és vidd' opciójának engedélyezése">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'Fogd és vidd' segítségével.">
 
@@ -45,7 +45,7 @@
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' után">
 
 
-<!ENTITY secondsearch.caption.type.dragdrop "Előbukkanó ablak típusa a 'Fogd és vidd'-nél">
+<!ENTITY secondsearch.caption.type.dragdrop "Előbukkanó ablak típusa a 'Fogd és vidd' műveletnél">
 <!ENTITY secondsearch.popup.type.dragdrop.-1 "Normális">
 <!ENTITY secondsearch.popup.type.dragdrop.0  "Legutóbb használt">
 <!ENTITY secondsearch.popup.type.dragdrop.1  "Mindegyik">
