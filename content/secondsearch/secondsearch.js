@@ -1489,7 +1489,7 @@ catch(e) {
 					name    : this.keywords[i].name,
 					icon    : this.keywords[i].icon,
 					uri     : this.keywords[i].uri,
-					keyword : this.keywords[i].keyword,
+					keyword : (this.keywords[i].keyword || ''),
 					id      : ''
 				};
 				break;
@@ -1601,7 +1601,7 @@ catch(e) {
 				name    : decodeURIComponent(names[i]),
 				icon    : decodeURIComponent(icons[i]),
 				uri     : decodeURIComponent(uris[i]),
-				keyword : decodeURIComponent(keywords[i]),
+				keyword : (keywords[i] ? decodeURIComponent(keywords[i]) : '' ),
 				id      : decodeURIComponent(ids[i])
 			});
 			listDone[names[i]+':'+uris[i]] = true;
