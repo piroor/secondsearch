@@ -36,6 +36,17 @@ var SecondSearch = {
 	},
 	defaultDelay : 0,
  
+	get clearDelay() 
+	{
+		var val = this.getIntPref('secondsearch.clear_after_search.delay');
+		if (val === null) {
+			val = this.defaultClearDelay;
+			this.setIntPref('secondsearch.clear_after_search.delay', val);
+		}
+		return Math.max(0, val);
+	},
+	defaultClearDelay : 100,
+ 
 	get timeout() 
 	{
 		var val = this.getIntPref('secondsearch.timeout');
@@ -505,7 +516,7 @@ try{
 			var current = this.getCurrentItem(popup);
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
-				window.setTimeout('SecondSearch.clearAfterSearch();', 0);
+				window.setTimeout('SecondSearch.clearAfterSearch();', this.clearDelay);
 			}
 			else {
 				if (current == this.allMenuItem) {
@@ -1087,7 +1098,7 @@ catch(e) {
 			return false;
 		else {
 			var retVal = this.__secondsearch__onTextEntered(aEvent);
-			window.setTimeout('SecondSearch.clearAfterSearch();', 0);
+			window.setTimeout('SecondSearch.clearAfterSearch();', SecondSearch.clearDelay);
 			return retVal;
 		}
 	},
@@ -1118,7 +1129,7 @@ catch(e) {
 			!this.doingSearch
 			) {
 			this.textbox.onTextEntered(aEvent);
-			this.clearAfterSearch();
+			window.setTimeout('SecondSearch.clearAfterSearch();', this.clearDelay);
 		}
 
 		popup.shown = false;
@@ -1278,7 +1289,7 @@ catch(e) {
 			else if (aEvent.target.localName == 'menuitem') {
 				SecondSearch.doSearchBy(aEvent.target, aEvent);
 			}
-			window.setTimeout('SecondSearch.clearAfterSearch(); SecondSearch.hideSecondSearch();', 0);
+			window.setTimeout('SecondSearch.clearAfterSearch(); SecondSearch.hideSecondSearch();', SecondSearch.clearDelay);
 		},
  
 		getSupportedFlavours : function() 
@@ -1337,8 +1348,7 @@ catch(e) {
 
 		this.selectedEngine = null;
 		window.setTimeout('SecondSearch.doingSearch = false;', 1);
-
-		this.clearAfterSearch();
+		window.setTimeout('SecondSearch.clearAfterSearch();', this.clearDelay);
 
 		return retVal;
 	},
@@ -1413,7 +1423,7 @@ catch(e) {
 		}
 		else {
 			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
-			SecondSearch.clearAfterSearch();
+			window.setTimeout('SecondSearch.clearAfterSearch();', SecondSearch.clearDelay);
 			return retVal;
 		}
 	},

@@ -11,6 +11,7 @@ pref("secondsearch.recentengines.num",  5);
 pref("secondsearch.switch.blank_input", true);
 pref("secondsearch.keyword.show",       true);
 pref("secondsearch.clear_after_search", false);
+pref("secondsearch.clear_after_search.delay", 100);
 pref("secondsearch.timeout",            5000);
 
 pref("secondsearch.keyword.updating", false);
