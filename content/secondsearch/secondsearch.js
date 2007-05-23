@@ -516,7 +516,7 @@ try{
 			var current = this.getCurrentItem(popup);
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
-				window.setTimeout('SecondSearch.clearAfterSearch();', this.clearDelay);
+				this.clearAfterSearch();
 			}
 			else {
 				if (current == this.allMenuItem) {
@@ -760,7 +760,7 @@ catch(e) {
 	clearAfterSearch : function() 
 	{
 		if (!this.getBoolPref('secondsearch.clear_after_search')) return;
-		this.clearTextBox();
+		window.setTimeout('SecondSearch.clearTextBox();', this.clearDelay);
 	},
   
 /* update searchbar */ 
@@ -1098,7 +1098,7 @@ catch(e) {
 			return false;
 		else {
 			var retVal = this.__secondsearch__onTextEntered(aEvent);
-			window.setTimeout('SecondSearch.clearAfterSearch();', SecondSearch.clearDelay);
+			SecondSearch.clearAfterSearch();
 			return retVal;
 		}
 	},
@@ -1129,7 +1129,7 @@ catch(e) {
 			!this.doingSearch
 			) {
 			this.textbox.onTextEntered(aEvent);
-			window.setTimeout('SecondSearch.clearAfterSearch();', this.clearDelay);
+			this.clearAfterSearch();
 		}
 
 		popup.shown = false;
@@ -1289,7 +1289,8 @@ catch(e) {
 			else if (aEvent.target.localName == 'menuitem') {
 				SecondSearch.doSearchBy(aEvent.target, aEvent);
 			}
-			window.setTimeout('SecondSearch.clearAfterSearch(); SecondSearch.hideSecondSearch();', SecondSearch.clearDelay);
+			SecondSearch.clearAfterSearch();
+			window.setTimeout('SecondSearch.hideSecondSearch();', 0);
 		},
  
 		getSupportedFlavours : function() 
@@ -1348,7 +1349,8 @@ catch(e) {
 
 		this.selectedEngine = null;
 		window.setTimeout('SecondSearch.doingSearch = false;', 1);
-		window.setTimeout('SecondSearch.clearAfterSearch();', this.clearDelay);
+
+		this.clearAfterSearch();
 
 		return retVal;
 	},
@@ -1423,7 +1425,7 @@ catch(e) {
 		}
 		else {
 			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
-			window.setTimeout('SecondSearch.clearAfterSearch();', SecondSearch.clearDelay);
+			SecondSearch.clearAfterSearch();
 			return retVal;
 		}
 	},
