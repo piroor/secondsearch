@@ -32,6 +32,8 @@
 <!ENTITY secondsearch.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
 <!ENTITY secondsearch.switch.blank_input  "Alapértelmezett szolgáltatás visszaállítása, ha a keresősáv üres">
 <!ENTITY secondsearch.clear_after_search  "A keresősáv tartalmának törlése a keresés után">
+<!ENTITY secondsearch.clear_after_search.delay.before  "after">
+<!ENTITY secondsearch.clear_after_search.delay.after   "msec.">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button "Keresősáv 'Fogd és vidd' opciójának engedélyezése">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'Fogd és vidd' segítségével.">
 

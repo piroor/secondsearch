@@ -35,6 +35,8 @@
 <!ENTITY secondsearch.keyword.show        "スマートキーワードをエンジン一覧に加える">
 <!ENTITY secondsearch.switch.blank_input  "検索語句が空のときは標準の検索エンジンを切り替える">
 <!ENTITY secondsearch.clear_after_search  "検索した後に検索バーの内容を空にする">
+<!ENTITY secondsearch.clear_after_search.delay.before  "">
+<!ENTITY secondsearch.clear_after_search.delay.after   "ミリ秒後に消す">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button  "入力欄内での文字のドラッグ＆ドロップを許可する">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button.description "※ドラッグ＆ドロップで検索を直接実行するには、ボタン部分にドロップしてください">
 

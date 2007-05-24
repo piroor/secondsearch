@@ -135,6 +135,9 @@
 		<preference id="secondsearch.clear_after_search"
 			name="secondsearch.clear_after_search"
 			type="bool"/>
+		<preference id="secondsearch.clear_after_search.delay"
+			name="secondsearch.clear_after_search.delay"
+			type="int"/>
 		<preference id="secondsearch.handle_dragdrop_only_on_button"
 			name="secondsearch.handle_dragdrop_only_on_button"
 			type="bool"/>
@@ -173,9 +176,19 @@
 	<checkbox id="secondsearch.switch.blank_input-check"
 		label="&secondsearch.switch.blank_input;"
 		preference="secondsearch.switch.blank_input"/>
-	<checkbox id="secondsearch.clear_after_search-check"
-		label="&secondsearch.clear_after_search;"
-		preference="secondsearch.clear_after_search"/>
+	<hbox align="center">
+		<checkbox id="secondsearch.clear_after_search-check"
+			label="&secondsearch.clear_after_search;"
+			preference="secondsearch.clear_after_search"/>
+		<label value="&secondsearch.clear_after_search.delay.before;"
+			control="secondsearch.clear_after_search.delay-textbox"/>
+		<textbox id="secondsearch.clear_after_search.delay-textbox"
+			preference="secondsearch.clear_after_search.delay"
+			style="width: 5em;"
+			type="number" min="0" increment="1"/>
+		<label value="&secondsearch.clear_after_search.delay.after;"
+			control="secondsearch.clear_after_search.delay-textbox"/>
+	</hbox>
 	<checkbox id="secondsearch.handle_dragdrop_only_on_button-check"
 		label="&secondsearch.handle_dragdrop_only_on_button;"
 		preference="secondsearch.handle_dragdrop_only_on_button"/>

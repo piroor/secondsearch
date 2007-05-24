@@ -35,6 +35,8 @@
 <!ENTITY secondsearch.keyword.show        "Add smart keywords to the list of engines">
 <!ENTITY secondsearch.switch.blank_input  "Change the default engine when there is no search term">
 <!ENTITY secondsearch.clear_after_search  "Clear search term after doing search">
+<!ENTITY secondsearch.clear_after_search.delay.before  "after">
+<!ENTITY secondsearch.clear_after_search.delay.after   "msec.">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button "Allow drag-and-drop of text in the textbox">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*To do search directly from drag-and-drop, drop to buttons.">
 
