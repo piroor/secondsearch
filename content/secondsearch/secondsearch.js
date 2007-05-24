@@ -759,9 +759,20 @@ catch(e) {
  
 	clearAfterSearch : function() 
 	{
-		if (!this.getBoolPref('secondsearch.clear_after_search')) return;
-		window.setTimeout('SecondSearch.clearTextBox();', this.clearDelay);
+		if (!this.getBoolPref('secondsearch.clear_after_search'))
+			return;
+
+		if (this.clearAfterSearchTimer)
+			window.clearTimeout(this.clearAfterSearchTimer);
+
+		var searchterm = this.searchterm;
+		this.clearAfterSearchTimer = window.setTimeout(function() {
+			if (SecondSearch.searchterm == searchterm)
+				SecondSearch.clearTextBox();
+			SecondSearch.clearAfterSearchTimer = null;
+		}, this.clearDelay);
 	},
+	clearAfterSearchTimer : null,
   
 /* update searchbar */ 
 	
