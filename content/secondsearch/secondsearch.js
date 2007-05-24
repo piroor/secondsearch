@@ -773,15 +773,17 @@ catch(e) {
 		if (!this.getBoolPref('secondsearch.clear_after_search'))
 			return;
 
-		if (this.clearAfterSearchTimer)
-			window.clearTimeout(this.clearAfterSearchTimer);
+		this.stopClearAfterSearch();
 
-		var searchterm = this.searchterm;
 		this.clearAfterSearchTimer = window.setTimeout(function() {
-			if (SecondSearch.searchterm == searchterm)
-				SecondSearch.clearTextBox();
+			SecondSearch.clearTextBox();
 			SecondSearch.clearAfterSearchTimer = null;
 		}, this.clearDelay);
+	},
+	stopClearAfterSearch : function() 
+	{
+		if (this.clearAfterSearchTimer)
+			window.clearTimeout(this.clearAfterSearchTimer);
 	},
 	clearAfterSearchTimer : null,
   
@@ -1028,6 +1030,8 @@ catch(e) {
  
 	onInput : function(aEvent) 
 	{
+		this.stopClearAfterSearch();
+
 		var popup = this.popup;
 		if (popup.shown) {
 				var current = this.getCurrentItem(popup);
