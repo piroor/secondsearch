@@ -972,6 +972,7 @@ catch(e) {
 
 
 			case 'input':
+				this.stopClearAfterSearch();
 				this.onInput(aEvent);
 				break;
 
@@ -1021,6 +1022,7 @@ catch(e) {
 
 			case 'click':
 			case 'focus':
+				this.stopClearAfterSearch();
 				this.textBoxFocused = true;
 				break;
 
@@ -1030,8 +1032,6 @@ catch(e) {
  
 	onInput : function(aEvent) 
 	{
-		this.stopClearAfterSearch();
-
 		var popup = this.popup;
 		if (popup.shown) {
 				var current = this.getCurrentItem(popup);
