@@ -8,6 +8,7 @@
 
 <!ENTITY secondsearch.tab.general   "全般">
 <!ENTITY secondsearch.tab.auto_show "自動ポップアップ">
+<!ENTITY secondsearch.tab.tab       "タブ">
 <!ENTITY secondsearch.tab.advanced  "詳細">
 
 <!ENTITY secondsearch.caption.type "ポップアップの内容">
@@ -25,9 +26,6 @@
 <!ENTITY secondsearch.recentengines.num.before "最近使った検索エンジンを">
 <!ENTITY secondsearch.recentengines.num.after  "件まで記憶する">
 
-
-<!ENTITY secondsearch.openintab         "検索結果を新しいタブで開く">
-<!ENTITY secondsearch.loadInBackground  "検索結果を新しいタブで開いたとき、すぐにそのタブに切り替える">
 
 
 <!ENTITY secondsearch.caption.behavior  "挙動">
@@ -47,6 +45,15 @@
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "現在のエンジンで検索（Firefox標準）">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "ドラッグ中に、検索するエンジンをポップアップから選択">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "ドロップ後に、検索するエンジンをポップアップから選択">
+
+
+
+<!ENTITY secondsearch.tab.caption           "検索結果の表示先">
+<!ENTITY secondsearch.tab.current           "現在のタブに読み込む">
+<!ENTITY secondsearch.tab.newtab            "新しいタブに読み込み、すぐにそのタブに切り替える">
+<!ENTITY secondsearch.tab.newtab_background "新しいタブに読み込む">
+<!ENTITY secondsearch.reuse_blank_tab  "現在のタブが空の時は新しいタブを開かない">
+
 
 
 <!ENTITY secondsearch.caption.type.dragdrop "ドラッグ＆ドロップ時のポップアップの内容">

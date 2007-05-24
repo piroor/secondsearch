@@ -39,14 +39,6 @@
 		<preference id="secondsearch.popup.position"
 			name="secondsearch.popup.position"
 			type="int"/>
-
-		<preference id="browser.search.openintab"
-			name="browser.search.openintab"
-			type="bool"/>
-		<preference id="secondsearch.loadInBackground"
-			name="secondsearch.loadInBackground"
-			type="bool"
-			inverted="true"/>
 	</preferences>
 
 	<groupbox>
@@ -87,13 +79,6 @@
 		<description value="&secondsearch.popup.position.note;"/>
 	</groupbox>
 
-	<checkbox id="browser.search.openintab-check"
-		label="&secondsearch.openintab;"
-		preference="browser.search.openintab"/>
-	<checkbox id="secondsearch.loadInBackground-check"
-		label="&secondsearch.loadInBackground;"
-		preference="secondsearch.loadInBackground"/>
-
 </prefpane>
 
 <prefpane id="prefpane-auto_show" label="&secondsearch.tab.auto_show;">
@@ -122,6 +107,64 @@
 				value="2"/>
 		</radiogroup>
 	</groupbox>
+</prefpane>
+
+<prefpane id="prefpane-tab" label="&secondsearch.tab.tab;"
+	onpaneload="updateTabRadio();">
+	<preferences>
+		<preference id="browser.search.openintab"
+			name="browser.search.openintab"
+			type="bool"
+			onchange="updateTabRadio()"/>
+		<preference id="secondsearch.loadInBackground"
+			name="secondsearch.loadInBackground"
+			type="bool"
+			onchange="updateTabRadio()"/>
+		<preference id="secondsearch.reuse_blank_tab"
+			name="secondsearch.reuse_blank_tab"
+			type="bool"/>
+	</preferences>
+
+	<groupbox>
+		<caption label="&secondsearch.tab.caption;"/>
+		<radiogroup orient="vertical"
+			id="secondsearch.tab-radiogroup"
+			oncommand="onUpdateTabRadio();">
+			<radio label="&secondsearch.tab.current;"
+				value="0"/>
+			<radio label="&secondsearch.tab.newtab;"
+				value="1"/>
+			<radio label="&secondsearch.tab.newtab_background;"
+				value="2"/>
+		</radiogroup>
+	</groupbox>
+	<checkbox id="secondsearch.reuse_blank_tab-check"
+		label="&secondsearch.reuse_blank_tab;"
+		preference="secondsearch.reuse_blank_tab"/>
+
+	<script type="application/x-javascript"><![CDATA[
+
+		function updateTabRadio() {
+			var tab = document.getElementById('browser.search.openintab');
+			var bg  = document.getElementById('secondsearch.loadInBackground');
+			var radiogroup = document.getElementById('secondsearch.tab-radiogroup');
+			radiogroup.value =
+				(tab.value && bg.value) ? 2 :
+				(tab.value) ? 1 :
+				0 ;
+//			radiogroup.selectedItem = radiogroup.getElementsByAttribute('value', radiogroup.value);
+		}
+
+		function onUpdateTabRadio() {
+			var tab = document.getElementById('browser.search.openintab');
+			var bg  = document.getElementById('secondsearch.loadInBackground');
+			var radiogroup = document.getElementById('secondsearch.tab-radiogroup');
+			tab.value = parseInt(radiogroup.value) > 0;
+			bg.value = radiogroup.value == 2;
+		}
+
+	]]></script>
+
 </prefpane>
 
 <prefpane id="prefpane-advanced" label="&secondsearch.tab.advanced;">

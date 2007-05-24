@@ -200,6 +200,17 @@ var SecondSearch = {
 		}
 		return val;
 	},
+ 
+	get reuseBlankTab() 
+	{
+		var val = this.getBoolPref('secondsearch.reuse_blank_tab');
+		if (val === null) {
+			val = this.defaultReuseBlankTab;
+			this.setBoolPref('secondsearch.reuse_blank_tab', val);
+		}
+		return val;
+	},
+	defaultReuseBlankTab : true,
  	 
 /* elements */ 
 	
@@ -1354,7 +1365,15 @@ catch(e) {
 			}
 			else { // Firefox 1.5
 				var uri = this.getSearchURI(this.searchterm, engine.id);
-				retVal = SearchLoadURL(uri, ((aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1) ^ this.openintab));
+				var newTab = (aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1);
+				var isManual = newTab;
+				newTab = this.openintab ? !newTab : newTab ;
+				if (!isManual &&
+					newTab &&
+					this.reuseBlankTab &&
+					gBrowser.currentURI.spec == 'about:blank')
+					newTab = !newTab;
+				retVal = SearchLoadURL(uri, newTab);
 			}
 		}
 
@@ -1370,23 +1389,35 @@ catch(e) {
 	{
 		var newTab = (aEvent && aEvent.altKey) ||
 					(aEvent.type == 'click' && aEvent.button == 1);
+		var isManual = newTab;
 
 		var inBackground = false;
 		if ('TabbrowserService' in window) { // TBE
 			var behavior = this.getIntPref('browser.tabs.opentabfor.searchbar.behavior');
 			newTab = behavior > 0 ? !newTab : newTab ;
+			if (newTab) isManual = false;
 			inBackground = behavior == 2;
 		}
 		else if ('TM_init' in window) { // Tab Mix Plus
 			newTab = this.getBoolPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
+			if (newTab) isManual = false;
 			inBackground = this.getBoolPref('extensions.tabmix.loadSearchInBackground');
 		}
 		else { // Firefox 2
 			newTab = this.openintab ? !newTab : newTab ;
+			if (newTab) isManual = false;
 			inBackground = this.loadInBackground;
 		}
 
-		if (gBrowser.localName == 'tabbrowser' && newTab) {
+		if (
+			gBrowser.localName == 'tabbrowser' &&
+			newTab && 
+			(
+				isManual ||
+				!this.reuseBlankTab ||
+				gBrowser.currentURI.spec != 'about:blank'
+			)
+			) {
 			content.focus();
 			var t = 'loadOneTab' in gBrowser ?
 				gBrowser.loadOneTab(aURI, null, null, aPostData, false, true) :
@@ -1409,6 +1440,13 @@ catch(e) {
   
 	doSearchbarSearch : function(aData, aInNewTab, aOverride) 
 	{ // Firefox 2
+		if (aInNewTab &&
+			SecondSearch.openintab &&
+			SecondSearch.reuseBlankTab &&
+			gBrowser.currentURI.spec == 'about:blank') {
+			aInNewTab = false;
+		}
+
 		if (aOverride) {
 			var engine = SecondSearch.getRecentEngines()[0];
 			engine = SecondSearch.getSearchEngineFromName(engine.name);

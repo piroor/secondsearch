@@ -8,6 +8,7 @@
 
 <!ENTITY secondsearch.tab.general   "General">
 <!ENTITY secondsearch.tab.auto_show "Auto Popup">
+<!ENTITY secondsearch.tab.tab       "Tab">
 <!ENTITY secondsearch.tab.advanced  "Advanced">
 
 <!ENTITY secondsearch.caption.type "Popup type">
@@ -26,8 +27,8 @@
 <!ENTITY secondsearch.recentengines.num.after  "engines">
 
 
-<!ENTITY secondsearch.openintab         "Open search results in a new tabs">
-<!ENTITY secondsearch.loadInBackground  "When I open the search result in a new tab, switch to it immediately">
+
+
 
 
 <!ENTITY secondsearch.caption.behavior  "Behavior">
@@ -48,6 +49,14 @@
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "Search by the current engine (Firefox default)">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "Choose the engine from popup while dragging">
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Choose the engine from popup after dropped">
+
+
+
+<!ENTITY secondsearch.tab.caption           "Open search results into">
+<!ENTITY secondsearch.tab.current           "Current tab">
+<!ENTITY secondsearch.tab.newtab            "New tab, and switch to it immediately">
+<!ENTITY secondsearch.tab.newtab_background "New tab">
+<!ENTITY secondsearch.reuse_blank_tab  "Don't open a new tab when the current is blank">
 
 
 <!ENTITY secondsearch.caption.type.dragdrop "Popup type for drag-and-drop">

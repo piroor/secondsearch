@@ -12,6 +12,7 @@ pref("secondsearch.switch.blank_input", true);
 pref("secondsearch.keyword.show",       true);
 pref("secondsearch.clear_after_search", false);
 pref("secondsearch.clear_after_search.delay", 10000);
+pref("secondsearch.reuse_blank_tab",    true);
 pref("secondsearch.timeout",            5000);
 
 pref("secondsearch.keyword.updating", false);
