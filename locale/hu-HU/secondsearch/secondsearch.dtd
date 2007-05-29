@@ -6,7 +6,7 @@
 
 <!ENTITY secondsearch.tab.general   "Általános">
 <!ENTITY secondsearch.tab.auto_show "Automatikus megjelenítés">
-<!ENTITY secondsearch.tab.tab       "Tab">
+<!ENTITY secondsearch.tab.tab       "Keresés eredménye">
 <!ENTITY secondsearch.tab.advanced  "Haladó">
 
 <!ENTITY secondsearch.caption.type "Az előbukkanó ablak tartalma">
@@ -33,8 +33,8 @@
 <!ENTITY secondsearch.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
 <!ENTITY secondsearch.switch.blank_input  "Alapértelmezett szolgáltatás visszaállítása, ha a keresősáv üres">
 <!ENTITY secondsearch.clear_after_search  "A keresősáv tartalmának törlése a keresés után">
-<!ENTITY secondsearch.clear_after_search.delay.before  "after">
-<!ENTITY secondsearch.clear_after_search.delay.after   "msec.">
+<!ENTITY secondsearch.clear_after_search.delay.before  "">
+<!ENTITY secondsearch.clear_after_search.delay.after   "ezredmásodperccel">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button "Keresősáv 'Fogd és vidd' opciójának engedélyezése">
 <!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'Fogd és vidd' segítségével.">
 
@@ -48,11 +48,11 @@
 <!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' után">
 
 
-<!ENTITY secondsearch.tab.caption           "Open search results into">
-<!ENTITY secondsearch.tab.current           "Current tab">
-<!ENTITY secondsearch.tab.newtab            "New tab, and switch to it immediately">
-<!ENTITY secondsearch.tab.newtab_background "New tab">
-<!ENTITY secondsearch.reuse_blank_tab  "Don't open a new tab when the current is blank">
+<!ENTITY secondsearch.tab.caption           "Keresés eredményének megjelenítése:">
+<!ENTITY secondsearch.tab.current           "Jelenlegi lapon">
+<!ENTITY secondsearch.tab.newtab            "Új lapon (váltás az új lapra)">
+<!ENTITY secondsearch.tab.newtab_background "Új lapon (háttérben)">
+<!ENTITY secondsearch.reuse_blank_tab  "Ne nyisson új lapot, ha a jelenlegi lap üres">
 
 
 
