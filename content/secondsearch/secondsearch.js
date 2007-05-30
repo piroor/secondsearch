@@ -2159,6 +2159,10 @@ catch(e) {
 			};
 		}
 
+		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER &&
+			!this.searchDNDObserver.isPlatformNotSupported)
+			this.setIntPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
+
 		window.setTimeout('SecondSearch.delayedInit();', 100);
 	},
 	delayedInit : function()

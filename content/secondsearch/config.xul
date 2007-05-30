@@ -27,7 +27,22 @@
 		}
 	">
 
-<prefpane id="prefpane-general" label="&secondsearch.tab.general;">
+<prefpane id="prefpane-general" label="&secondsearch.tab.general;"
+	onpaneload ="
+		var box   = document.getElementById('secondsearch.popup.type-dragover-box');
+		var radio = box.getElementsByTagName('radio')[0];
+		var text  = box.getElementsByTagName('textbox')[0];
+		if (navigator.platform.indexOf('Mac') != -1) {
+			box.removeAttribute('hidden');
+			radio.removeAttribute('disabled');
+			text.removeAttribute('disabled');
+		}
+		else {
+			box.setAttribute('hidden', true);
+			radio.setAttribute('disabled', true);
+			text.setAttribute('disabled', true);
+		}
+	">
 	<preferences>
 		<preference id="secondsearch.popup.type"
 			name="secondsearch.popup.type"
@@ -48,7 +63,7 @@
 			preference="secondsearch.popup.type">
 			<radio label="&secondsearch.popup.type.0;"
 				value="0"/>
-			<hbox align="center">
+			<hbox align="center" id="secondsearch.popup.type-dragover-box">
 				<spacer style="width:1em;"/>
 				<label value="&secondsearch.recentengines.num.before;"
 					control="secondsearch.recentengines.num-textbox"/>
