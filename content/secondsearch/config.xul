@@ -84,7 +84,7 @@
 <prefpane id="prefpane-auto_show" label="&secondsearch.tab.auto_show;"
 	onpaneload ="
 		var radio = document.getElementById('secondsearch.popup.auto_show.dragdrop.mode-dragover-item');
-		if (navigator.platform.indexOf('Mac') != -1) {
+		if (navigator.platform.indexOf('Mac') == -1) {
 			radio.removeAttribute('hidden');
 			radio.removeAttribute('disabled');
 		}
