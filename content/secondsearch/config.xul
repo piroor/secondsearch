@@ -27,22 +27,7 @@
 		}
 	">
 
-<prefpane id="prefpane-general" label="&secondsearch.tab.general;"
-	onpaneload ="
-		var box   = document.getElementById('secondsearch.popup.type-dragover-box');
-		var radio = box.getElementsByTagName('radio')[0];
-		var text  = box.getElementsByTagName('textbox')[0];
-		if (navigator.platform.indexOf('Mac') != -1) {
-			box.removeAttribute('hidden');
-			radio.removeAttribute('disabled');
-			text.removeAttribute('disabled');
-		}
-		else {
-			box.setAttribute('hidden', true);
-			radio.setAttribute('disabled', true);
-			text.setAttribute('disabled', true);
-		}
-	">
+<prefpane id="prefpane-general" label="&secondsearch.tab.general;">
 	<preferences>
 		<preference id="secondsearch.popup.type"
 			name="secondsearch.popup.type"
@@ -63,7 +48,7 @@
 			preference="secondsearch.popup.type">
 			<radio label="&secondsearch.popup.type.0;"
 				value="0"/>
-			<hbox align="center" id="secondsearch.popup.type-dragover-box">
+			<hbox align="center">
 				<spacer style="width:1em;"/>
 				<label value="&secondsearch.recentengines.num.before;"
 					control="secondsearch.recentengines.num-textbox"/>
@@ -96,7 +81,18 @@
 
 </prefpane>
 
-<prefpane id="prefpane-auto_show" label="&secondsearch.tab.auto_show;">
+<prefpane id="prefpane-auto_show" label="&secondsearch.tab.auto_show;"
+	onpaneload ="
+		var radio = document.getElementById('secondsearch.popup.auto_show.dragdrop.mode-dragover-item');
+		if (navigator.platform.indexOf('Mac') != -1) {
+			radio.removeAttribute('hidden');
+			radio.removeAttribute('disabled');
+		}
+		else {
+			radio.setAttribute('hidden', true);
+			radio.setAttribute('disabled', true);
+		}
+	">
 	<preferences>
 		<preference id="secondsearch.popup.auto_show"
 			name="secondsearch.popup.auto_show"
@@ -117,7 +113,8 @@
 			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.0;"
 				value="0"/>
 			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.1;"
-				value="1"/>
+				value="1"
+				id="secondsearch.popup.auto_show.dragdrop.mode-dragover-item"/>
 			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.2;"
 				value="2"/>
 		</radiogroup>
