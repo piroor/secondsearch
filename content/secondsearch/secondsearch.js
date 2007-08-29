@@ -1382,7 +1382,7 @@ catch(e) {
 		}
 
 		this.selectedEngine = null;
-		window.setTimeout('SecondSearch.doingSearch = false;', 1);
+		window.setTimeout('SecondSearch.doingSearch = false; SecondSearch.clearAfterSearch();', 1);
 
 		this.clearAfterSearch();
 
