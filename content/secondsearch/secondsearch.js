@@ -400,8 +400,11 @@ var SecondSearch = {
 		if (this.isEngineInRecentList(current))
 			this.removeEngineFromRecentList(current);
 
-
 		var engines = this.getRecentEngines();
+		if (popup.shownBy == this.SHOWN_BY_DROP) {
+			engines.unshift(current);
+		}
+
 		var refNode = null;
 		if (this.popupPosition == 1) {
 			engines.reverse();
@@ -1149,14 +1152,6 @@ catch(e) {
 	onPopupHiding : function(aEvent) 
 	{
 		var popup = this.popup;
-
-		if (
-			popup.shownBy == this.SHOWN_BY_DROP &&
-			!this.doingSearch
-			) {
-			this.textbox.onTextEntered(aEvent);
-			this.clearAfterSearch();
-		}
 
 		popup.shown = false;
 		popup.shownBy = 0;
