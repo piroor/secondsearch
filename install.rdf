@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<RDF:RDF xmlns:em="http://www.mozilla.org/2004/em-rdf#"
+         xmlns:NC="http://home.netscape.com/NC-rdf#"
+         xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Description RDF:about="urn:mozilla:install-manifest"
+                   em:id="{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}"
+                   em:name="Second Search"
+                   em:version="0.3.2007090301"
+                   em:creator="SHIMODA Hiroshi"
+                   em:description="Shows tiny popup for the search bar, to allow you to search by another engine quickly."
+                   em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en"
+                   em:iconURL=""
+                   em:optionsURL="chrome://secondsearch/content/config.xul">
+	<em:translator>Mikes Kaszmán István (hu-HU locale)</em:translator>
 
-<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
-	<Description about="urn:mozilla:install-manifest">
+    <em:updateURL>https://pub.cozmixng.org/~piro/xul/xul.rdf.en</em:updateURL>
 
-		<em:id>{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}</em:id>
-		<em:name>Second Search</em:name>
-		<em:version>0.3.2007090301</em:version>
-		<em:description>Shows tiny popup for the search bar, to allow you to search by another engine quickly.</em:description>
-		<em:creator>SHIMODA Hiroshi</em:creator>
-		<em:translator>Mikes Kaszmán István (hu-HU locale)</em:translator>
-		<em:optionsURL>chrome://secondsearch/content/config.xul</em:optionsURL>
-		<em:homepageURL>http://piro.sakura.ne.jp/xul/_secondsearch.html.en</em:homepageURL>
-		<em:updateURL>https://pub.cozmixng.org/~piro/xul/xul.rdf.en</em:updateURL>
-		<em:file>
-			<Description about="urn:mozilla:extension:file:secondsearch.jar">
-				<em:package>content/secondsearch/</em:package>
-				<em:locale>locale/en-US/secondsearch/</em:locale>
-				<em:locale>locale/ja-JP/secondsearch/</em:locale>
-				<em:locale>locale/hu-HU/secondsearch/</em:locale>
-			</Description>
-		</em:file>
 
-		<em:targetApplication>
-			<Description>
-				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-				<em:minVersion>1.0</em:minVersion>
-				<em:maxVersion>2.0.0.*</em:maxVersion>
-			</Description>
-		</em:targetApplication>
-
-	</Description>
-
-</RDF>
+    <em:targetApplication>
+      <!-- Firefox -->
+      <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
+                       em:minVersion="1.0"
+                       em:maxVersion="2.0.0.*" />
+    </em:targetApplication>
+	<em:file>
+		<RDF:Description RDF:about="urn:mozilla:extension:file:secondsearch.jar">
+			<em:package>content/secondsearch/</em:package>
+			<em:locale>locale/en-US/secondsearch/</em:locale>
+			<em:locale>locale/ja-JP/secondsearch/</em:locale>
+			<em:locale>locale/hu-HU/secondsearch/</em:locale>
+		</RDF:Description>
+	</em:file>
+  </RDF:Description>
+</RDF:RDF>
