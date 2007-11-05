@@ -2132,10 +2132,10 @@ catch(e) {
 		this.initBar();
 		window.removeEventListener('load', this, false);
 
-		var originalBrowserCustomizeToolbar = window.BrowserCustomizeToolbar;
+		window.__secondsearch__BrowserCustomizeToolbar = window.BrowserCustomizeToolbar;
 		window.BrowserCustomizeToolbar = function() {
 			SecondSearch.destroyBar();
-			originalBrowserCustomizeToolbar.call(window);
+			window.__secondsearch__BrowserCustomizeToolbar.call(window);
 		};
 
 		var toolbox = document.getElementById('navigator-toolbox');
@@ -2147,9 +2147,9 @@ catch(e) {
 			};
 		}
 		if ('BrowserToolboxCustomizeDone' in window) {
-			var originalBrowserToolboxCustomizeDone = window.BrowserToolboxCustomizeDone;
+			window.__secondsearch__BrowserToolboxCustomizeDone = window.BrowserToolboxCustomizeDone;
 			window.BrowserToolboxCustomizeDone = function(aChanged) {
-				originalBrowserToolboxCustomizeDone.apply(window, arguments);
+				window.__secondsearch__BrowserToolboxCustomizeDone.apply(window, arguments);
 				SecondSearch.initBar();
 			};
 		}
