@@ -14,7 +14,7 @@ var SecondSearch = {
 
 	get browser()
 	{
-		return 'SplitBrowser' in window ? SplitBrowser.activeBrowser : gBrowser ; // document.getElementById('content') ;
+		return 'SplitBrowser' in window ? (SplitBrowser.browserForSearch || SplitBrowser.activeBrowser) : gBrowser ; // document.getElementById('content') ;
 	},
 	 
 /* preference values */ 
@@ -885,8 +885,8 @@ catch(e) {
 				'search.doSearch = '+
 					search.doSearch.toSource()
 						.replace(
-							'content.focus()',
-							'if (!SecondSearch.loadInBackground) content.focus()'
+							/([^\s]+).focus\(\)/,
+							'if (!SecondSearch.loadInBackground) $1.focus()'
 						).replace(
 							/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
 							'$1 SecondSearch.loadInBackground $2'
