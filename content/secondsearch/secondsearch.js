@@ -11,6 +11,11 @@ var SecondSearch = {
 	DRAGDROP_MODE_DEFAULT  : 0,
 	DRAGDROP_MODE_DRAGOVER : 1,
 	DRAGDROP_MODE_DROP     : 2,
+
+	get browser()
+	{
+		return 'SplitBrowser' in window ? SplitBrowser.activeBrowser : gBrowser ; // document.getElementById('content') ;
+	},
 	 
 /* preference values */ 
 	 
@@ -1370,7 +1375,7 @@ catch(e) {
 				if (!isManual &&
 					newTab &&
 					this.reuseBlankTab &&
-					gBrowser.currentURI.spec == 'about:blank')
+					this.browser.currentURI.spec == 'about:blank')
 					newTab = !newTab;
 				retVal = SearchLoadURL(uri, newTab);
 			}
@@ -1409,20 +1414,20 @@ catch(e) {
 		}
 
 		if (
-			gBrowser.localName == 'tabbrowser' &&
+			this.browser.localName == 'tabbrowser' &&
 			newTab && 
 			(
 				isManual ||
 				!this.reuseBlankTab ||
-				gBrowser.currentURI.spec != 'about:blank'
+				this.browser.currentURI.spec != 'about:blank'
 			)
 			) {
 			content.focus();
-			var t = 'loadOneTab' in gBrowser ?
-				gBrowser.loadOneTab(aURI, null, null, aPostData, false, true) :
-				gBrowser.addTab(aURI, null, null, aPostData);
+			var t = 'loadOneTab' in this.browser ?
+				this.browser.loadOneTab(aURI, null, null, aPostData, false, true) :
+				this.browser.addTab(aURI, null, null, aPostData);
 			if (!inBackground)
-				gBrowser.selectedTab = t;
+				this.browser.selectedTab = t;
 			if (gURLBar)
 				gURLBar.value = aURI;
 		}
@@ -1442,7 +1447,7 @@ catch(e) {
 		if (aInNewTab &&
 			SecondSearch.openintab &&
 			SecondSearch.reuseBlankTab &&
-			gBrowser.currentURI.spec == 'about:blank') {
+			SecondSearch.browser.currentURI.spec == 'about:blank') {
 			aInNewTab = false;
 		}
 
@@ -1461,7 +1466,7 @@ catch(e) {
 			var loadInBackground = SecondSearch.loadInBackground;
 			if (aInNewTab) {
 				if (!loadInBackground) content.focus();
-				gBrowser.loadOneTab(url, null, null, postData, loadInBackground, false);
+				SecondSearch.browser.loadOneTab(url, null, null, postData, loadInBackground, false);
 				if (gURLBar && !loadInBackground)
 					gURLBar.value = url;
 			}
