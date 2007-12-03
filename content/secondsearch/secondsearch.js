@@ -1429,7 +1429,7 @@ catch(e) {
 				this.currentURI != 'about:blank'
 			)
 			) {
-			content.focus();
+			this.browser.contentWindow.focus();
 			var t = 'loadOneTab' in this.browser ?
 				this.browser.loadOneTab(aURI, null, null, aPostData, false, true) :
 				this.browser.addTab(aURI, null, null, aPostData);
@@ -1438,12 +1438,10 @@ catch(e) {
 			if (gURLBar)
 				gURLBar.value = aURI;
 		}
-		else if ('loadURL' in window)
-			loadURL(aURI, null, aPostData, true);
 		else
-			loadURI(aURI, null, aPostData, true);
+			this.browser.webNavigation.loadURI(aURI, Components.interfaces.LOAD_FLAGS_NONE, null, aPostData, null);
 
-		content.focus();
+		this.browser.contentWindow.focus();
 	},
  
 	selectedEngine : null, 
