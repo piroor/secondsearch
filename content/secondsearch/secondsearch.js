@@ -16,6 +16,13 @@ var SecondSearch = {
 	{
 		return 'SplitBrowser' in window ? (SplitBrowser.browserForSearch || SplitBrowser.activeBrowser) : gBrowser ; // document.getElementById('content') ;
 	},
+
+	get currentURI()
+	{
+		var b = this.browser;
+		var uri = b.currentURI;
+		return (uri && uri.spec) ? uri.spec : 'about:blank' ;
+	},
 	 
 /* preference values */ 
 	 
@@ -1375,7 +1382,7 @@ catch(e) {
 				if (!isManual &&
 					newTab &&
 					this.reuseBlankTab &&
-					this.browser.currentURI.spec == 'about:blank')
+					this.currentURI == 'about:blank')
 					newTab = !newTab;
 				retVal = SearchLoadURL(uri, newTab);
 			}
@@ -1419,7 +1426,7 @@ catch(e) {
 			(
 				isManual ||
 				!this.reuseBlankTab ||
-				this.browser.currentURI.spec != 'about:blank'
+				this.currentURI != 'about:blank'
 			)
 			) {
 			content.focus();
@@ -1447,7 +1454,7 @@ catch(e) {
 		if (aInNewTab &&
 			SecondSearch.openintab &&
 			SecondSearch.reuseBlankTab &&
-			SecondSearch.browser.currentURI.spec == 'about:blank') {
+			SecondSearch.currentURI == 'about:blank') {
 			aInNewTab = false;
 		}
 
