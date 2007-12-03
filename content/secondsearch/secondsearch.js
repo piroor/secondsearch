@@ -885,7 +885,7 @@ catch(e) {
 				'search.doSearch = '+
 					search.doSearch.toSource()
 						.replace(
-							/([^\s]+).focus\(\)/,
+							/([\w\d\.]+).focus\(\)/,
 							'if (!SecondSearch.loadInBackground) $1.focus()'
 						).replace(
 							/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
@@ -1465,15 +1465,15 @@ catch(e) {
 			}
 			var loadInBackground = SecondSearch.loadInBackground;
 			if (aInNewTab) {
-				if (!loadInBackground) content.focus();
+				if (!loadInBackground) SecondSearch.browser.contentWindow.focus();
 				SecondSearch.browser.loadOneTab(url, null, null, postData, loadInBackground, false);
 				if (gURLBar && !loadInBackground)
 					gURLBar.value = url;
 			}
 			else
-				loadURI(url, null, postData, false);
+				SecondSearch.browser.webNavigation.loadURI(url, Components.interfaces.LOAD_FLAGS_NONE, null, postData, null);
 
-			content.focus();
+			SecondSearch.browser.contentWindow.focus();
 			return;
 		}
 		else {
