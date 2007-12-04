@@ -914,6 +914,29 @@ catch(e) {
 							'this.currentEngine = target.id'
 						)
 			);
+			eval(
+				'textbox.__secondsearch__onTextEntered = '+
+					textbox.__secondsearch__onTextEntered.toSource()
+						.replace(
+							'(evt && evt.altKey)',
+							'$& || SecondSearch.openintab'
+						)
+			);
+		}
+
+		if ('SearchLoadURL' in window) { // Fx 1.5?
+			eval('window.SearchLoadURL = '+
+				window.SearchLoadURL.toSource().replace(
+					/([\w\d\.]+).focus\(\)/,
+					'if (!SecondSearch.loadInBackground) $1.focus()'
+				).replace(
+					/([\w\d\.]+).selectedTab = /,
+					'if (!SecondSearch.loadInBackground) $1.selectedTab = '
+				).replace(
+					'if (gURLBar)',
+					'if (gURLBar && !SecondSearch.loadInBackground)'
+				)
+			);
 		}
 
 		// GSuggest
