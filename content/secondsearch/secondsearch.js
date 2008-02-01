@@ -2018,12 +2018,16 @@ catch(e) {
 				delete this.keywordsHash[this.keywords[i].uri];
 				this.keywords.splice(i, 1);
 			}
-			if (aMode != 'delete') {
-				this.keywordsHash[data.uri] = data;
-			}
 			if (aMode == 'keyword' ||
 				aMode == 'uri') {
 				this.keywords.push(data);
+				this.keywordsHash[data.uri] = data;
+			}
+			if (aMode != 'delete') {
+				this.keywordsHash[data.uri].name    = data.name;
+				this.keywordsHash[data.uri].icon    = data.icon;
+				this.keywordsHash[data.uri].uri     = data.uri;
+				this.keywordsHash[data.uri].keyword = data.keyword;
 			}
 			modified = true;
 			break;
