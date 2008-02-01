@@ -671,6 +671,13 @@ try{
 					return true;
 				}
 
+				// in Firefox 3, autocomplete popup grabs user key inputs!!
+				try {
+					this.textbox.popup.hidePopup();
+				}
+				catch(e) {
+				}
+
 				aEvent.stopPropagation();
 				aEvent.preventDefault();
 				return false;
@@ -1489,13 +1496,19 @@ catch(e) {
 	selectedEngine : null, 
 	doingSearch : false,
   
-	doSearchbarSearch : function(aData, aInNewTab, aOverride) 
+	doSearchbarSearch : function(aData, aWhere, aOverride) 
 	{ // Firefox 2
-		if (aInNewTab &&
+		var simpleFlag = false;
+		if (typeof aWhere == 'boolean') {
+			simpleFlag = true;
+			aWhere = 'tab';
+		}
+
+		if (aWhere &&
 			SecondSearch.openintab &&
 			SecondSearch.reuseBlankTab &&
 			SecondSearch.currentURI == 'about:blank') {
-			aInNewTab = false;
+			aWhere = 'current';
 		}
 
 		if (aOverride) {
@@ -1511,7 +1524,7 @@ catch(e) {
 				postData = submission.postData;
 			}
 			var loadInBackground = SecondSearch.loadInBackground;
-			if (aInNewTab) {
+			if (aWhere.indexOf('tab') > -1) {
 				if (!loadInBackground) SecondSearch.browser.contentWindow.focus();
 				SecondSearch.browser.loadOneTab(url, null, null, postData, loadInBackground, false);
 				if (gURLBar && !loadInBackground)
@@ -1524,7 +1537,7 @@ catch(e) {
 			return;
 		}
 		else {
-			var retVal = this.__secondsearch__doSearch(aData, aInNewTab);
+			var retVal = this.__secondsearch__doSearch(aData, simpleFlag ? aWhere.indexOf('tab') > -1 : aWhere );
 			SecondSearch.clearAfterSearch();
 			return retVal;
 		}
