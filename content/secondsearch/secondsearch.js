@@ -2002,58 +2002,63 @@ catch(e) {
 		if (keywords.length == 1 && !names[0]) keywords = [];
 
 		var keyword = this.NavBMService.getKeywordForBookmark(aId);
-		switch (aMode)
+		var data    = this.newKeywordFromPlaces(aId);
+		var modified = false;
+		for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
 		{
-			case 'keyword':
-				this.keywords.push(this.newKeywordFromPlaces(aId));
-				this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
+			if (this.keywords[i].uri != data.uri &&
+				this.keywords[i].keyword != keyword)
+				continue;
 
-				names.push(encodeURIComponent(this.keywords[this.keywords.length-1].name));
-				icons.push(encodeURIComponent(this.keywords[this.keywords.length-1].icon));
-				uris.push(encodeURIComponent(this.keywords[this.keywords.length-1].uri));
-				keywords.push(encodeURIComponent(this.keywords[this.keywords.length-1].keyword));
-				break;
+			if (aMode == 'delete' ||
+				aMode == 'keyword' ||
+				aMode == 'uri') {
+				delete this.keywordsHash[this.keywords[i].uri];
+				this.keywords.splice(i, 1);
+			}
+			if (aMode != 'delete') {
+				this.keywordsHash[data.uri] = data;
+			}
+			if (aMode == 'keyword' ||
+				aMode == 'uri') {
+				this.keywords.push(data);
+			}
+			modified = true;
+			break;
+		}
 
-			case 'title':
-			case 'uri':
-			case 'favicon':
-			case 'delete':
-				var data = this.newKeywordFromPlaces(aId);
-				for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
-				{
-					if (this.keywords[i].keyword == keyword) {
-						if (aMode == 'delete' || aMode == 'uri') {
-							this.keywords.splice(i, 1);
-							delete this.keywordsHash[this.keywords[i].uri];
-						}
-						if (aMode != 'delete') {
-							this.keywordsHash[data.uri] = data;
-						}
-						if (aMode == 'uri') {
-							this.keywords.push(data);
-						}
-						break;
-					}
+		var encodedURI = encodeURIComponent(data.uri);
+		var encodedKeyword = encodeURIComponent(keyword);
+
+		if (!modified) {
+			this.keywords.push(data);
+			this.keywordsHash[data.uri] = data;
+			names.push(encodeURIComponent(data.name));
+			icons.push(encodeURIComponent(data.icon));
+			uris.push(encodedURI);
+			keywords.push(encodedKeyword);
+		}
+		else {
+			for (var i = 0, maxi = keywords.length; i < maxi; i++)
+			{
+				if (uris[i] != encodedURI &&
+					keywords[i] != encodedKeyword)
+					continue;
+
+				if (aMode == 'delete') {
+					names.splice(i, 1);
+					icons.splice(i, 1);
+					uris.splice(i, 1);
+					keywords.splice(i, 1);
 				}
-				var encodedKeyword = encodeURIComponent(keyword);
-				for (var i = 0, maxi = keywords.length; i < maxi; i++)
-				{
-					if (keywords[i] == encodedKeyword) {
-						if (aMode == 'delete') {
-							names.splice(i, 1);
-							icons.splice(i, 1);
-							uris.splice(i, 1);
-							keywords.splice(i, 1);
-						}
-						else {
-							names.splice(i, 1, encodeURIComponent(data.name));
-							icons.splice(i, 1, encodeURIComponent(data.icon));
-							uris.splice(i, 1, encodeURIComponent(data.uri));
-						}
-						break;
-					}
+				else {
+					names.splice(i, 1, encodeURIComponent(data.name));
+					icons.splice(i, 1, encodeURIComponent(data.icon));
+					uris.splice(i, 1, encodedURI);
+					keywords.splice(i, 1, encodedKeyword);
 				}
 				break;
+			}
 		}
 
 		this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
