@@ -2089,11 +2089,11 @@ catch(e) {
 		}
 
 		if (recentNum != recentUris.length) {
-			setArrayPref('secondsearch.recentengines.id', recentIds);
-			setArrayPref('secondsearch.recentengines.name', recentNames);
-			setArrayPref('secondsearch.recentengines.icon', recentIcons);
-			setArrayPref('secondsearch.recentengines.uri', recentUris);
-			setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
+			this.setArrayPref('secondsearch.recentengines.id', recentIds);
+			this.setArrayPref('secondsearch.recentengines.name', recentNames);
+			this.setArrayPref('secondsearch.recentengines.icon', recentIcons);
+			this.setArrayPref('secondsearch.recentengines.uri', recentUris);
+			this.setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
 		}
 
 		this.setArrayPref('secondsearch.keyword.cache.name', names);
@@ -2313,11 +2313,11 @@ catch(e) {
 		}
 
 		if (recentNum != recentUris.length) {
-			setArrayPref('secondsearch.recentengines.id', recentIds);
-			setArrayPref('secondsearch.recentengines.name', recentNames);
-			setArrayPref('secondsearch.recentengines.icon', recentIcons);
-			setArrayPref('secondsearch.recentengines.uri', recentUris);
-			setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
+			this.setArrayPref('secondsearch.recentengines.id', recentIds);
+			this.setArrayPref('secondsearch.recentengines.name', recentNames);
+			this.setArrayPref('secondsearch.recentengines.icon', recentIcons);
+			this.setArrayPref('secondsearch.recentengines.uri', recentUris);
+			this.setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
 		}
 
 		this.setArrayPref('secondsearch.keyword.cache.name', names);
