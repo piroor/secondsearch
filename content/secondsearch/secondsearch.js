@@ -2001,6 +2001,7 @@ catch(e) {
 		var recentIcons    = this.getArrayPref('secondsearch.recentengines.icon');
 		var recentUris     = this.getArrayPref('secondsearch.recentengines.uri');
 		var recentKeywords = this.getArrayPref('secondsearch.recentengines.keyword');
+		var recentNum = recentUris.length;
 
 		var keyword = this.NavBMService.getKeywordForBookmark(aId);
 		var data    = this.newKeywordFromPlaces(aId);
@@ -2049,12 +2050,36 @@ catch(e) {
 					continue;
 
 				if (aMode == 'delete') {
+					for (var j = 0, maxj = recentUris.length; j < maxj; j++)
+					{
+						if (recentUris[j] != uris[i] &&
+							recentKeywords[j] != keywords[i])
+							continue;
+
+						recentIds.splice(j, 1);
+						recentNames.splice(j, 1);
+						recentIcons.splice(j, 1);
+						recentUris.splice(j, 1);
+						recentKeywords.splice(j, 1);
+					}
 					names.splice(i, 1);
 					icons.splice(i, 1);
 					uris.splice(i, 1);
 					keywords.splice(i, 1);
 				}
 				else {
+					for (var j = 0, maxj = recentUris.length; j < maxj; j++)
+					{
+						if (recentUris[j] != uris[i] &&
+							recentKeywords[j] != keywords[i])
+							continue;
+
+						recentIds.splice(j, 1, '');
+						recentNames.splice(j, 1, data.name);
+						recentIcons.splice(j, 1, data.icon);
+						recentUris.splice(j, 1, data.uri);
+						recentKeywords.splice(j, 1, keyword);
+					}
 					names.splice(i, 1, data.name);
 					icons.splice(i, 1, data.icon);
 					uris.splice(i, 1, data.uri);
@@ -2062,6 +2087,14 @@ catch(e) {
 				}
 				break;
 			}
+		}
+
+		if (recentNum != recentUris.length) {
+			setArrayPref('secondsearch.recentengines.id', recentIds);
+			setArrayPref('secondsearch.recentengines.name', recentNames);
+			setArrayPref('secondsearch.recentengines.icon', recentIcons);
+			setArrayPref('secondsearch.recentengines.uri', recentUris);
+			setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
 		}
 
 		this.setArrayPref('secondsearch.keyword.cache.name', names);
@@ -2209,13 +2242,26 @@ catch(e) {
 					this.keywordsHash[aSource].keyword = shortcut;
 					for (var i = 0, maxi = uris.length; i < maxi; i++)
 					{
-						if (uris[i] == aSource) {
-							names.splice(i, 1, name);
-							icons.splice(i, 1, icon);
-							uris.splice(i, 1, aSource);
-							keywords.splice(i, 1, shortcut);
-							break;
+						if (uris[i] != aSource) continue;
+
+						for (var j = 0, maxj = recentUris.length; j < maxj; j++)
+						{
+							if (recentUris[j] != aSource &&
+								recentKeywords[j] != shortcut)
+								continue;
+
+							recentIds.splice(j, 1, '');
+							recentNames.splice(j, 1, name);
+							recentIcons.splice(j, 1, icon);
+							recentUris.splice(j, 1, aSource);
+							recentKeywords.splice(j, 1, shortcut);
 						}
+
+						names.splice(i, 1, name);
+						icons.splice(i, 1, icon);
+						uris.splice(i, 1, aSource);
+						keywords.splice(i, 1, shortcut);
+						break;
 					}
 				}
 				else {
@@ -2236,23 +2282,43 @@ catch(e) {
 			case 'remove':
 				for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
 				{
-					if (this.keywords[i].uri == aSource) {
-						this.keywords.splice(i, 1);
-						delete this.keywordsHash[aSource];
-						break;
-					}
+					if (this.keywords[i].uri != aSource) continue;
+					this.keywords.splice(i, 1);
+					delete this.keywordsHash[aSource];
+					break;
 				}
 				for (var i = 0, maxi = uris.length; i < maxi; i++)
 				{
-					if (uris[i] == aSource) {
-						names.splice(i, 1);
-						icons.splice(i, 1);
-						uris.splice(i, 1);
-						keywords.splice(i, 1);
-						break;
+					if (uris[i] != aSource) continue;
+
+					for (var j = 0, maxj = recentUris.length; j < maxj; j++)
+					{
+						if (recentUris[j] != uris[i] &&
+							recentKeywords[j] != keywords[i])
+							continue;
+
+						recentIds.splice(j, 1);
+						recentNames.splice(j, 1);
+						recentIcons.splice(j, 1);
+						recentUris.splice(j, 1);
+						recentKeywords.splice(j, 1);
 					}
+
+					names.splice(i, 1);
+					icons.splice(i, 1);
+					uris.splice(i, 1);
+					keywords.splice(i, 1);
+					break;
 				}
 				break;
+		}
+
+		if (recentNum != recentUris.length) {
+			setArrayPref('secondsearch.recentengines.id', recentIds);
+			setArrayPref('secondsearch.recentengines.name', recentNames);
+			setArrayPref('secondsearch.recentengines.icon', recentIcons);
+			setArrayPref('secondsearch.recentengines.uri', recentUris);
+			setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
 		}
 
 		this.setArrayPref('secondsearch.keyword.cache.name', names);
