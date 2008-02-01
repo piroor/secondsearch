@@ -400,7 +400,7 @@ var SecondSearch = {
 			}
 		}
 	},
- 	
+ 
 	initRecentEngines : function(aPopup) 
 	{
 		var popup = aPopup || this.popup;
@@ -1879,14 +1879,15 @@ catch(e) {
 			count !== null &&
 			count != -1
 			) { // load cache
-			var data = {
+			var data;
+			for (var i = 0, maxi = uris.length; i < maxi; i++)
+			{
+				data = {
 					name    : names[i],
 					icon    : icons[i],
 					uri     : uris[i],
 					keyword : keywords[i]
-				};
-			for (var i = 0, maxi = uris.length; i < maxi; i++)
-			{
+				}
 				if (!uris[i]) continue;
 				this.keywords.push(data);
 				this.keywordsHash[data.uri] = data;
@@ -1966,7 +1967,7 @@ catch(e) {
 
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 	},
- 
+ 	
 	// Firefox 3: SQLite based bookmarks 
 	 
 	newKeywordFromPlaces : function(aId) 
@@ -2003,6 +2004,7 @@ catch(e) {
 
 		var keyword = this.NavBMService.getKeywordForBookmark(aId);
 		var data    = this.newKeywordFromPlaces(aId);
+
 		var modified = false;
 		for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
 		{
@@ -2167,7 +2169,7 @@ catch(e) {
 	},
   
 	// Firefox 2: RDF based bookmarks 
-	 
+	
 	updateKeywordFromRDF : function(aSource, aMode) 
 	{
 		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
