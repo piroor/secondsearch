@@ -302,7 +302,7 @@ var SecondSearch = {
 	},
   
 /* UI */ 
-	
+	 
 	getCurrentItem : function(aPopup) 
 	{
 		aPopup = aPopup || this.popup;
@@ -400,7 +400,7 @@ var SecondSearch = {
 			}
 		}
 	},
- 
+ 	
 	initRecentEngines : function(aPopup) 
 	{
 		var popup = aPopup || this.popup;
@@ -1572,7 +1572,7 @@ catch(e) {
 	},
   
 /* operate engines */ 
-	
+	 
 	getSearchEngineFromName : function(aName) 
 	{ // Firefox 2
 		var bar = this.searchbar;
@@ -1688,11 +1688,11 @@ catch(e) {
  
 	getRecentEngines : function(aName) 
 	{
-		var names    = (this.getCharPref('secondsearch.recentengines.name') || '').split('|');
-		var icons    = (this.getCharPref('secondsearch.recentengines.icon') || '').split('|');
-		var uris     = (this.getCharPref('secondsearch.recentengines.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
-		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
+		var names    = this.getArrayPref('secondsearch.recentengines.name');
+		var icons    = this.getArrayPref('secondsearch.recentengines.icon');
+		var uris     = this.getArrayPref('secondsearch.recentengines.uri');
+		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
+		var ids      = this.getArrayPref('secondsearch.recentengines.id');
 
 		var list = [];
 		var listDone = {};
@@ -1702,22 +1702,22 @@ catch(e) {
 		{
 			if (
 				keywords[i] ?
-					!(decodeURIComponent(uris[i]) in this.keywordsHash) :
+					!(uris[i] in this.keywordsHash) :
 					(
 						!uris[i] ||
-						!source.getElementsByAttribute('label', decodeURIComponent(names[i])).length
+						!source.getElementsByAttribute('label', names[i]).length
 					)
 				)
 				continue;
 
 			list.push({
-				name    : decodeURIComponent(names[i]),
-				icon    : decodeURIComponent(icons[i]),
-				uri     : decodeURIComponent(uris[i]),
-				keyword : (keywords[i] ? decodeURIComponent(keywords[i]) : '' ),
-				id      : decodeURIComponent(ids[i])
+				name    : names[i],
+				icon    : icons[i],
+				uri     : uris[i],
+				keyword : (keywords[i] ? keywords[i] : '' ),
+				id      : ids[i]
 			});
-			listDone[names[i]+':'+uris[i]] = true;
+			listDone[encodeURIComponent(names[i])+':'+encodeURIComponent(uris[i])] = true;
 		}
 
 		if (list.length < this.historyNum) {
@@ -1745,11 +1745,11 @@ catch(e) {
  
 	updateRecentList : function(aOperation, aEngine) 
 	{
-		var names    = (this.getCharPref('secondsearch.recentengines.name') || '').split('|');
-		var icons    = (this.getCharPref('secondsearch.recentengines.icon') || '').split('|');
-		var uris     = (this.getCharPref('secondsearch.recentengines.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.recentengines.keyword') || '').split('|');
-		var ids      = (this.getCharPref('secondsearch.recentengines.id') || '').split('|');
+		var names    = this.getArrayPref('secondsearch.recentengines.name');
+		var icons    = this.getArrayPref('secondsearch.recentengines.icon');
+		var uris     = this.getArrayPref('secondsearch.recentengines.uri');
+		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
+		var ids      = this.getArrayPref('secondsearch.recentengines.id');
 
 		for (var i = uris.length-1; i > -1; i--)
 		{
@@ -1768,7 +1768,7 @@ catch(e) {
 			aOperation == 'check') {
 			for (var i = 0, maxi = names.length; i < maxi; i++)
 			{
-				if (decodeURIComponent(names[i]) != aEngine.name) continue;
+				if (names[i] != aEngine.name) continue;
 				if (aOperation == 'check') {
 					retVal = true;
 					break;
@@ -1783,11 +1783,11 @@ catch(e) {
 		}
 
 		if (aOperation == 'add') {
-			names.splice(0, 0, encodeURIComponent(aEngine.name));
-			icons.splice(0, 0, encodeURIComponent(aEngine.icon));
-			uris.splice(0, 0, encodeURIComponent(aEngine.uri));
-			keywords.splice(0, 0, encodeURIComponent(aEngine.keyword));
-			ids.splice(0, 0, encodeURIComponent(aEngine.id));
+			names.splice(0, 0, aEngine.name);
+			icons.splice(0, 0, aEngine.icon);
+			uris.splice(0, 0, aEngine.uri);
+			keywords.splice(0, 0, aEngine.keyword);
+			ids.splice(0, 0, aEngine.id);
 		}
 
 		var history = this.historyNum;
@@ -1802,11 +1802,11 @@ catch(e) {
 			}
 		}
 
-		this.setCharPref('secondsearch.recentengines.name',    names.join('|'));
-		this.setCharPref('secondsearch.recentengines.icon',    icons.join('|'));
-		this.setCharPref('secondsearch.recentengines.uri',     uris.join('|'));
-		this.setCharPref('secondsearch.recentengines.keyword', keywords.join('|'));
-		this.setCharPref('secondsearch.recentengines.id',      ids.join('|'));
+		this.setArrayPref('secondsearch.recentengines.name',    names);
+		this.setArrayPref('secondsearch.recentengines.icon',    icons);
+		this.setArrayPref('secondsearch.recentengines.uri',     uris);
+		this.setArrayPref('secondsearch.recentengines.keyword', keywords);
+		this.setArrayPref('secondsearch.recentengines.id',      ids);
 
 		return retVal;
 	},
@@ -1868,15 +1868,10 @@ catch(e) {
 		this.keywordsHash = {};
 		if (!this.shouldShowKeywords) return;
 
-		var names = (this.getCharPref('secondsearch.keyword.cache.name') || '').split('|');
-		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
-		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
-
-		if (names.length == 1 && !names[0]) names = [];
-		if (icons.length == 1 && !icons[0]) icons = [];
-		if (uris.length == 1 && !uris[0]) uris = [];
-		if (keywords.length == 1 && !names[0]) keywords = [];
+		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
+		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
+		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
+		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
 		var count = this.getIntPref('secondsearch.keyword.cache.count');
 		if (
@@ -1884,16 +1879,17 @@ catch(e) {
 			count !== null &&
 			count != -1
 			) { // load cache
+			var data = {
+					name    : names[i],
+					icon    : icons[i],
+					uri     : uris[i],
+					keyword : keywords[i]
+				};
 			for (var i = 0, maxi = uris.length; i < maxi; i++)
 			{
 				if (!uris[i]) continue;
-				this.keywords.push({
-					name    : decodeURIComponent(names[i]),
-					icon    : decodeURIComponent(icons[i]),
-					uri     : decodeURIComponent(uris[i]),
-					keyword : decodeURIComponent(keywords[i])
-				});
-				this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
+				this.keywords.push(data);
+				this.keywordsHash[data.uri] = data;
 			}
 		}
 		else if (this.placesAvailable) { // initialize for Firefox 3
@@ -1902,15 +1898,17 @@ catch(e) {
 						' JOIN moz_keywords k ON k.id = b.keyword_id'
 					);
 			try {
+				var data;
 				while (s.executeStep())
 				{
-					this.keywords.push(this.newKeywordFromPlaces(s.getDouble(0)));
-					this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
+					data = this.newKeywordFromPlaces(s.getDouble(0));
+					this.keywords.push(data);
+					this.keywordsHash[data.uri] = data;
 
-					names.push(encodeURIComponent(this.keywords[this.keywords.length-1].name));
-					icons.push(encodeURIComponent(this.keywords[this.keywords.length-1].icon));
-					uris.push(encodeURIComponent(this.keywords[this.keywords.length-1].uri));
-					keywords.push(encodeURIComponent(this.keywords[this.keywords.length-1].keyword));
+					names.push(data.name);
+					icons.push(data.icon);
+					uris.push(data.uri);
+					keywords.push(data.keyword);
 				}
 			}
 			catch(e) {
@@ -1925,6 +1923,7 @@ catch(e) {
 				icon;
 			var shortcuts = [];
 			var doneKeywords = {};
+			var data;
 			while (resources.hasMoreElements())
 			{
 				res = resources.getNext();
@@ -1937,19 +1936,19 @@ catch(e) {
 						name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
 						icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
 
-						this.keywords.push({
+						data = {
 							name    : name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : shortcut.Value ,
 							icon    : icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ,
 							uri     : res.Value,
 							keyword : shortcut.Value
-						});
+						};
+						this.keywords.push(data);
+						this.keywordsHash[res.Value] = data;
 
-						this.keywordsHash[res.Value] = this.keywords[this.keywords.length-1];
-
-						names.push(encodeURIComponent(this.keywords[this.keywords.length-1].name));
-						icons.push(encodeURIComponent(this.keywords[this.keywords.length-1].icon));
-						uris.push(encodeURIComponent(this.keywords[this.keywords.length-1].uri));
-						keywords.push(encodeURIComponent(this.keywords[this.keywords.length-1].keyword));
+						names.push(data.name);
+						icons.push(data.icon);
+						uris.push(data.uri);
+						keywords.push(data.keyword);
 						doneKeywords[shortcut.Value] = true;
 					}
 				}
@@ -1959,18 +1958,18 @@ catch(e) {
 			}
 		}
 
-		this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.icon', icons.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.uri', uris.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.keyword', keywords.join('|'));
+		this.setArrayPref('secondsearch.keyword.cache.name', names);
+		this.setArrayPref('secondsearch.keyword.cache.icon', icons);
+		this.setArrayPref('secondsearch.keyword.cache.uri', uris);
+		this.setArrayPref('secondsearch.keyword.cache.keyword', keywords);
 		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 	},
- 	
+ 
 	// Firefox 3: SQLite based bookmarks 
 	 
-	newKeywordFromPlaces : function(aId)
+	newKeywordFromPlaces : function(aId) 
 	{
 		var name    = this.NavBMService.getItemTitle(aId);
 		var uri     = this.NavBMService.getBookmarkURI(aId);
@@ -1991,15 +1990,16 @@ catch(e) {
  
 	updateKeywordFromPlaces : function(aId, aMode) 
 	{
-		var names = (this.getCharPref('secondsearch.keyword.cache.name') || '').split('|');
-		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
-		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
+		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
+		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
+		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
-		if (names.length == 1 && !names[0]) names = [];
-		if (icons.length == 1 && !icons[0]) icons = [];
-		if (uris.length == 1 && !uris[0]) uris = [];
-		if (keywords.length == 1 && !names[0]) keywords = [];
+		var recentIds      = this.getArrayPref('secondsearch.recentengines.id');
+		var recentNames    = this.getArrayPref('secondsearch.recentengines.name');
+		var recentIcons    = this.getArrayPref('secondsearch.recentengines.icon');
+		var recentUris     = this.getArrayPref('secondsearch.recentengines.uri');
+		var recentKeywords = this.getArrayPref('secondsearch.recentengines.keyword');
 
 		var keyword = this.NavBMService.getKeywordForBookmark(aId);
 		var data    = this.newKeywordFromPlaces(aId);
@@ -2027,22 +2027,19 @@ catch(e) {
 			break;
 		}
 
-		var encodedURI = encodeURIComponent(data.uri);
-		var encodedKeyword = encodeURIComponent(keyword);
-
 		if (!modified) {
 			this.keywords.push(data);
 			this.keywordsHash[data.uri] = data;
-			names.push(encodeURIComponent(data.name));
-			icons.push(encodeURIComponent(data.icon));
-			uris.push(encodedURI);
-			keywords.push(encodedKeyword);
+			names.push(data.name);
+			icons.push(data.icon);
+			uris.push(data.uri);
+			keywords.push(keyword);
 		}
 		else {
 			for (var i = 0, maxi = keywords.length; i < maxi; i++)
 			{
-				if (uris[i] != encodedURI &&
-					keywords[i] != encodedKeyword)
+				if (uris[i] != data.uri &&
+					keywords[i] != keyword)
 					continue;
 
 				if (aMode == 'delete') {
@@ -2052,19 +2049,19 @@ catch(e) {
 					keywords.splice(i, 1);
 				}
 				else {
-					names.splice(i, 1, encodeURIComponent(data.name));
-					icons.splice(i, 1, encodeURIComponent(data.icon));
-					uris.splice(i, 1, encodedURI);
-					keywords.splice(i, 1, encodedKeyword);
+					names.splice(i, 1, data.name);
+					icons.splice(i, 1, data.icon);
+					uris.splice(i, 1, data.uri);
+					keywords.splice(i, 1, keyword);
 				}
 				break;
 			}
 		}
 
-		this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.icon', icons.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.uri', uris.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.keyword', keywords.join('|'));
+		this.setArrayPref('secondsearch.keyword.cache.name', names);
+		this.setArrayPref('secondsearch.keyword.cache.icon', icons);
+		this.setArrayPref('secondsearch.keyword.cache.uri', uris);
+		this.setArrayPref('secondsearch.keyword.cache.keyword', keywords);
 		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 	},
  
@@ -2173,17 +2170,16 @@ catch(e) {
 	 
 	updateKeywordFromRDF : function(aSource, aMode) 
 	{
-		var names = (this.getCharPref('secondsearch.keyword.cache.name') || '').split('|');
-		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
-		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
-		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
+		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
+		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
+		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
-		if (names.length == 1 && !names[0]) names = [];
-		if (icons.length == 1 && !icons[0]) icons = [];
-		if (uris.length == 1 && !uris[0]) uris = [];
-		if (keywords.length == 1 && !names[0]) keywords = [];
-
-		var encodedSource = encodeURIComponent(aSource);
+		var recentIds      = this.getArrayPref('secondsearch.recentengines.id');
+		var recentNames    = this.getArrayPref('secondsearch.recentengines.name');
+		var recentIcons    = this.getArrayPref('secondsearch.recentengines.icon');
+		var recentUris     = this.getArrayPref('secondsearch.recentengines.uri');
+		var recentKeywords = this.getArrayPref('secondsearch.recentengines.keyword');
 
 		var res = this.RDF.GetResource(aSource);
 		var shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
@@ -2207,11 +2203,11 @@ catch(e) {
 					this.keywordsHash[aSource].keyword = shortcut;
 					for (var i = 0, maxi = uris.length; i < maxi; i++)
 					{
-						if (uris[i] == encodedSource) {
-							names.splice(i, 1, encodeURIComponent(name));
-							icons.splice(i, 1, encodeURIComponent(icon));
-							uris.splice(i, 1, encodeURIComponent(aSource));
-							keywords.splice(i, 1, encodeURIComponent(shortcut));
+						if (uris[i] == aSource) {
+							names.splice(i, 1, name);
+							icons.splice(i, 1, icon);
+							uris.splice(i, 1, aSource);
+							keywords.splice(i, 1, shortcut);
 							break;
 						}
 					}
@@ -2224,10 +2220,10 @@ catch(e) {
 						keyword : shortcut
 					});
 					this.keywordsHash[aSource] = this.keywords[this.keywords.length-1];
-					names.push(encodeURIComponent(name));
-					icons.push(encodeURIComponent(icon));
-					uris.push(encodeURIComponent(aSource));
-					keywords.push(encodeURIComponent(shortcut));
+					names.push(name);
+					icons.push(icon);
+					uris.push(aSource);
+					keywords.push(shortcut);
 				}
 				break;
 
@@ -2242,7 +2238,7 @@ catch(e) {
 				}
 				for (var i = 0, maxi = uris.length; i < maxi; i++)
 				{
-					if (uris[i] == encodedSource) {
+					if (uris[i] == aSource) {
 						names.splice(i, 1);
 						icons.splice(i, 1);
 						uris.splice(i, 1);
@@ -2253,10 +2249,10 @@ catch(e) {
 				break;
 		}
 
-		this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.icon', icons.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.uri', uris.join('|'));
-		this.setCharPref('secondsearch.keyword.cache.keyword', keywords.join('|'));
+		this.setArrayPref('secondsearch.keyword.cache.name', names);
+		this.setArrayPref('secondsearch.keyword.cache.icon', icons);
+		this.setArrayPref('secondsearch.keyword.cache.uri', uris);
+		this.setArrayPref('secondsearch.keyword.cache.keyword', keywords);
 		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 	},
  
@@ -2432,6 +2428,36 @@ catch(e) {
 		string.data = aValue;
 		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
 		return aValue;
+	},
+ 
+	getArrayPref : function(aKey) 
+	{
+		var value;
+		try {
+			value = this.Prefs.getComplexValue(aKey, this.knsISupportsString).data;
+		}
+		catch(e) {
+			value = null;
+		}
+		var array = (value || '').split('|');
+		if (array.length == 1 && !array[0]) {
+			array = [];
+		}
+		for (var i = 0, maxi = array.length; i < maxi; i++)
+			array[i] = decodeURIComponent(array[i]);
+		return array;
+	},
+ 
+	setArrayPref : function(aKey, aValues) 
+	{
+		for (var i = 0, maxi = aValues.length; i < maxi; i++)
+			aValues[i] = encodeURIComponent(aValues[i]);
+		var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
+				Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
+				Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
+		string.data = aValues.join('|');
+		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
+		return aValues;
 	},
  
 	addPrefListener : function(aObserver) 
