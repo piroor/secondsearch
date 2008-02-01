@@ -25,7 +25,7 @@ var SecondSearch = {
 	},
 	 
 /* preference values */ 
-	 
+	
 	get historyNum() 
 	{
 		var val = this.getIntPref('secondsearch.recentengines.num');
@@ -223,7 +223,7 @@ var SecondSearch = {
 		return val;
 	},
 	defaultReuseBlankTab : true,
- 	 
+  
 /* elements */ 
 	
 	get searchbar() 
@@ -821,7 +821,7 @@ catch(e) {
 			SecondSearch.clearAfterSearchTimer = null;
 		}, this.clearDelay);
 	},
-	stopClearAfterSearch : function() 
+	stopClearAfterSearch : function()
 	{
 		if (this.clearAfterSearchTimer)
 			window.clearTimeout(this.clearAfterSearchTimer);
@@ -1015,7 +1015,7 @@ catch(e) {
 	},
   
 /* event handlers */ 
-	 
+	
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -1228,7 +1228,7 @@ catch(e) {
 	},
   
 /* drag and drop */ 
-	 
+	
 	searchDNDObserver : { 
 		showTimer : -1,
 		hideTimer : -1,
@@ -1386,7 +1386,7 @@ catch(e) {
    
 /* do search */ 
 
-	 
+	
 	doSearchBy : function(aItem, aEvent) 
 	{
 		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
@@ -1471,7 +1471,7 @@ catch(e) {
 
 		if (
 			this.browser.localName == 'tabbrowser' &&
-			newTab && 
+			newTab &&
 			(
 				isManual ||
 				!this.reuseBlankTab ||
@@ -1831,6 +1831,9 @@ catch(e) {
    
 /* keywords */ 
 	 
+	keywords : [], 
+	keywordsHash : {},
+ 	
 	initKeywords : function(aForceUpdate) 
 	{
 		this.keywords     = [];
@@ -1859,7 +1862,44 @@ catch(e) {
 				this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
 			}
 		}
-		else if ('PlacesController' in window) { // places build
+		else if (this.placesAvailable) { // Firefox 3
+			var s = this.placesDB.createStatement(
+						'SELECT b.id FROM moz_bookmarks b'+
+						' JOIN moz_keywords k ON k.id = b.keyword_id'
+					);
+			try {
+				var id, name, uri, favicon, keyword;
+				while (s.executeStep())
+				{
+					id      = s.getDouble(0);
+					name    = this.NavBMService.getItemTitle(id);
+					uri     = this.NavBMService.getBookmarkURI(id);
+					keyword = this.NavBMService.getKeywordForBookmark(id);
+					favicon = '';
+					try {
+						favicon = this.FavIconService.getFaviconForPage(uri).spec;
+					}
+					catch(e) {
+					}
+
+					this.keywords.push({
+						name    : name,
+						icon    : favicon,
+						uri     : uri.spec,
+						keyword : keyword
+					});
+
+					this.keywordsHash[keyword] = this.keywords[this.keywords.length-1];
+
+					names.push(encodeURIComponent(name));
+					icons.push(encodeURIComponent(favicon));
+					uris.push(encodeURIComponent(uri.spec));
+					keywords.push(encodeURIComponent(keyword));
+				}
+			}
+			catch(e) {
+			}
+			s.reset();
 		}
 		else {
 			var resources = this.bookmarksDS.GetAllResources()
@@ -1901,18 +1941,16 @@ catch(e) {
 					continue;
 				}
 			}
-
-			this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
-			this.setCharPref('secondsearch.keyword.cache.icon', icons.join('|'));
-			this.setCharPref('secondsearch.keyword.cache.uri', uris.join('|'));
-			this.setCharPref('secondsearch.keyword.cache.keyword', keywords.join('|'));
-			this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 		}
+
+		this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
+		this.setCharPref('secondsearch.keyword.cache.icon', icons.join('|'));
+		this.setCharPref('secondsearch.keyword.cache.uri', uris.join('|'));
+		this.setCharPref('secondsearch.keyword.cache.keyword', keywords.join('|'));
+		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 	},
-	keywords : [],
-	keywordsHash : {},
  
 	updateKeyword : function(aSource, aMode) 
 	{
@@ -1997,6 +2035,49 @@ catch(e) {
 		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 	},
  
+	// Firefox 3: SQLite based bookmarks 
+	
+	get placesAvailable() 
+	{
+		return 'PlacesController' in window;
+	},
+ 
+	get placesDB() 
+	{
+		if (!this._placesDB) {
+			const DirectoryService = Components.classes['@mozilla.org/file/directory_service;1']
+						.getService(Components.interfaces.nsIProperties);
+			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			file.append('places.sqlite');
+
+			var storageService = Components.classes['@mozilla.org/storage/service;1']
+						.getService(Components.interfaces.mozIStorageService);
+			this._placesDB = storageService.openDatabase(file);
+		}
+		return this._placesDB;
+	},
+	_placesDB : null,
+ 
+	get NavBMService() 
+	{
+		if (!this._NavBMService) {
+			this._NavBMService = Components.classes['@mozilla.org/browser/nav-bookmarks-service;1']
+						.getService(Components.interfaces.nsINavBookmarksService);
+		}
+		return this._NavBMService;
+	},
+ 
+	get FavIconService() 
+	{
+		if (!this._FavIconService) {
+			this._FavIconService = Components.classes['@mozilla.org/browser/favicon-service;1']
+						.getService(Components.interfaces.nsIFaviconService);
+		}
+		return this._FavIconService;
+	},
+  
+	// Firefox 2: RDF based bookmarks 
+	
 	get RDF() 
 	{
 		if (!this._RDF)
@@ -2069,9 +2150,9 @@ catch(e) {
 				SecondSearch.updateKeyword(aSource.Value, aMode);
 		}
 	},
-  
+   
 /* prefs */ 
-	
+	 
 	domain  : 'secondsearch', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -2192,7 +2273,7 @@ catch(e) {
 	},
   
 /* initializing */ 
-	
+	 
 	init : function() { 
 		this.initBar();
 		window.removeEventListener('load', this, false);
