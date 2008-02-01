@@ -235,13 +235,20 @@ var SecondSearch = {
 	get source() 
 	{
 		var bar = this.searchbar;
-		return bar ? document.getAnonymousElementByAttribute(bar, 'anonid', 'searchbar-popup') : null ;
+		var node = bar ? document.getAnonymousElementByAttribute(bar, 'anonid', 'searchbar-popup') : null ;
+		if (node &&
+			node.hasChildNodes() &&
+			node.firstChild.localName == 'menuseparator') {
+			this.searchbar.rebuildPopup();
+		}
+		return node;
 	},
  
 	get textbox() 
 	{
 		var bar = this.searchbar;
 		return bar ? (
+				bar.textbox || /* Firefox 3 */
 				bar._textbox || /* Firefox 2 */
 				bar.mTextbox /* Firefox 1.5 */
 			) : null ;
@@ -251,6 +258,7 @@ var SecondSearch = {
 	{
 		var bar = this.searchbar;
 		return bar ? (
+				bar.searchButton || /* Firefox 3 */
 				bar._engineButton || /* Firefox 2 */
 				document.getAnonymousElementByAttribute(bar, 'id', 'searchbar-dropmarker') /* Firefox 1.5 */
 			) : null ;
@@ -456,41 +464,52 @@ var SecondSearch = {
 
 			if (aReason == this.SHOWN_BY_CONTEXT) {
 				document.popupNode = this.engineButton;
-				popup.showPopup(
-					bar,
-					aX - document.documentElement.boxObject.screenX,
-					aY - document.documentElement.boxObject.screenY,
-					'menupopup',
-					null,
-					null
-				);
+				if ('openPopupAtScreen' in popup)
+					popup.openPopupAtScreen(aX, aY, true);
+				else
+					popup.showPopup(
+						bar,
+						aX - document.documentElement.boxObject.screenX,
+						aY - document.documentElement.boxObject.screenY,
+						'menupopup',
+						null,
+						null
+					);
 			}
 			else {
+				var position;
 				if (pos == 0 &&
 					bar.boxObject.screenY >= document.documentElement.boxObject.y + (bar.boxObject.height * (num+1) * 0.8)) { // above
 	//dump('above\n');
 					anchor = 'topleft';
 					align  = 'bottomleft';
+					position = 'before_start';
 				}
 				else if (pos == 1 &&
 					bar.boxObject.screenY + bar.boxObject.height + this.textbox.popup.boxObject.height <= document.documentElement.boxObject.y + document.documentElement.boxObject.height - (bar.boxObject.height * (num+1) * 0.8)) { // below
 	//dump('below\n');
 					anchor = 'bottomleft';
 					align  = 'topleft';
+					position = 'after_start';
 				}
 				else if (bar.boxObject.screenX < document.documentElement.boxObject.y+bar.boxObject.width) { // right
 	//dump('right\n');
 					anchor = 'bottomright';
 					align  = 'bottomleft';
+					position = 'end_after';
 				}
 				else { // left
 	//dump('left\n');
 					anchor = 'bottomleft';
 					align  = 'bottomright';
+					position = 'start_after';
 				}
 
 				document.popupNode = bar;
-				popup.showPopup(bar, -1, -1, 'menupopup', anchor, align);
+				if ('openPopup' in popup)
+					popup.openPopup(bar, position, 0, 0, false, true);
+				else
+					popup.showPopup(bar, -1, -1, 'menupopup', anchor, align);
 			}
 
 			var current = this.getCurrentItem(popup);
@@ -879,16 +898,6 @@ catch(e) {
 						.replace(/doSearch\(([^\)]+)\)/, 'doSearch($1, aOverride)')
 			);
 			eval(
-				'search.onEnginePopupCommand = '+
-					search.onEnginePopupCommand.toSource()
-						.replace('this.currentEngine = aTarget.engine',
-							'{'+
-								'SecondSearch.addEngineToRecentList(SecondSearch.getCurrentEngine());'+
-								'this.currentEngine = aTarget.engine;'+
-							'};'
-						)
-			);
-			eval(
 				'search.doSearch = '+
 					search.doSearch.toSource()
 						.replace(
@@ -904,6 +913,7 @@ catch(e) {
 			);
 			search.__secondsearch__doSearch = search.doSearch;
 			search.doSearch = this.doSearchbarSearch;
+			search.addEventListener('command', this, true);
 		}
 		else if ('onEnginePopupCommand' in textbox && textbox.onEnginePopupCommand.toSource().indexOf('SecondSearch') < 0) { // Firefox 1.5
 			eval(
@@ -987,6 +997,9 @@ catch(e) {
 		search.removeEventListener('dragexit',  this, false);
 		search.removeEventListener('dragdrop',  this, false);
 
+		if ('handleSearchCommand' in search)
+			search.removeEventListener('command', this, true);
+
 		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('blur',  this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('click', this.onSomethingFocusedOrBlured, true);
@@ -1020,6 +1033,12 @@ catch(e) {
 
 			case 'blur':
 				this.hideSecondSearch();
+				break;
+
+			case 'command':
+				var node = aEvent.originalTarget || aEvent.target;
+				if (node.getAttribute('class').indexOf('addengine-item') > -1)
+					this.addEngineToRecentList(this.getCurrentEngine());
 				break;
 
 
@@ -2171,7 +2190,8 @@ catch(e) {
 			window.__secondsearch__BrowserCustomizeToolbar.call(window);
 		};
 
-		var toolbox = document.getElementById('navigator-toolbox');
+		var toolbox = document.getElementById('browser-toolbox') || // Firefox 3
+					document.getElementById('navigator-toolbox'); // Firefox 2
 		if (toolbox.customizeDone) {
 			toolbox.__secondsearch__customizeDone = toolbox.customizeDone;
 			toolbox.customizeDone = function(aChanged) {
