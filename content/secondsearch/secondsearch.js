@@ -1833,7 +1833,35 @@ catch(e) {
 	 
 	keywords : [], 
 	keywordsHash : {},
- 	
+ 
+	startObserveKeyword : function() 
+	{
+		if (this.placesAvailable) {
+			this.NavBMService.addObserver(this.placesObserver, false);
+		}
+		else {
+			try {
+				this.bookmarksDS.AddObserver(this.bookmarksRDFObserver);
+			}
+			catch(e) {
+			}
+		}
+	},
+ 
+	endObserveKeyword : function() 
+	{
+		if (this.placesAvailable) {
+			this.NavBMService.removeObserver(this.placesObserver);
+		}
+		else {
+			try {
+				this.bookmarksDS.RemoveObserver(this.bookmarksRDFObserver);
+			}
+			catch(e) {
+			}
+		}
+	},
+ 
 	initKeywords : function(aForceUpdate) 
 	{
 		this.keywords     = [];
@@ -1844,12 +1872,18 @@ catch(e) {
 		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
 		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
 		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+
+		if (names.length == 1 && !names[0]) names = [];
+		if (icons.length == 1 && !icons[0]) icons = [];
+		if (uris.length == 1 && !uris[0]) uris = [];
+		if (keywords.length == 1 && !names[0]) keywords = [];
+
 		var count = this.getIntPref('secondsearch.keyword.cache.count');
 		if (
 			!aForceUpdate &&
 			count !== null &&
 			count != -1
-			) {
+			) { // load cache
 			for (var i = 0, maxi = uris.length; i < maxi; i++)
 			{
 				if (!uris[i]) continue;
@@ -1862,46 +1896,28 @@ catch(e) {
 				this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
 			}
 		}
-		else if (this.placesAvailable) { // Firefox 3
+		else if (this.placesAvailable) { // initialize for Firefox 3
 			var s = this.placesDB.createStatement(
 						'SELECT b.id FROM moz_bookmarks b'+
 						' JOIN moz_keywords k ON k.id = b.keyword_id'
 					);
 			try {
-				var id, name, uri, favicon, keyword;
 				while (s.executeStep())
 				{
-					id      = s.getDouble(0);
-					name    = this.NavBMService.getItemTitle(id);
-					uri     = this.NavBMService.getBookmarkURI(id);
-					keyword = this.NavBMService.getKeywordForBookmark(id);
-					favicon = '';
-					try {
-						favicon = this.FavIconService.getFaviconForPage(uri).spec;
-					}
-					catch(e) {
-					}
+					this.keywords.push(this.newKeywordFromPlaces(s.getDouble(0)));
+					this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
 
-					this.keywords.push({
-						name    : name,
-						icon    : favicon,
-						uri     : uri.spec,
-						keyword : keyword
-					});
-
-					this.keywordsHash[keyword] = this.keywords[this.keywords.length-1];
-
-					names.push(encodeURIComponent(name));
-					icons.push(encodeURIComponent(favicon));
-					uris.push(encodeURIComponent(uri.spec));
-					keywords.push(encodeURIComponent(keyword));
+					names.push(encodeURIComponent(this.keywords[this.keywords.length-1].name));
+					icons.push(encodeURIComponent(this.keywords[this.keywords.length-1].icon));
+					uris.push(encodeURIComponent(this.keywords[this.keywords.length-1].uri));
+					keywords.push(encodeURIComponent(this.keywords[this.keywords.length-1].keyword));
 				}
 			}
 			catch(e) {
 			}
 			s.reset();
 		}
-		else {
+		else { // initialize for Firefox 2
 			var resources = this.bookmarksDS.GetAllResources()
 			var res;
 			var shortcut,
@@ -1951,13 +1967,217 @@ catch(e) {
 
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 	},
+ 	
+	// Firefox 3: SQLite based bookmarks 
+	 
+	newKeywordFromPlaces : function(aId)
+	{
+		var name    = this.NavBMService.getItemTitle(aId);
+		var uri     = this.NavBMService.getBookmarkURI(aId);
+		var keyword = this.NavBMService.getKeywordForBookmark(aId);
+		var favicon = '';
+		try {
+			favicon = this.FavIconService.getFaviconForPage(uri).spec;
+		}
+		catch(e) {
+		}
+		return {
+			name    : name,
+			icon    : favicon,
+			uri     : uri.spec,
+			keyword : keyword
+		};
+	},
  
-	updateKeyword : function(aSource, aMode) 
+	updateKeywordFromPlaces : function(aId, aMode) 
 	{
 		var names = (this.getCharPref('secondsearch.keyword.cache.name') || '').split('|');
 		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
 		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
 		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+
+		if (names.length == 1 && !names[0]) names = [];
+		if (icons.length == 1 && !icons[0]) icons = [];
+		if (uris.length == 1 && !uris[0]) uris = [];
+		if (keywords.length == 1 && !names[0]) keywords = [];
+
+		var keyword = this.NavBMService.getKeywordForBookmark(aId);
+		switch (aMode)
+		{
+			case 'keyword':
+				this.keywords.push(this.newKeywordFromPlaces(aId));
+				this.keywordsHash[this.keywords[this.keywords.length-1].uri] = this.keywords[this.keywords.length-1];
+
+				names.push(encodeURIComponent(this.keywords[this.keywords.length-1].name));
+				icons.push(encodeURIComponent(this.keywords[this.keywords.length-1].icon));
+				uris.push(encodeURIComponent(this.keywords[this.keywords.length-1].uri));
+				keywords.push(encodeURIComponent(this.keywords[this.keywords.length-1].keyword));
+				break;
+
+			case 'title':
+			case 'uri':
+			case 'favicon':
+			case 'delete':
+				var data = this.newKeywordFromPlaces(aId);
+				for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
+				{
+					if (this.keywords[i].keyword == keyword) {
+						if (aMode == 'delete' || aMode == 'uri') {
+							this.keywords.splice(i, 1);
+							delete this.keywordsHash[this.keywords[i].uri];
+						}
+						if (aMode != 'delete') {
+							this.keywordsHash[data.uri] = data;
+						}
+						if (aMode == 'uri') {
+							this.keywords.push(data);
+						}
+						break;
+					}
+				}
+				var encodedKeyword = encodeURIComponent(keyword);
+				for (var i = 0, maxi = keywords.length; i < maxi; i++)
+				{
+					if (keywords[i] == encodedKeyword) {
+						if (aMode == 'delete') {
+							names.splice(i, 1);
+							icons.splice(i, 1);
+							uris.splice(i, 1);
+							keywords.splice(i, 1);
+						}
+						else {
+							names.splice(i, 1, encodeURIComponent(data.name));
+							icons.splice(i, 1, encodeURIComponent(data.icon));
+							uris.splice(i, 1, encodeURIComponent(data.uri));
+						}
+						break;
+					}
+				}
+				break;
+		}
+
+		this.setCharPref('secondsearch.keyword.cache.name', names.join('|'));
+		this.setCharPref('secondsearch.keyword.cache.icon', icons.join('|'));
+		this.setCharPref('secondsearch.keyword.cache.uri', uris.join('|'));
+		this.setCharPref('secondsearch.keyword.cache.keyword', keywords.join('|'));
+		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
+	},
+ 
+	get placesAvailable() 
+	{
+		return 'PlacesController' in window;
+	},
+ 
+	get placesDB() 
+	{
+		if (!this._placesDB) {
+			const DirectoryService = Components.classes['@mozilla.org/file/directory_service;1']
+						.getService(Components.interfaces.nsIProperties);
+			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
+			file.append('places.sqlite');
+
+			var storageService = Components.classes['@mozilla.org/storage/service;1']
+						.getService(Components.interfaces.mozIStorageService);
+			this._placesDB = storageService.openDatabase(file);
+		}
+		return this._placesDB;
+	},
+	_placesDB : null,
+ 
+	get NavBMService() 
+	{
+		if (!this._NavBMService) {
+			this._NavBMService = Components.classes['@mozilla.org/browser/nav-bookmarks-service;1']
+						.getService(Components.interfaces.nsINavBookmarksService);
+		}
+		return this._NavBMService;
+	},
+ 
+	get FavIconService() 
+	{
+		if (!this._FavIconService) {
+			this._FavIconService = Components.classes['@mozilla.org/browser/favicon-service;1']
+						.getService(Components.interfaces.nsIFaviconService);
+		}
+		return this._FavIconService;
+	},
+ 
+	get placesObserver() 
+	{
+		if (!this._placesObserver) {
+			this._placesObserver = {
+				owner : this,
+				onItemAdded : function(aId, aContainer, aIndex)
+				{
+//					dump('onItemAdded '+aId+'\n');
+//					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+//					dump('  keyword: '+keyword+'\n');
+				},
+				onItemRemoved : function(aId, aContainer, aIndex)
+				{
+//					dump('onItemRemoved '+aId+'\n');
+//					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+//					dump('  keyword: '+keyword+'\n');
+				},
+				onItemChanged : function(aId, aProperty, aIsAnnotation, aValue)
+				{
+//					dump('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']\n');
+//					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+//					dump('  keyword: '+keyword+'\n');
+					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+					switch (aProperty)
+					{
+						case 'keyword':
+							if (keyword)
+								this.owner.updateKeywordFromPlaces(aId, 'keyword');
+							else
+								this.owner.updateKeywordFromPlaces(aId, 'delete');
+							return;
+
+						case 'title':
+						case 'uri':
+						case 'favicon':
+							if (keyword)
+								this.owner.updateKeywordFromPlaces(aId, aProperty);
+							return;
+
+						default:
+							if (aIsAnnotation && !aProperty && !aValue && keyword)
+								this.owner.updateKeywordFromPlaces(aId, 'delete');
+							return;
+					}
+				},
+				onItemVisited : function(aId, aVisitedId, aTime) {},
+				onItemMoved : function(aId, aOldContainer, aOldIndex, aNewContainer, aNewIndex) {},
+				onBeginUpdateBatch : function() {},
+				onEndUpdateBatch : function() {},
+				QueryInterface : function(aIID)
+				{
+					if (aIID.equals(Components.interfaces.nsINavBookmarkObserver) ||
+						aIID.equals(Components.interfaces.nsISupports))
+						return this;
+
+					throw Components.results.NS_NOINTERFACE;
+				}
+			};
+		}
+		return this._placesObserver;
+	},
+  
+	// Firefox 2: RDF based bookmarks 
+	 
+	updateKeywordFromRDF : function(aSource, aMode) 
+	{
+		var names = (this.getCharPref('secondsearch.keyword.cache.name') || '').split('|');
+		var icons = (this.getCharPref('secondsearch.keyword.cache.icon') || '').split('|');
+		var uris  = (this.getCharPref('secondsearch.keyword.cache.uri') || '').split('|');
+		var keywords = (this.getCharPref('secondsearch.keyword.cache.keyword') || '').split('|');
+
+		if (names.length == 1 && !names[0]) names = [];
+		if (icons.length == 1 && !icons[0]) icons = [];
+		if (uris.length == 1 && !uris[0]) uris = [];
+		if (keywords.length == 1 && !names[0]) keywords = [];
+
 		var encodedSource = encodeURIComponent(aSource);
 
 		var res = this.RDF.GetResource(aSource);
@@ -2035,49 +2255,6 @@ catch(e) {
 		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
 	},
  
-	// Firefox 3: SQLite based bookmarks 
-	
-	get placesAvailable() 
-	{
-		return 'PlacesController' in window;
-	},
- 
-	get placesDB() 
-	{
-		if (!this._placesDB) {
-			const DirectoryService = Components.classes['@mozilla.org/file/directory_service;1']
-						.getService(Components.interfaces.nsIProperties);
-			var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
-			file.append('places.sqlite');
-
-			var storageService = Components.classes['@mozilla.org/storage/service;1']
-						.getService(Components.interfaces.mozIStorageService);
-			this._placesDB = storageService.openDatabase(file);
-		}
-		return this._placesDB;
-	},
-	_placesDB : null,
- 
-	get NavBMService() 
-	{
-		if (!this._NavBMService) {
-			this._NavBMService = Components.classes['@mozilla.org/browser/nav-bookmarks-service;1']
-						.getService(Components.interfaces.nsINavBookmarksService);
-		}
-		return this._NavBMService;
-	},
- 
-	get FavIconService() 
-	{
-		if (!this._FavIconService) {
-			this._FavIconService = Components.classes['@mozilla.org/browser/favicon-service;1']
-						.getService(Components.interfaces.nsIFaviconService);
-		}
-		return this._FavIconService;
-	},
-  
-	// Firefox 2: RDF based bookmarks 
-	
 	get RDF() 
 	{
 		if (!this._RDF)
@@ -2147,7 +2324,7 @@ catch(e) {
 					)
 				)
 				)
-				SecondSearch.updateKeyword(aSource.Value, aMode);
+				SecondSearch.updateKeywordFromRDF(aSource.Value, aMode);
 		}
 	},
    
@@ -2310,25 +2487,13 @@ catch(e) {
 	delayedInit : function()
 	{
 		this.initKeywords();
-		if (!('PlacesController' in window)) {
-			try {
-				this.bookmarksDS.AddObserver(this.bookmarksRDFObserver);
-			}
-			catch(e) {
-			}
-		}
+		this.startObserveKeyword();
 	},
  
 	destroy : function() { 
 		this.destroyBar();
 		window.removeEventListener('unload', this, false);
-		if (!('PlacesController' in window)) {
-			try {
-				this.bookmarksDS.RemoveObserver(this.bookmarksRDFObserver);
-			}
-			catch(e) {
-			}
-		}
+		this.endObserveKeyword();
 	}
    
 }; 
