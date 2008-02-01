@@ -920,7 +920,7 @@ catch(e) {
 			);
 			search.__secondsearch__doSearch = search.doSearch;
 			search.doSearch = this.doSearchbarSearch;
-			search.addEventListener('command', this, true);
+			search._popup.addEventListener('command', this, true);
 		}
 		else if ('onEnginePopupCommand' in textbox && textbox.onEnginePopupCommand.toSource().indexOf('SecondSearch') < 0) { // Firefox 1.5
 			eval(
@@ -1005,7 +1005,7 @@ catch(e) {
 		search.removeEventListener('dragdrop',  this, false);
 
 		if ('handleSearchCommand' in search)
-			search.removeEventListener('command', this, true);
+			search._popup.removeEventListener('command', this, true);
 
 		window.removeEventListener('focus', this.onSomethingFocusedOrBlured, true);
 		window.removeEventListener('blur',  this.onSomethingFocusedOrBlured, true);
@@ -1498,10 +1498,9 @@ catch(e) {
   
 	doSearchbarSearch : function(aData, aWhere, aOverride) 
 	{ // Firefox 2
-		var simpleFlag = false;
-		if (typeof aWhere == 'boolean') {
-			simpleFlag = true;
-			aWhere = 'tab';
+		var simpleFlag = !SecondSearch.placesAvailable;
+		if (!aWhere || typeof aWhere != 'string') {
+			aWhere = aWhere ? 'tab' : 'current ';
 		}
 
 		if (aWhere &&
