@@ -106,5 +106,4 @@ SecondSearchMail.prototype.__proto__ = SecondSearchBase.prototype;
 var SecondSearch = new SecondSearchMail();
 
 window.addEventListener('load', SecondSearch, false);
-window.addEventListener('unload', SecondSearch, false);
  

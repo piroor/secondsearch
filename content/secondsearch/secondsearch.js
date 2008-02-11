@@ -752,6 +752,7 @@ catch(e) {
 	
 	initPopup : function() 
 	{
+		dump('base-popup\n');
 	},
   
 	onPopupHiding : function(aEvent) 
@@ -1132,6 +1133,7 @@ catch(e) {
 
 		this.initBar();
 		window.removeEventListener('load', this, false);
+		window.addEventListener('unload', this, false);
 
 		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER &&
 			this.searchDNDObserver.isPlatformNotSupported)

@@ -106,6 +106,10 @@ SecondSearchBrowser.prototype = {
 		}
 		return node;
 	},
+	get sourceItems() 
+	{
+		return this.evaluateXPath('descendant::xul:menuitem[contains(@class, "searchbar-engine-menuitem")]', this.source);
+	},
  
 	get allMenuItem() 
 	{
@@ -131,7 +135,6 @@ SecondSearchBrowser.prototype = {
 	
 	initAllEngines : function(aPopup, aParent, aReverse) 
 	{
-		var source = this.source;
 		var popup  = aPopup || this.popup;
 		var parent = aParent || null;
 		var offset = 0;
@@ -152,17 +155,15 @@ SecondSearchBrowser.prototype = {
 
 		var count = 0;
 
-		for (var i = 0, maxi = source.childNodes.length; i < maxi; i++)
+		var items = this.sourceItems;
+		var item;
+		for (var i = 0, maxi = items.snapshotLength; i < maxi; i++)
 		{
-			if (
-				source.childNodes[i].localName != 'menuitem' ||
-				source.childNodes[i].getAttribute('anonid') == 'open-engine-manager' ||
-				(source.childNodes[i].getAttribute('class').indexOf('addengine-item') > -1) ||
-				(parent && parent.getElementsByAttribute('engineName', source.childNodes[i].getAttribute('label')).length)
-				)
+			item = items.snapshotItem(i);
+			if (parent && parent.getElementsByAttribute('engineName', item.getAttribute('label')).length)
 				continue;
 
-			popup.appendChild(source.childNodes[i].cloneNode(true));
+			popup.appendChild(item.cloneNode(true));
 			popup.lastChild.setAttribute('engineName', popup.lastChild.getAttribute('label'));
 			popup.lastChild.id = 'secondsearch-'+(popup.lastChild.id || encodeURIComponent(popup.lastChild.getAttribute('label')));
 			if (!count)
@@ -289,7 +290,7 @@ SecondSearchBrowser.prototype = {
 	get popupHeight() 
 	{
 		return (this.popupType == 0) ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length :
-				(this.source.getElementsByTagName('menuitem').length + this.keywords.length) ;
+				(this.sourceItems.length + this.keywords.length) ;
 	},
  
 	initEmptySearchBar : function() 
@@ -945,23 +946,25 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 		else { // Firefox 1.5
-			var source = this.source;
-			for (var i = 0, maxi = source.childNodes.length; i < maxi; i++)
+			var items = this.sourceItems;
+			var item;
+			for (var i = 0, maxi = items.snapshotLength; i < maxi; i++)
 			{
+				item = items.snapshotItem(i);
 				if (
-					!source.childNodes[i].id ||
+					!item.id ||
 					(aNot ?
-						source.childNodes[i].getAttribute('label') == aName :
-						source.childNodes[i].getAttribute('label') != aName
+						item.getAttribute('label') == aName :
+						item.getAttribute('label') != aName
 					)
 					) continue;
 
 				engine = {
-					name    : source.childNodes[i].getAttribute('label'),
-					icon    : source.childNodes[i].getAttribute('src'),
-					uri     : this.getSearchURI('', source.childNodes[i].id),
+					name    : item.getAttribute('label'),
+					icon    : item.getAttribute('src'),
+					uri     : this.getSearchURI('', item.id),
 					keyword : '',
-					id      : source.childNodes[i].id
+					id      : item.id
 				};
 				break;
 			}
@@ -1036,16 +1039,19 @@ SecondSearchBrowser.prototype = {
 
 		if (list.length < this.historyNum) {
 			var engine = this.getCurrentEngine();
+			var items = this.sourceItems;
+			var source;
 			var item;
-			for (var i = 0, maxi = this.historyNum, childNum = source.childNodes.length; list.length < maxi; i++)
+			for (var i = 0, maxi = this.historyNum, childNum = items.snapshotLength; list.length < maxi; i++)
 			{
 				if (i == childNum) break;
-				if (source.childNodes[i].localName != 'menuitem' ||
-					source.childNodes[i].getAttribute('label') == engine.name ||
-					source.childNodes[i].getAttribute('anonid') == 'open-engine-manager')
+				source = items.snapshotItem(i);
+				if (source.localName != 'menuitem' ||
+					source.getAttribute('label') == engine.name ||
+					source.getAttribute('anonid') == 'open-engine-manager')
 					continue;
 
-				item = this.getEngineFromName(source.childNodes[i].getAttribute('label'));
+				item = this.getEngineFromName(source.getAttribute('label'));
 				if (encodeURIComponent(item.name)+':'+encodeURIComponent(item.uri) in listDone)
 					continue;
 
@@ -1828,5 +1834,4 @@ SecondSearchBrowser.prototype.__proto__ = SecondSearchBase.prototype;
 var SecondSearch = new SecondSearchBrowser();
 
 window.addEventListener('load', SecondSearch, false);
-window.addEventListener('unload', SecondSearch, false);
  
