@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<overlay id="secondsearch-overlay"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script src="chrome://secondsearch/content/secondsearch.js"/>
+<script src="chrome://secondsearch/content/messengerOverlay.js"/>
+
+<toolbaritem id="search-container">
+	<menupopup id="secondsearch_popup"
+			ignorekeys="true"
+			oncommand="SecondSearch.doSearchBy(event.target, event);"
+			onpopupshowing="SecondSearch.onPopupShowing(event)"
+			onpopuphiding="SecondSearch.onPopupHiding(event)"
+			ondragenter="SecondSearch.handleEvent(event);"
+			ondragexit="SecondSearch.handleEvent(event);"
+			ondragover="SecondSearch.handleEvent(event);"
+			ondragdrop="SecondSearch.handleEvent(event);"/>
+</toolbaritem>
+
+</overlay>
