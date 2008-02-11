@@ -978,6 +978,24 @@ catch(e) {
 						)
 			);
 		}
+
+		if (this.placesAvailable)
+			window.setTimeout('SecondSearch.testOpenPopup();', 1000);
+	},
+	testOpenPopup : function()
+	{
+		// ドラッグ中の最初のメニュー展開に何故か失敗するので、この時点で一度試行しておく
+		this.popup.style.opacity = 0;
+		this.popup.openPopupAtScreen(0, 0, false);
+		var popup = this.allMenuItem.firstChild;
+		window.setTimeout(function(aSelf) {
+			popup.style.opacity = 0;
+			popup.openPopupAtScreen(0, 0, false);
+			popup.hidePopup();
+			popup.style.opacity = 1;
+			aSelf.popup.hidePopup();
+			aSelf.popup.style.opacity = 1;
+		}, 10, this);
 	},
  
 	destroyBar : function() 
