@@ -859,7 +859,7 @@ SecondSearchBrowser.prototype = {
 
 				engine = {
 					name    : bar._engines[i].name,
-					icon    : bar._engines[i].iconURI.spec,
+					icon    : (bar._engines[i].iconURI ? bar._engines[i].iconURI.spec : '' ),
 					uri     : bar._engines[i].getSubmission('', null).uri.spec,
 					keyword : '',
 					id      : ''
@@ -903,7 +903,7 @@ SecondSearchBrowser.prototype = {
 		if ('_engines' in bar) { // Firefox 2
 			engine = {
 				name    : bar.currentEngine.name,
-				icon    : bar.currentEngine.iconURI.spec,
+				icon    : (bar.currentEngine.iconURI ? bar.currentEngine.iconURI.spec : '' ),
 				uri     : bar.currentEngine.getSubmission('', null).uri.spec,
 				keyword : '',
 				id      : ''
