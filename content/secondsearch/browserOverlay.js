@@ -802,6 +802,14 @@ SecondSearchBrowser.prototype = {
   
 /* operate engines */ 
 	
+	isEngineAvailable : function(aName)
+	{
+		var bar = this.searchbar;
+		if ('_engines' in bar) // Firefox 2
+			return this.getSearchEngineFromName(aName) ? true : false ;
+		return this.source.getElementsByAttribute('label', aName).length ? true : false ;
+	},
+ 
 	getSearchEngineFromName : function(aName) 
 	{ // Firefox 2
 		var bar = this.searchbar;
@@ -936,7 +944,7 @@ SecondSearchBrowser.prototype = {
 					!(uris[i] in this.keywordsHash) :
 					(
 						!uris[i] ||
-						!source.getElementsByAttribute('label', names[i]).length
+						!this.isEngineAvailable(names[i])
 					)
 				)
 				continue;
