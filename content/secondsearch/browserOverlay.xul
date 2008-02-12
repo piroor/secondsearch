@@ -14,8 +14,15 @@
 			ignorekeys="true"
 			oncommand="SecondSearch.doSearchBy(event.target, event);"
 			onclick="if (event.button == 1) SecondSearch.doSearchBy(event.target, event);"
-			onpopupshowing="SecondSearch.onPopupShowing(event)"
-			onpopuphiding="SecondSearch.onPopupHiding(event)"
+			onpopupshowing="
+				event.target.shown = true;
+				if (event.target == this) SecondSearch.onPopupShowing(event)"
+			onpopuphiding="
+				event.target.shown = true;
+				var current = SecondSearch.getCurrentItem(event.target);
+				if (current) current.removeAttribute('_moz-menuactive');
+				if (event.target == this) SecondSearch.onPopupHiding(event)
+			"
 			ondragenter="SecondSearch.handleEvent(event);"
 			ondragexit="SecondSearch.handleEvent(event);"
 			ondragover="SecondSearch.handleEvent(event);"
@@ -23,13 +30,7 @@
 			labelTemplate="&secondsearch.searchBy;">
 		<menu label="&secondsearch.searchByMore;"
 			id="secondsearch_popup_all">
-			<menupopup
-				onpopupshowing="this.shown = true; event.stopPropagation();"
-				onpopuphiding="this.shown = false; event.stopPropagation(); var current = SecondSearch.getCurrentItem(this); if (current) current.removeAttribute('_moz-menuactive');"
-				ondragenter="SecondSearch.handleEvent(event);"
-				ondragexit="SecondSearch.handleEvent(event);"
-				ondragover="SecondSearch.handleEvent(event);"
-				ondragdrop="SecondSearch.handleEvent(event);"/>
+			<menupopup/>
 		</menu>
 	</menupopup>
 </toolbaritem>

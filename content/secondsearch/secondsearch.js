@@ -207,13 +207,20 @@ SecondSearchBase.prototype = {
   
 /* UI */ 
 	 
-	getCurrentItem : function(aPopup) 
+	getCurrentItem : function(aPopup, aDig) 
 	{
-		aPopup = aPopup || this.popup;
-		var active = aPopup.getElementsByAttribute('_moz-menuactive', 'true');
-		for (var i = 0, maxi = active.length; i < maxi; i++)
-			if (active[i].parentNode == aPopup) return active[i];
-		return null;
+		var popup = aPopup || this.popup;
+		var active;
+		var lastActive = null;
+		while (popup)
+		{
+			active = this.evaluateXPath('child::*[@_moz-menuactive="true"]', popup, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue;
+			if (!active) return lastActive;
+			if (active.localName == 'menuitem') return active;
+			lastActive = active;
+			if (!aDig || !active.firstChild.shown) return lastActive;
+			popup = active.firstChild;
+		}
 	},
  
 	showSecondSearch : function(aReason, aX, aY) 
@@ -316,14 +323,18 @@ try{
 			) {
 			var bar = this.searchbar;
 
-			var current = this.getCurrentItem(popup);
+			var current = this.getCurrentItem(popup, true);
+			if (current && current.localName == 'menu') {
+				if (current.firstChild.shown)
+					current = this.getCurrentItem(current.firstChild, true);
+				else
+					current = null;
+			}
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
 				this.clearAfterSearch();
 			}
 			else {
-				current = this.getOverriddenItemOnEnter(current, aEvent);
-				if (!current) return false;
 				aEvent.stopPropagation();
 				aEvent.preventDefault();
 				this.onOperationEnter(current, aEvent);
@@ -343,10 +354,6 @@ try{
 		var isUpKey = false;
 		switch(aEvent.keyCode)
 		{
-			default:
-				this.onOperationDefault(popup, aEvent);
-				return true;
-
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_DELETE:
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
 				if (popup.shown) {
@@ -357,7 +364,12 @@ try{
 						return false;
 					}
 				}
-				this.onOperationDelete(popup, aEvent);
+			default:
+				var popups = popup.getElementsByTagName('menupopup');
+				for (var i = popups.length-1; i > -1; i--)
+				{
+					popups[i].hidePopup();
+				}
 				return true;
 
 
@@ -389,16 +401,10 @@ try{
 					this.autoHideTimer = null;
 				}
 
-				var current = this.getCurrentItem(popup);
+				var current = this.getCurrentItem(popup, true);
 				if (current) {
-					var newCurrent = this.getOverriddenItemOnUpDown(current, isUpKey, aEvent);
-					if (current != newCurrent) {
-						current = newCurrent;
-					}
-					else {
-						current.removeAttribute('_moz-menuactive');
-						current = this.getNextOrPrevItem(current, (isUpKey ? -1 : 1 ));
-					}
+					current.removeAttribute('_moz-menuactive');
+					current = this.getNextOrPrevItem(current, (isUpKey ? -1 : 1 ), current.parentNode != popup);
 				}
 				else {
 					current = isUpKey ?
@@ -426,11 +432,36 @@ try{
 
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT:
 				if (!popup.shown) return true;
-				return this.onOperationRight(this.getCurrentItem(popup), aEvent);
+
+				var current = this.getCurrentItem(popup, true);
+//dump(current+'\n');
+//if (current) dump('  '+current.localName+'\n');
+				if (current && current.localName == 'menu') {
+					var popup = current.firstChild;
+					popup.showPopup();
+					popup.shown = true;
+					var current = this.getCurrentItem(popup);
+					if (current) current.removeAttribute('_moz-menuactive');
+					if (popup.hasChildNodes()) popup.firstChild.setAttribute('_moz-menuactive', true);
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
+					return false;
+				}
+				return true;
 
 			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT:
 				if (!popup.shown) return true;
-				return this.onOperationLeft(this.getCurrentItem(popup), aEvent);
+
+				var current = this.getCurrentItem(popup, true);
+				if (current && current.parentNode != popup) {
+					current.removeAttribute('_moz-menuactive');
+					current.parentNode.hidePopup();
+					current.parentNode.shown = true;
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
+					return false;
+				}
+				return true;
 		}
 }
 catch(e) {
@@ -438,27 +469,9 @@ catch(e) {
 }
 	},
 	 
-	getOverriddenItemOnEnter : function(aCurrentItem, aEvent) 
-	{
-		return aCurrentItem;
-	},
- 
-	getOverriddenItemOnUpDown : function(aCurrentItem, aIsUpKey, aEvent) 
-	{
-		return aCurrentItem;
-	},
- 
 	onOperationPre : function(aEvent) 
 	{
 		return true;
-	},
- 
-	onOperationDefault : function(aPopup, aEvent) 
-	{
-	},
- 
-	onOperationDelete : function(aPopup, aEvent) 
-	{
 	},
  
 	onOperationEnterPre : function(aEvent) 
@@ -467,16 +480,6 @@ catch(e) {
  
 	onOperationEnter : function(aCurrentItem, aEvent) 
 	{
-	},
- 
-	onOperationRight : function(aCurrentItem, aEvent) 
-	{
-		return true;
-	},
- 
-	onOperationLeft : function(aCurrentItem, aEvent) 
-	{
-		return true;
 	},
  
 	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
@@ -758,12 +761,23 @@ catch(e) {
 	onPopupHiding : function(aEvent) 
 	{
 		var popup = this.popup;
-
 		popup.shown = false;
 		popup.shownBy = 0;
 
-		var current = this.getCurrentItem(popup);
-		if (current) current.removeAttribute('_moz-menuactive');
+		var popups = popup.getElementsByTagName('menupopup');
+		for (var i = popups.length-1; i > -1; i--)
+		{
+			popups[i].shown = false;
+			popups[i].shownBy = 0;
+		}
+
+		window.setTimeout(function(aSelf) {
+			var activeItems = aSelf.evaluateXPath('descendant::*[@_moz-menuactive="true"]', popup);
+			for (var i = 0, maxi = activeItems.snapshotLength; i < maxi; i++)
+			{
+				activeItems.snapshotItem(i).removeAttribute('_moz-menuactive');
+			}
+		}, 0, this);
 
 		this.destroyPopup();
 	},
@@ -814,11 +828,6 @@ catch(e) {
   
 /* drag and drop */ 
 	
-	getPopupForDragDrop : function(aEvent) 
-	{
-		return null;
-	},
- 
 	onSearchTermDrop : function(aEvent) 
 	{
 	},
@@ -868,8 +877,10 @@ catch(e) {
 				popup.showTimer = window.setTimeout(function() {
 					if (popup == this.owner.popup)
 						this.owner.showSecondSearch(this.owner.SHOWN_BY_DRAGOVER);
-					else
+					else {
 						popup.showPopup();
+						popup.shown = true;
+					}
 				}, this.owner.autoShowDragdropDelay);
 				this.showTimer = now;
 			}
@@ -899,8 +910,10 @@ catch(e) {
 					if (aSelf.owner.searchDNDObserver.showTimer > aSelf.hideTimer) return;
 					if (popup == aSelf.owner.popup)
 						aSelf.owner.hideSecondSearch();
-					else
+					else {
 						popup.hidePopup();
+						popup.shown = false;
+					}
 				}, this.owner.autoShowDragdropDelay, this);
 				this.hideTimer = now;
 			}
@@ -917,8 +930,10 @@ catch(e) {
 						aSelf.showTarget = null;
 						if (popup == aSelf.owner.popup)
 							aSelf.owner.hideSecondSearch();
-						else
+						else {
 							popup.hidePopup();
+							popup.shown = false;
+						}
 					}, 0, this);
 			}
 		},
@@ -936,8 +951,10 @@ catch(e) {
 				if (!this.owner.getCurrentItem(popup)) {
 					if (popup == this.owner.popup)
 						this.owner.hideSecondSearch();
-					else
+					else {
 						popup.hidePopup();
+						popup.shown = false;
+					}
 					popup.hideTimer  = null;
 					popup.hideTarget = null;
 				}
@@ -945,8 +962,10 @@ catch(e) {
 			if (popup.showTimer && (now - delay > popup.showTimer)) {
 				if (popup == this.owner.popup)
 					this.owner.showSecondSearch(this.owner.SHOWN_BY_DRAGOVER);
-				else
+				else {
 					popup.showPopup();
+					popup.shown = true;
+				}
 
 				popup.showTimer  = null;
 				popup.showTarget = null;
@@ -955,7 +974,12 @@ catch(e) {
  
 		getPopup : function(aEvent) 
 		{
-			return this.owner.getPopupForDragDrop(aEvent) || this.owner.popup;
+			var node = aEvent.target;
+			if (node.localName == 'menu')
+				return node.firstChild;
+			else if (node.localName == 'menuitem')
+				return node.parentNode;
+			return this.owner.popup;
 		},
  
 		isPlatformNotSupported : navigator.platform.indexOf('Mac') != -1, // see bug 136524 

@@ -97,6 +97,9 @@ SecondSearchBrowser.prototype = {
  
 	get source() 
 	{
+//		var organized = document.getElementById('search-popup');
+//		if (organized) return organized;
+
 		var bar = this.searchbar;
 		var node = bar ? document.getAnonymousElementByAttribute(bar, 'anonid', 'searchbar-popup') : null ;
 		if (node &&
@@ -190,8 +193,6 @@ SecondSearchBrowser.prototype = {
 				popup.lastChild.setAttribute('keyword',    this.keywords[i].keyword);
 				popup.lastChild.setAttribute('engineName', this.keywords[i].name+'\n'+this.keywords[i].keyword);
 				popup.lastChild.id = 'secondsearch-keyword-'+encodeURIComponent(this.keywords[i].name);
-				if (!count)
-					popup.lastChild.setAttribute('_moz-menuactive', 'true');
 
 				count++;
 			}
@@ -567,17 +568,6 @@ SecondSearchBrowser.prototype = {
   
 /* event handling */ 
 	
-	getPopupForDragDrop : function(aEvent) 
-	{
-		var allItem = this.allMenuItem;
-		if (allItem &&
-			aEvent.target == allItem ||
-			aEvent.target.parentNode == allItem ||
-			aEvent.target.parentNode.parentNode == allItem)
-			return allItem.firstChild;
-		return null;
-	},
- 
 	onSearchTermDrop : function(aEvent) 
 	{
 		if (aEvent.target == this.searchbar) {
@@ -595,36 +585,6 @@ SecondSearchBrowser.prototype = {
 			this.addEngineToRecentList(this.getCurrentEngine());
 	},
  
-	getOverriddenItemOnEnter : function(aCurrentItem, aEvent) 
-	{
-		if (aCurrentItem == this.allMenuItem) {
-			if (this.allMenuItem.firstChild.shown) {
-				return this.getCurrentItem(this.allMenuItem.firstChild);
-			}
-			else {
-				this.hideSecondSearch(aEvent);
-				return null;
-			}
-		}
-		return aCurrentItem;
-	},
- 
-	getOverriddenItemOnUpDown : function(aCurrentItem, aIsUpKey, aEvent) 
-	{
-		if (aCurrentItem == this.allMenuItem &&
-			this.allMenuItem.firstChild.shown) {
-			aCurrentItem = this.getCurrentItem(this.allMenuItem.firstChild);
-			if (!aCurrentItem) {
-				aCurrentItem = aIsUpKey ? this.allMenuItem.firstChild.lastChild : this.allMenuItem.firstChild.firstChild ;
-			}
-			else {
-				aCurrentItem.removeAttribute('_moz-menuactive');
-				aCurrentItem = this.getNextOrPrevItem(aCurrentItem, (aIsUpKey ? -1 : 1 ), true);
-			}
-		}
-		return aCurrentItem;
-	},
- 
 	onOperationPre : function(aEvent) 
 	{
 		if (
@@ -638,22 +598,6 @@ SecondSearchBrowser.prototype = {
 		return true;
 	},
  
-	onOperationDefault : function(aPopup, aEvent) 
-	{
-		if (aPopup.shown &&
-			this.allMenuItem &&
-			this.allMenuItem.firstChild.shown)
-			this.allMenuItem.firstChild.hidePopup();
-	},
- 
-	onOperationDelete : function(aPopup, aEvent) 
-	{
-		if (aPopup.shown &&
-			this.allMenuItem &&
-			this.allMenuItem.firstChild.shown)
-			this.allMenuItem.firstChild.hidePopup();
-	},
- 
 	onOperationEnterPre : function(aEvent) 
 	{
 		if ('GSuggest' in window) GSuggest.hideSuggestPopup();
@@ -663,44 +607,14 @@ SecondSearchBrowser.prototype = {
 	{
 		this.doSearchBy(aCurrentItem, aEvent);
 	},
- 
-	onOperationRight : function(aCurrentItem, aEvent) 
-	{
-		if (
-			!aCurrentItem ||
-			(this.allMenuItem && aCurrentItem != this.allMenuItem)
-			)
-			return true;
-
-		var popup = this.allMenuItem.firstChild;
-		popup.showPopup();
-		var current = this.getCurrentItem(popup);
-		if (current) current.removeAttribute('_moz-menuactive');
-		popup.firstChild.setAttribute('_moz-menuactive', true);
-		aEvent.stopPropagation();
-		aEvent.preventDefault();
-		return false;
-	},
- 
-	onOperationLeft : function(aCurrentItem, aEvent) 
-	{
-		if (
-			!aCurrentItem ||
-			(this.allMenuItem && aCurrentItem != this.allMenuItem)
-			)
-			return true;
-
-		this.allMenuItem.firstChild.hidePopup();
-		aEvent.stopPropagation();
-		aEvent.preventDefault();
-		return false;
-	},
   
 /* do search */ 
-
 	
 	doSearchBy : function(aItem, aEvent) 
 	{
+		if (!aItem.getAttribute('engineName'))
+			aItem.setAttribute('engineName', aItem.getAttribute('label'));
+
 		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
 		this.selectedEngine = engine;
 		this.doingSearch = true;
