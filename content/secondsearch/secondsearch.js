@@ -874,14 +874,14 @@ catch(e) {
 			if (this.isTimerSupported || !aDragSession.sourceNode) {
 				window.clearTimeout(popup.showTimer);
 				if (aEvent.target == aDragSession.sourceNode) return;
-				popup.showTimer = window.setTimeout(function() {
-					if (popup == this.owner.popup)
-						this.owner.showSecondSearch(this.owner.SHOWN_BY_DRAGOVER);
+				popup.showTimer = window.setTimeout(function(aOwner) {
+					if (popup == aOwner.popup)
+						aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
 					else {
 						popup.showPopup();
 						popup.shown = true;
 					}
-				}, this.owner.autoShowDragdropDelay);
+				}, this.owner.autoShowDragdropDelay, this.owner);
 				this.showTimer = now;
 			}
 			else {
