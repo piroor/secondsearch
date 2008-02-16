@@ -434,8 +434,6 @@ try{
 				if (!popup.shown) return true;
 
 				var current = this.getCurrentItem(popup, true);
-//dump(current+'\n');
-//if (current) dump('  '+current.localName+'\n');
 				if (current && current.localName == 'menu') {
 					var popup = current.firstChild;
 					popup.showPopup();
