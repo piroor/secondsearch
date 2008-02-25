@@ -23,7 +23,8 @@
     <em:localized>
       <RDF:Description em:locale="en-US"
                        em:name="Second Search"
-                       em:description="Shows tiny popup for the search bar, to allow you to search by another engine quickly."/>
+                       em:description="Shows tiny popup for the search bar, to allow you to search by another engine quickly."
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en"/>
     </em:localized>
     <em:localized>
       <RDF:Description em:locale="ja-JP"
@@ -34,7 +35,8 @@
     <em:localized>
       <RDF:Description em:locale="hu-HU"
                        em:name="Second Search"
-                       em:description="Megjelenít egy előbukkanó ablakot a keresősávnál, amelynek segítségével gyorsan igénybe vehet további keresőszolgáltatásokat a kereséshez."/>
+                       em:description="Megjelenít egy előbukkanó ablakot a keresősávnál, amelynek segítségével gyorsan igénybe vehet további keresőszolgáltatásokat a kereséshez."
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en"/>
     </em:localized>
 
 
@@ -42,7 +44,7 @@
       <!-- Firefox -->
       <RDF:Description em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                        em:minVersion="1.0"
-                       em:maxVersion="3.0b3" />
+                       em:maxVersion="3.0b4pre" />
     </em:targetApplication>
     <em:targetApplication>
       <!-- Thunderbird -->
