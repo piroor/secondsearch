@@ -2,7 +2,7 @@ function SecondSearchBrowser()
 {
 }
 SecondSearchBrowser.prototype = {
-	
+	 
 	get currentURI() 
 	{
 		var b = this.browser;
@@ -109,7 +109,7 @@ SecondSearchBrowser.prototype = {
 		}
 		return node;
 	},
-	get sourceItems() 
+	get sourceItems()
 	{
 		return this.evaluateXPath('descendant::xul:menuitem[contains(@class, "searchbar-engine-menuitem")]', this.source);
 	},
@@ -378,27 +378,43 @@ SecondSearchBrowser.prototype = {
 					)
 		);
 
-		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) { // Firefox 2
+		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) { // Firefox 2 or later
 			eval(
 				'search.handleSearchCommand = '+
 					search.handleSearchCommand.toSource()
 						.replace(')', ', aOverride)')
 						.replace(/doSearch\(([^\)]+)\)/, 'doSearch($1, aOverride)')
 			);
-			eval(
-				'search.doSearch = '+
-					search.doSearch.toSource()
-						.replace(
-							/([\w\d\.]+).focus\(\)/,
-							'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-						).replace(
-							/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
-							'$1 window.getSecondSearch().loadInBackground $2'
-						).replace(
-							'if (gURLBar)',
-							'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-						)
-			);
+			var source = search.doSearch.toSource();
+			if (source.indexOf('openUILinkIn') > -1) { // Firefox 3
+				eval(
+					'search.doSearch = '+
+						source
+							.replace(
+								'{',
+								'$& window.getSecondSearch().readyToSearch();'
+							).replace(
+								/(\}\)?)$/,
+								'window.getSecondSearch().searchDone(); $1'
+							)
+				);
+			}
+			else { // Firefox 2
+				eval(
+					'search.doSearch = '+
+						source
+							.replace(
+								/([\w\d\.]+).focus\(\)/,
+								'if (!window.getSecondSearch().loadInBackground) $1.focus()'
+							).replace(
+								/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
+								'$1 window.getSecondSearch().loadInBackground $2'
+							).replace(
+								'if (gURLBar)',
+								'if (gURLBar && !window.getSecondSearch().loadInBackground)'
+							)
+				);
+			}
 			search.__secondsearch__doSearch = search.doSearch;
 			search.doSearch = this.doSearchbarSearch;
 			search._popup.addEventListener('command', this, true);
@@ -609,7 +625,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* do search */ 
-	
+	 
 	doSearchBy : function(aItem, aEvent) 
 	{
 		if (!aItem.getAttribute('engineName'))
@@ -799,10 +815,59 @@ SecondSearchBrowser.prototype = {
 		}
 		return current;
 	},
-  
+ 
+	checkToDoSearch : function(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
+	{
+		if (!this.doingSearch) return false;
+
+		var b = this.browser;
+		var loadInBackground = this.loadInBackground;
+		switch (aWhere)
+		{
+			default:
+				b.webNavigation.loadURI(
+					aURI,
+					(aAllowThirdPartyFixup ?
+						Components.interfaces.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP :
+						Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE
+					),
+					aReferrerURI,
+					aPostData,
+					null
+				);
+				break;
+
+			case 'tabshifted':
+				loadInBackground = !loadInBackground;
+			case 'tab':
+				b.loadOneTab(
+					aURI,
+					aReferrerURI,
+					null,
+					aPostData,
+					loadInBackground,
+					aAllowThirdPartyFixup || false
+				);
+				break;
+		}
+		if (!this.loadInBackground)
+			b.contentWindow.focus();
+
+		return true;
+	},
+	readyToSearch : function()
+	{
+		this.doingSearch = true;
+	},
+	searchDone : function()
+	{
+		this.doingSearch = false;
+	},
+	doingSearch : false,
+ 	 
 /* operate engines */ 
 	
-	isEngineAvailable : function(aName)
+	isEngineAvailable : function(aName) 
 	{
 		var bar = this.searchbar;
 		if ('_engines' in bar) // Firefox 2
@@ -1705,7 +1770,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* initializing */ 
-	
+	 
 	init : function() 
 	{
 		this.initBase();
@@ -1733,11 +1798,22 @@ SecondSearchBrowser.prototype = {
 			};
 		}
 
+		// for Firefox 3
+		eval('window.openUILinkIn = '+
+			window.openUILinkIn.toSource().replace(
+				'{',
+				<><![CDATA[$&
+					if (SecondSearch.checkToDoSearch.apply(SecondSearch, arguments))
+						return;
+				]]></>
+			)
+		);
+
 		window.setTimeout(function(aSelf) {
 			aSelf.delayedInit();
 		}, 100, this);
 	},
-	
+	 
 	delayedInit : function() 
 	{
 		this.initKeywords();
