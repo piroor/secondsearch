@@ -20,6 +20,14 @@ SecondSearchBase.prototype = {
 	{
 		return this.browser ? true : false ;
 	},
+
+	get isGecko19()
+	{
+		const XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
+				.getService(Components.interfaces.nsIXULAppInfo);
+		var version = XULAppInfo.platformVersion.split('.');
+		return parseInt(version[0]) >= 2 || parseInt(version[1]) >= 9;
+	},
  
 /* preference values */ 
 	
@@ -981,7 +989,7 @@ catch(e) {
 		},
  
 		isPlatformNotSupported : navigator.platform.indexOf('Mac') != -1, // see bug 136524 
-		isTimerSupported       : navigator.platform.indexOf('Win') == -1, // see bug 232795.
+		isTimerSupported       : (this.isGecko19 || navigator.platform.indexOf('Win') == -1), // see bug 232795.
  
 		onDrop : function(aEvent, aXferData, aDragSession) 
 		{
