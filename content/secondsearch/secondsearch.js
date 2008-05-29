@@ -988,7 +988,7 @@ catch(e) {
 			return this.owner.popup;
 		},
  
-		isPlatformNotSupported : navigator.platform.indexOf('Mac') != -1, // see bug 136524 
+		isPlatformNotSupported : (!this.isGecko19 && navigator.platform.indexOf('Mac') != -1), // see bug 136524 
 		isTimerSupported       : (this.isGecko19 || navigator.platform.indexOf('Win') == -1), // see bug 232795.
  
 		onDrop : function(aEvent, aXferData, aDragSession) 
