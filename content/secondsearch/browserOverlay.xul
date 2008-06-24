@@ -9,7 +9,7 @@
 <script src="chrome://secondsearch/content/secondsearch.js"/>
 <script src="chrome://secondsearch/content/browserOverlay.js"/>
 
-<toolbaritem id="search-container">
+<popupset id="mainPopupSet">
 	<menupopup id="secondsearch_popup"
 			ignorekeys="true"
 			oncommand="SecondSearch.doSearchBy(event.target, event);"
@@ -33,6 +33,6 @@
 			<menupopup/>
 		</menu>
 	</menupopup>
-</toolbaritem>
+</popupset>
 
 </overlay>
