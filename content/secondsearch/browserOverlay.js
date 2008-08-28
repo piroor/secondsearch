@@ -993,18 +993,22 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 
-		this.setArrayPref('secondsearch.recentengines.name',
-			engines.map(function(aEngine) { return aEngine.name; }));
-		this.setArrayPref('secondsearch.recentengines.icon',
-			engines.map(function(aEngine) { return aEngine.icon; }));
-		this.setArrayPref('secondsearch.recentengines.uri',
-			engines.map(function(aEngine) { return aEngine.uri; }));
-		this.setArrayPref('secondsearch.recentengines.keyword',
-			engines.map(function(aEngine) { return aEngine.keyword; }));
-		this.setArrayPref('secondsearch.recentengines.id',
-			engines.map(function(aEngine) { return aEngine.id; }));
+		this.saveRecentEnginesCache(engines);
 
 		return retVal;
+	},
+	saveRecentEnginesCache : function(aEngines)
+	{
+		this.setArrayPref('secondsearch.recentengines.name',
+			aEngines.map(function(aEngine) { return aEngine.name; }));
+		this.setArrayPref('secondsearch.recentengines.icon',
+			aEngines.map(function(aEngine) { return aEngine.icon; }));
+		this.setArrayPref('secondsearch.recentengines.uri',
+			aEngines.map(function(aEngine) { return aEngine.uri; }));
+		this.setArrayPref('secondsearch.recentengines.keyword',
+			aEngines.map(function(aEngine) { return aEngine.keyword; }));
+		this.setArrayPref('secondsearch.recentengines.id',
+			aEngines.map(function(aEngine) { return aEngine.id; }));
 	},
 	
 	addEngineToRecentList : function(aEngine) 
@@ -1091,27 +1095,22 @@ SecondSearchBrowser.prototype = {
 			}, this);
 		}
 		else if (this.placesAvailable) { // initialize for Firefox 3
-			var s = this.placesDB.createStatement(
+			var statement = this.placesDB.createStatement(
 						'SELECT b.id FROM moz_bookmarks b'+
 						' JOIN moz_keywords k ON k.id = b.keyword_id'
 					);
 			try {
 				var data;
-				while (s.executeStep())
+				while (statement.executeStep())
 				{
-					data = this.newKeywordFromPlaces(s.getDouble(0));
+					data = this.newKeywordFromPlaces(statement.getDouble(0));
 					this.keywords.push(data);
 					this.keywordsHash[data.uri] = data;
-
-					names.push(data.name);
-					icons.push(data.icon);
-					uris.push(data.uri);
-					keywords.push(data.keyword);
 				}
 			}
-			catch(e) {
+			finally {
+				statement.reset();
 			}
-			s.reset();
 		}
 		else { // initialize for Firefox 2
 			var resources = this.bookmarksDS.GetAllResources()
@@ -1119,9 +1118,7 @@ SecondSearchBrowser.prototype = {
 			var shortcut,
 				name,
 				icon;
-			var shortcuts = [];
 			var doneKeywords = {};
-			var data;
 			while (resources.hasMoreElements())
 			{
 				res = resources.getNext();
@@ -1130,39 +1127,24 @@ SecondSearchBrowser.prototype = {
 					shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
 					if (!shortcut) continue;
 					shortcut = shortcut.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral);
-					if (shortcut.Value && !(shortcut.Value in doneKeywords)) {
-						name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
-						icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
+					if (!shortcut.Value || shortcut.Value in doneKeywords) continue;
 
-						data = {
-							name    : name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : shortcut.Value ,
-							icon    : icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ,
-							uri     : res.Value,
-							keyword : shortcut.Value
-						};
-						this.keywords.push(data);
-						this.keywordsHash[res.Value] = data;
-
-						names.push(data.name);
-						icons.push(data.icon);
-						uris.push(data.uri);
-						keywords.push(data.keyword);
-						doneKeywords[shortcut.Value] = true;
-					}
+					name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
+					icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
+					this.keywordsHash[res.Value] = {
+						name    : name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : shortcut.Value ,
+						icon    : icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ,
+						uri     : res.Value,
+						keyword : shortcut.Value
+					};
+					this.keywords.push(this.keywordsHash[res.Value]);
+					doneKeywords[shortcut.Value] = true;
 				}
 				catch(e) {
-					continue;
 				}
 			}
 		}
-
-		this.setArrayPref('secondsearch.keyword.cache.name', names);
-		this.setArrayPref('secondsearch.keyword.cache.icon', icons);
-		this.setArrayPref('secondsearch.keyword.cache.uri', uris);
-		this.setArrayPref('secondsearch.keyword.cache.keyword', keywords);
-		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
-
-		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
+		this.saveKeywordsCache();
 	},
  	
 	// Firefox 3: SQLite based bookmarks 
@@ -1188,22 +1170,10 @@ SecondSearchBrowser.prototype = {
  
 	updateKeywordFromPlaces : function(aId, aMode) 
 	{
-		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
-		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
-		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
-		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
-
-		var recentIds      = this.getArrayPref('secondsearch.recentengines.id');
-		var recentNames    = this.getArrayPref('secondsearch.recentengines.name');
-		var recentIcons    = this.getArrayPref('secondsearch.recentengines.icon');
-		var recentUris     = this.getArrayPref('secondsearch.recentengines.uri');
-		var recentKeywords = this.getArrayPref('secondsearch.recentengines.keyword');
-		var recentNum = recentUris.length;
-
 		var keyword = this.NavBMService.getKeywordForBookmark(aId);
 		var data    = this.newKeywordFromPlaces(aId);
+		var oldData = null;
 
-		var modified = false;
 		this.keywords.slice().some(function(aKeyword, aIndex) {
 			if (aKeyword.uri != data.uri &&
 				aKeyword.keyword != keyword)
@@ -1221,80 +1191,74 @@ SecondSearchBrowser.prototype = {
 				this.keywordsHash[data.uri] = data;
 			}
 			if (aMode != 'delete') {
+				oldData = {
+					uri     : this.keywordsHash[data.uri].uri,
+					keyword : this.keywordsHash[data.uri].keyword
+				};
 				this.keywordsHash[data.uri].name    = data.name;
 				this.keywordsHash[data.uri].icon    = data.icon;
 				this.keywordsHash[data.uri].uri     = data.uri;
 				this.keywordsHash[data.uri].keyword = data.keyword;
 			}
-			modified = true;
 			return true;
 		}, this);
 
-		if (!modified) {
+		if (!oldData) {
 			this.keywords.push(data);
 			this.keywordsHash[data.uri] = data;
-			names.push(data.name);
-			icons.push(data.icon);
-			uris.push(data.uri);
-			keywords.push(keyword);
 		}
 		else {
-			this.keywords.some(function(aKeyword, aIndex) {
-				if (uris[aIndex] != data.uri &&
-					keywords[aIndex] != keyword)
-					return false;
+			var ids      = this.getArrayPref('secondsearch.recentengines.id');
+			var names    = this.getArrayPref('secondsearch.recentengines.name');
+			var icons    = this.getArrayPref('secondsearch.recentengines.icon');
+			var uris     = this.getArrayPref('secondsearch.recentengines.uri');
+			var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
 
-				if (aMode == 'delete') {
-					recentUris.slice().forEach(function(aRecentUri, aRecentIndex) {
-						if (aRecentUri != uris[aIndex] &&
-							aRecentUri != keywords[aIndex])
-							return;
+			var recentEngines = [];
+			uris.forEach(function(aURI, aIndex) {
+				if (aURI == oldData.uri ||
+					keywords[aIndex] == oldData.keyword) {
+					if (aMode == 'delete') return;
 
-						recentIds.splice(aRecentIndex, 1);
-						recentNames.splice(aRecentIndex, 1);
-						recentIcons.splice(aRecentIndex, 1);
-						recentUris.splice(aRecentIndex, 1);
-						recentKeywords.splice(aRecentIndex, 1);
+					recentEngines.push({
+						name    : data.name,
+						icon    : data.icon,
+						uri     : data.uri,
+						keyword : keyword,
+						id      : ''
 					});
-					names.splice(aIndex, 1);
-					icons.splice(aIndex, 1);
-					uris.splice(aIndex, 1);
-					keywords.splice(aIndex, 1);
+					return;
 				}
-				else {
-					recentUris.slice().forEach(function(aRecentUri, aRecentIndex) {
-						if (aRecentUri != uris[aIndex] &&
-							aRecentUri != keywords[aIndex])
-							return;
+				recentEngines.push({
+					name    : names[aIndex],
+					icon    : icons[aIndex],
+					uri     : aURI,
+					keyword : keywords[aIndex],
+					id      : ids[aIndex]
+				});
+			}),
 
-						recentIds.splice(aRecentIndex, 1, '');
-						recentNames.splice(aRecentIndex, 1, data.name);
-						recentIcons.splice(aRecentIndex, 1, data.icon);
-						recentUris.splice(aRecentIndex, 1, data.uri);
-						recentKeywords.splice(aRecentIndex, 1, keyword);
-					});
-					names.splice(aIndex, 1, data.name);
-					icons.splice(aIndex, 1, data.icon);
-					uris.splice(aIndex, 1, data.uri);
-					keywords.splice(aIndex, 1, keyword);
-				}
-				return true;
-			}, this);
+			if (uris.length != recentEngines.length)
+				this.saveRecentEnginesCache(recentEngines);
 		}
 
-		if (recentNum != recentUris.length) {
-			this.setArrayPref('secondsearch.recentengines.id', recentIds);
-			this.setArrayPref('secondsearch.recentengines.name', recentNames);
-			this.setArrayPref('secondsearch.recentengines.icon', recentIcons);
-			this.setArrayPref('secondsearch.recentengines.uri', recentUris);
-			this.setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
-		}
+		this.saveKeywordsCache();
+	},
+ 
+	saveKeywordsCache : function()
+	{
+		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 
-		this.setArrayPref('secondsearch.keyword.cache.name', names);
-		this.setArrayPref('secondsearch.keyword.cache.icon', icons);
-		this.setArrayPref('secondsearch.keyword.cache.uri', uris);
-		this.setArrayPref('secondsearch.keyword.cache.keyword', keywords);
-		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
+		this.setArrayPref('secondsearch.keyword.cache.name',
+			this.keywords.map(function(aEngine) { return aEngine.name; }));
+		this.setArrayPref('secondsearch.keyword.cache.icon',
+			this.keywords.map(function(aEngine) { return aEngine.icon; }));
+		this.setArrayPref('secondsearch.keyword.cache.uri',
+			this.keywords.map(function(aEngine) { return aEngine.uri; }));
+		this.setArrayPref('secondsearch.keyword.cache.keyword',
+			this.keywords.map(function(aEngine) { return aEngine.keyword; }));
+
+		this.setIntPref('secondsearch.keyword.cache.count', this.keywords.length);
 	},
  
 	get placesAvailable() 
