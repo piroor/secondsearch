@@ -24,6 +24,8 @@
 <!ENTITY secondsearch.popup.position.1 "Below the search bar (shown by Down key)">
 <!ENTITY secondsearch.popup.position.note "* Auto-complete becomes disabled if the popup is shown below the bar.">
 
+<!ENTITY secondsearch.override.locationBar  "Enable Web search from the Location Bar if the Search Bar doesn't exist on the toolbar.">
+
 <!ENTITY secondsearch.recentengines.num.before "Show recent">
 <!ENTITY secondsearch.recentengines.num.after  "engines">
 

@@ -24,6 +24,8 @@
 <!ENTITY secondsearch.popup.position.1 "検索バーの下（↓キーで表示）">
 <!ENTITY secondsearch.popup.position.note "※ポップアップを検索バーの下に表示する場合、自動補完は無効になります。">
 
+<!ENTITY secondsearch.override.locationBar  "ツールバー上にWeb検索バーが無い時はロケーションバーからWeb検索できるようにする">
+
 <!ENTITY secondsearch.recentengines.num.before "最近使った検索エンジンを">
 <!ENTITY secondsearch.recentengines.num.after  "件まで記憶する">
 
