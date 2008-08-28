@@ -6,8 +6,8 @@
 <overlay id="secondsearch-overlay"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script src="chrome://secondsearch/content/secondsearch.js"/>
-<script src="chrome://secondsearch/content/browserOverlay.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://secondsearch/content/secondsearch.js"/>
+<script type="application/x-javascript;version=1.7" src="chrome://secondsearch/content/browserOverlay.js"/>
 
 <popupset id="mainPopupSet">
 	<menupopup id="secondsearch_popup"

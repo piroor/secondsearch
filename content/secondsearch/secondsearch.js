@@ -1024,11 +1024,7 @@ catch(e) {
 
 			var textbox = this.owner.textbox;
 			textbox.value = string;
-			var retVal = this.owner.onSearchTermDrop(aEvent);
-			if (retVal !== void(0) && !retVal) {
-				aEvent.stopPropagation();
-				aEvent.preventDefault();
-			}
+			this.owner.onSearchTermDrop(aEvent);
 			this.owner.clearAfterSearch();
 			window.setTimeout(function(aOwner) {
 				aOwner.hideSecondSearch();
