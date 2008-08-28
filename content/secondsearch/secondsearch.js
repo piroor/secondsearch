@@ -284,10 +284,12 @@ SecondSearchBase.prototype = {
 				}
 
 				document.popupNode = bar;
-				if ('openPopup' in popup)
-					popup.openPopup(bar, position, 0, 0, false, true);
-				else
+				if ('openPopup' in popup) { // Firefox 3
+					popup.openPopup(bar, position, 0, 0, true, true); // show as context menu, to prevent it gets focus.
+				}
+				else {
 					popup.showPopup(bar, -1, -1, 'menupopup', anchor, align);
+				}
 			}
 
 			var current = this.getCurrentItem(popup);
