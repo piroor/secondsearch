@@ -283,19 +283,39 @@ SecondSearchBase.prototype = {
 					position = 'start_after';
 				}
 
+				var anchorNode = this.canFitPopupToSearchField ? bar : bar.parentNode ;
+
 				document.popupNode = bar;
+				if (this.isGecko19) popup.style.opacity = 0;
 				if ('openPopup' in popup) { // Firefox 3
-					popup.openPopup(bar, position, 0, 0, true, true); // show as context menu, to prevent it gets focus.
+					popup.openPopup(anchorNode, position, 0, 0, true, true); // show as context menu, to prevent it gets focus.
 				}
 				else {
-					popup.showPopup(bar, -1, -1, 'menupopup', anchor, align);
+					popup.showPopup(anchorNode, -1, -1, 'menupopup', anchor, align);
 				}
+
+				var popupBox = popup.boxObject;
+				var anchorBox = anchorNode.boxObject;
+				var rootBox = document.documentElement.boxObject;
+				if (
+					(pos == 0 && anchorBox.screenY < popupBox.screenY + popupBox.height) ||
+					(pos == 1 && anchorBox.screenY + anchorBox.height > popupBox.screenY)
+					) {
+					if (anchorBox.screenX - popupBox.width < 0) {
+						popup.moveTo(anchorBox.screenX + anchorBox.width, anchorBox.screenY);
+					}
+					else {
+						popup.moveTo(anchorBox.screenX - popupBox.width, anchorBox.screenY);
+					}
+				}
+				if (this.isGecko19) popup.style.opacity = 1;
 			}
 
 			var current = this.getCurrentItem(popup);
 			if (current) current.removeAttribute('_moz-menuactive');
 		}
 	},
+	canFitPopupToSearchField : true,
 	
 	get popupHeight() 
 	{

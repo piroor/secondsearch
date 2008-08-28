@@ -128,6 +128,11 @@ SecondSearchBrowser.prototype = {
 	{
 		return this.searchbar.localName == 'searchbar';
 	},
+ 
+	get canFitPopupToSearchField()
+	{
+		return this.searchbar.localName == 'searchbar';
+	},
   
 /* UI */ 
 	 
