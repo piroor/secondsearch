@@ -927,7 +927,7 @@ SecondSearchBrowser.prototype = {
 				id      : ids[aIndex]
 			});
 			listDone[encodeURIComponent(names[aIndex])+':'+encodeURIComponent(aURI)] = true;
-		});
+		}, this);
 
 		if (list.length < this.historyNum) {
 			var engine = this.getCurrentEngine();
@@ -961,60 +961,54 @@ SecondSearchBrowser.prototype = {
 		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
 		var ids      = this.getArrayPref('secondsearch.recentengines.id');
 
-		uris.slice().forEach(function(aURI, aIndex) {
-			if (aURI || keywords[aIndex]) continue;
-			names.splice(aIndex, 1);
-			icons.splice(aIndex, 1);
-			uris.splice(aIndex, 1);
-			keywords.splice(aIndex, 1);
-			ids.splice(aIndex, 1);
+		var retVal;
+		var engines = [];
+		uris.forEach(function(aURI, aIndex) {
+			if (!aURI || !keywords[aIndex]) return;
+
+			if (names[aIndex] == aEngine.name) {
+				switch (aOperation)
+				{
+					case 'add':
+					case 'remove':
+						return;
+
+					case 'check':
+						retVal = true;
+						break;
+				}
+			}
+
+			engines.push({
+				name    : names[aIndex],
+				icon    : icons[aIndex],
+				uri     : aURI,
+				keyword : keywords[aIndex],
+				id      : ids[aIndex]
+			});
 		});
 
-		var retVal;
-
-		if (aOperation == 'add' ||
-			aOperation == 'remove' ||
-			aOperation == 'check') {
-			names.slice().some(function(aName, aIndex) {
-				if (aName != aEngine.name) return false;
-				if (aOperation == 'check') {
-					retVal = true;
-					return true;
-				}
-				names.splice(aIndex, 1);
-				icons.splice(aIndex, 1);
-				uris.splice(aIndex, 1);
-				keywords.splice(aIndex, 1);
-				ids.splice(aIndex, 1);
-				return true;
-			});
-		}
-
-		if (aOperation == 'add') {
-			names.splice(0, 0, aEngine.name);
-			icons.splice(0, 0, aEngine.icon);
-			uris.splice(0, 0, aEngine.uri);
-			keywords.splice(0, 0, aEngine.keyword);
-			ids.splice(0, 0, aEngine.id);
-		}
+		if (aOperation == 'add')
+			engines.unshift(aEngine);
 
 		var history = this.historyNum;
 		if (history > -1) {
-			while (uris.length > history)
+			while (engines.length > history)
 			{
-				names.splice(names.length-1, 1);
-				icons.splice(icons.length-1, 1);
-				uris.splice(uris.length-1, 1);
-				keywords.splice(keywords.length-1, 1);
-				ids.splice(ids.length-1, 1);
+				engines.pop();
 			}
 		}
 
-		this.setArrayPref('secondsearch.recentengines.name',    names);
-		this.setArrayPref('secondsearch.recentengines.icon',    icons);
-		this.setArrayPref('secondsearch.recentengines.uri',     uris);
-		this.setArrayPref('secondsearch.recentengines.keyword', keywords);
-		this.setArrayPref('secondsearch.recentengines.id',      ids);
+		this.setArrayPref('secondsearch.recentengines.name',
+			engines.map(function(aEngine) { return aEngine.name; }));
+		this.setArrayPref('secondsearch.recentengines.icon',
+			engines.map(function(aEngine) { return aEngine.icon; }));
+		this.setArrayPref('secondsearch.recentengines.uri',
+			engines.map(function(aEngine) { return aEngine.uri; }));
+		this.setArrayPref('secondsearch.recentengines.keyword',
+			engines.map(function(aEngine) { return aEngine.keyword; }));
+		this.setArrayPref('secondsearch.recentengines.id',
+			engines.map(function(aEngine) { return aEngine.id; }));
 
 		return retVal;
 	},
