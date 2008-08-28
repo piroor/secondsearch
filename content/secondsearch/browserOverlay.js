@@ -94,57 +94,6 @@ SecondSearchBrowser.prototype = {
 			) : null ;
 	},
  
-	get engines()
-	{
-		return this.SearchService.getVisibleEngines({});
-	},
- 
-	get SearchService()
-	{
-		if (!this._SearchService)
-			this._SearchService = Components
-				.classes['@mozilla.org/browser/search-service;1']
-				.getService(Components.interfaces.nsIBrowserSearchService);
-		return this._SearchService;
-	},
-	_SearchService : null,
- 
-	get searchStringBundle()
-	{
-		if (!this._searchStringBundle)
-			this._searchStringBundle = Components
-				.classes['@mozilla.org/intl/stringbundle;1']
-				.getService(Components.interfaces.nsIStringBundleService)
-				.createBundle('chrome://browser/locale/search.properties');
-		return this._searchStringBundle;
-	},
-	_searchStringBundle : null,
- 
-	createItemForEngine : function(aEngine)
-	{
-		var item = document.createElement('menuitem');
-		item.setAttribute('label', aEngine.name);
-		item.setAttribute('engineName', aEngine.name);
-		item.setAttribute('id', aEngine.name);
-		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
-		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
-		if (aEngine.iconURI)
-			item.setAttribute('src', aEngine.iconURI.spec);
-		return item;
-	},
-	createItemForKeyword : function(aKeyword)
-	{
-		var item = document.createElement('menuitem');
-		item.setAttribute('label', aKeyword.name);
-		item.setAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
-		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
-		item.setAttribute('class', 'menuitem-iconic');
-		item.setAttribute('keyword', aKeyword.keyword);
-		if (aKeyword.icon)
-			item.setAttribute('src', aKeyword.icon);
-		return item;
-	},
- 
 	get allMenuItem() 
 	{
 		return document.getElementById('secondsearch_popup_all');
@@ -158,14 +107,9 @@ SecondSearchBrowser.prototype = {
 				bar._engineButton /* Firefox 2 */
 			) : null ;
 	},
- 
-	get engine() 
-	{
-		return this.searchbar.getAttribute('searchengine');
-	},
   
 /* UI */ 
-	
+	 
 	initAllEngines : function(aPopup, aParent, aReverse) 
 	{
 		var popup  = aPopup || this.popup;
@@ -184,61 +128,75 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 		range.deleteContents();
-		range.detach();
 
-		var count = 0;
+		var items = [];
 
-		var engines = this.engines;
-		engines.forEach(function(aEngine) {
-			if (parent && parent.getElementsByAttribute('engineName', aEngine.name).length)
-				return;
-
-			var item = this.createItemForEngine(aEngine);
-			item.setAttribute('id', 'secondsearch-'+(item.getAttribute('id') || encodeURIComponent(aEngine.name)));
-			if (!count)
-				item.setAttribute('_moz-menuactive', 'true');
-			popup.appendChild(item);
-
-			count++;
-		}, this);
-
-		if (this.keywords.length) {
-			if (count)
-				popup.appendChild(document.createElement('menuseparator'));
-
-			this.keywords.forEach(function(aKeyword) {
-				if (aKeyword.uri &&
-					parent &&
-					parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword).length)
-					return;
-				popup.appendChild(this.createItemForKeyword(aKeyword));
-				count++;
+		var engines = this.engines
+			.filter(function(aEngine) {
+				return !parent ||
+					!parent.getElementsByAttribute('engineName', aEngine.name).length;
+			})
+			.map(function(aEngine) {
+				var item = this.createItemForSearchEngine(aEngine);
+				item.setAttribute('id', 'secondsearch-'+(item.getAttribute('id') || encodeURIComponent(aEngine.name)));
+				return item;
 			}, this);
 
-			if (popup.lastChild && popup.lastChild.localName == 'menuseparator')
-				popup.removeChild(popup.lastChild);
-		}
+		var keywords = this.keywords
+			.filter(function(aKeyword) {
+				return !aKeyword.uri ||
+					!parent ||
+					!parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword).length;
+			})
+			.map(function(aKeyword) {
+				return this.createItemForKeyword(aKeyword);
+			}, this);
 
-		if (aReverse) {
-			var nodes = [];
-			for (var i = 0, maxi = popup.childNodes.length; i < maxi; i++)
-			{
-				if (popup.childNodes[i].localName != 'menu')
-					nodes.push(popup.childNodes[i]);
-			}
-			nodes.reverse();
-			var node;
-			for (var i = 0, maxi = nodes.length; i < maxi; i++)
-			{
-				node = popup.removeChild(nodes[i]);
-				if (i+offset < popup.childNodes.length)
-					popup.insertBefore(node, popup.childNodes[i+offset]);
-				else
-					popup.appendChild(node);
-			}
+		items = items.concat(engines);
+		if (keywords.length) {
+			if (items.length)
+				items.push(document.createElement('menuseparator'));
+			items = items.concat(keywords);
 		}
+		if (items.length)
+			items[0].setAttribute('_moz-menuactive', 'true');
+
+		if (aReverse) items = items.reverse();
+
+		var fragment = document.createDocumentFragment();
+		items.forEach(function(aItem) {
+			fragment.appendChild(aItem);
+		});
+		range.insertNode(fragment);
+		range.detach();
+	},
+	 
+	createItemForSearchEngine : function(aEngine) 
+	{
+		var item = document.createElement('menuitem');
+		item.setAttribute('label', aEngine.name);
+		item.setAttribute('engineName', aEngine.name);
+		item.setAttribute('id', aEngine.name);
+		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
+		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
+		if (aEngine.iconURI)
+			item.setAttribute('src', aEngine.iconURI.spec);
+		return item;
 	},
  
+	createItemForKeyword : function(aKeyword) 
+	{
+		var item = document.createElement('menuitem');
+		item.setAttribute('label', aKeyword.name);
+		item.setAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
+		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
+		item.setAttribute('class', 'menuitem-iconic');
+		item.setAttribute('keyword', aKeyword.keyword);
+		if (aKeyword.icon)
+			item.setAttribute('src', aKeyword.icon);
+		return item;
+	},
+  
 	initRecentEngines : function(aPopup) 
 	{
 		var popup = aPopup || this.popup;
@@ -336,7 +294,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* update searchbar */ 
-	
+	 
 	initBar : function() 
 	{
 		if (!this.initBarBase()) return;
@@ -576,7 +534,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* event handling */ 
-	
+	 
 	onSearchTermDrop : function(aEvent) 
 	{
 		if (aEvent.target == this.searchbar) {
@@ -670,7 +628,7 @@ SecondSearchBrowser.prototype = {
 
 		return retVal;
 	},
-	
+	 
 	loadForSearch : function(aURI, aPostData, aEvent) 
 	{
 		var newTab = (aEvent && aEvent.altKey) ||
@@ -824,9 +782,40 @@ SecondSearchBrowser.prototype = {
 		this.doingSearch = false;
 	},
 	doingSearch : false,
- 	 
+  
 /* operate engines */ 
-	
+	 
+	get engines() 
+	{
+		return this.SearchService.getVisibleEngines({});
+	},
+	 
+	get SearchService() 
+	{
+		if (!this._SearchService)
+			this._SearchService = Components
+				.classes['@mozilla.org/browser/search-service;1']
+				.getService(Components.interfaces.nsIBrowserSearchService);
+		return this._SearchService;
+	},
+	_SearchService : null,
+ 
+	get searchStringBundle() 
+	{
+		if (!this._searchStringBundle)
+			this._searchStringBundle = Components
+				.classes['@mozilla.org/intl/stringbundle;1']
+				.getService(Components.interfaces.nsIStringBundleService)
+				.createBundle('chrome://browser/locale/search.properties');
+		return this._searchStringBundle;
+	},
+	_searchStringBundle : null,
+  
+	get engine() 
+	{
+		return this.searchbar.getAttribute('searchengine');
+	},
+ 
 	isEngineAvailable : function(aName) 
 	{
 		return this.engines.some(function(aEngine) {
@@ -854,22 +843,22 @@ SecondSearchBrowser.prototype = {
 
 		aName = aName.split('\n');
 		if (aName.length > 1) {
-			for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
-			{
+			this.keywords.some(function(aKeyword) {
 				if (aNot ?
-						this.keywords[i].keyword == aName[1] :
-						this.keywords[i].keyword != aName[1]
-					) continue;
+						aKeyword.keyword == aName[1] :
+						aKeyword.keyword != aName[1]
+					)
+					return false;
 
 				engine = {
-					name    : this.keywords[i].name,
-					icon    : this.keywords[i].icon,
-					uri     : this.keywords[i].uri,
-					keyword : (this.keywords[i].keyword || ''),
+					name    : aKeyword.name,
+					icon    : aKeyword.icon,
+					uri     : aKeyword.uri,
+					keyword : (aKeyword.keyword || ''),
 					id      : ''
 				};
-				break;
-			}
+				return true;
+			});
 			return engine;
 		}
 
@@ -919,27 +908,26 @@ SecondSearchBrowser.prototype = {
 		var list = [];
 		var listDone = {};
 
-		for (var i = 0, maxi = uris.length; i < maxi; i++)
-		{
+		uris.forEach(function(aURI, aIndex) {
 			if (
-				keywords[i] ?
-					!(uris[i] in this.keywordsHash) :
+				keywords[aIndex] ?
+					!(aURI in this.keywordsHash) :
 					(
-						!uris[i] ||
-						!this.isEngineAvailable(names[i])
+						!aURI ||
+						!this.isEngineAvailable(names[aIndex])
 					)
 				)
-				continue;
+				return;
 
 			list.push({
-				name    : names[i],
-				icon    : icons[i],
-				uri     : uris[i],
-				keyword : (keywords[i] ? keywords[i] : '' ),
-				id      : ids[i]
+				name    : names[aIndex],
+				icon    : icons[aIndex],
+				uri     : aURI,
+				keyword : (keywords[aIndex] ? keywords[aIndex] : '' ),
+				id      : ids[aIndex]
 			});
-			listDone[encodeURIComponent(names[i])+':'+encodeURIComponent(uris[i])] = true;
-		}
+			listDone[encodeURIComponent(names[aIndex])+':'+encodeURIComponent(aURI)] = true;
+		});
 
 		if (list.length < this.historyNum) {
 			var engine = this.getCurrentEngine();
@@ -973,35 +961,33 @@ SecondSearchBrowser.prototype = {
 		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
 		var ids      = this.getArrayPref('secondsearch.recentengines.id');
 
-		for (var i = uris.length-1; i > -1; i--)
-		{
-			if (uris[i] || keywords[i]) continue;
-			names.splice(i, 1);
-			icons.splice(i, 1);
-			uris.splice(i, 1);
-			keywords.splice(i, 1);
-			ids.splice(i, 1);
-		}
+		uris.slice().forEach(function(aURI, aIndex) {
+			if (aURI || keywords[aIndex]) continue;
+			names.splice(aIndex, 1);
+			icons.splice(aIndex, 1);
+			uris.splice(aIndex, 1);
+			keywords.splice(aIndex, 1);
+			ids.splice(aIndex, 1);
+		});
 
 		var retVal;
 
 		if (aOperation == 'add' ||
 			aOperation == 'remove' ||
 			aOperation == 'check') {
-			for (var i = 0, maxi = names.length; i < maxi; i++)
-			{
-				if (names[i] != aEngine.name) continue;
+			names.slice().some(function(aName, aIndex) {
+				if (aName != aEngine.name) return false;
 				if (aOperation == 'check') {
 					retVal = true;
-					break;
+					return true;
 				}
-				names.splice(i, 1);
-				icons.splice(i, 1);
-				uris.splice(i, 1);
-				keywords.splice(i, 1);
-				ids.splice(i, 1);
-				break;
-			}
+				names.splice(aIndex, 1);
+				icons.splice(aIndex, 1);
+				uris.splice(aIndex, 1);
+				keywords.splice(aIndex, 1);
+				ids.splice(aIndex, 1);
+				return true;
+			});
 		}
 
 		if (aOperation == 'add') {
@@ -1052,7 +1038,7 @@ SecondSearchBrowser.prototype = {
 	},
    
 /* keywords */ 
-	
+	 
 	keywords : [], 
 	keywordsHash : {},
  
@@ -1105,19 +1091,16 @@ SecondSearchBrowser.prototype = {
 			count !== null &&
 			count != -1
 			) { // load cache
-			var data;
-			for (var i = 0, maxi = uris.length; i < maxi; i++)
-			{
-				data = {
-					name    : names[i],
-					icon    : icons[i],
-					uri     : uris[i],
-					keyword : keywords[i]
-				}
-				if (!uris[i]) continue;
-				this.keywords.push(data);
-				this.keywordsHash[data.uri] = data;
-			}
+			uris.forEach(function(aURI, aIndex) {
+				if (!aURI) return;
+				this.keywordsHash[aURI] = {
+					name    : names[aIndex],
+					icon    : icons[aIndex],
+					uri     : aURI,
+					keyword : keywords[aIndex]
+				};
+				this.keywords.push(this.keywordsHash[aURI]);
+			}, this);
 		}
 		else if (this.placesAvailable) { // initialize for Firefox 3
 			var s = this.placesDB.createStatement(
@@ -1193,7 +1176,7 @@ SecondSearchBrowser.prototype = {
 
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 	},
- 
+ 	
 	// Firefox 3: SQLite based bookmarks 
 	 
 	newKeywordFromPlaces : function(aId) 
@@ -1233,17 +1216,16 @@ SecondSearchBrowser.prototype = {
 		var data    = this.newKeywordFromPlaces(aId);
 
 		var modified = false;
-		for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
-		{
-			if (this.keywords[i].uri != data.uri &&
-				this.keywords[i].keyword != keyword)
-				continue;
+		this.keywords.slice().some(function(aKeyword, aIndex) {
+			if (aKeyword.uri != data.uri &&
+				aKeyword.keyword != keyword)
+				return false;
 
 			if (aMode == 'delete' ||
 				aMode == 'keyword' ||
 				aMode == 'uri') {
-				delete this.keywordsHash[this.keywords[i].uri];
-				this.keywords.splice(i, 1);
+				delete this.keywordsHash[aKeyword.uri];
+				this.keywords.splice(aIndex, 1);
 			}
 			if (aMode == 'keyword' ||
 				aMode == 'uri') {
@@ -1257,8 +1239,8 @@ SecondSearchBrowser.prototype = {
 				this.keywordsHash[data.uri].keyword = data.keyword;
 			}
 			modified = true;
-			break;
-		}
+			return true;
+		}, this);
 
 		if (!modified) {
 			this.keywords.push(data);
@@ -1269,50 +1251,47 @@ SecondSearchBrowser.prototype = {
 			keywords.push(keyword);
 		}
 		else {
-			for (var i = 0, maxi = keywords.length; i < maxi; i++)
-			{
-				if (uris[i] != data.uri &&
-					keywords[i] != keyword)
-					continue;
+			this.keywords.some(function(aKeyword, aIndex) {
+				if (uris[aIndex] != data.uri &&
+					keywords[aIndex] != keyword)
+					return false;
 
 				if (aMode == 'delete') {
-					for (var j = 0, maxj = recentUris.length; j < maxj; j++)
-					{
-						if (recentUris[j] != uris[i] &&
-							recentKeywords[j] != keywords[i])
-							continue;
+					recentUris.slice().forEach(function(aRecentUri, aRecentIndex) {
+						if (aRecentUri != uris[aIndex] &&
+							aRecentUri != keywords[aIndex])
+							return;
 
-						recentIds.splice(j, 1);
-						recentNames.splice(j, 1);
-						recentIcons.splice(j, 1);
-						recentUris.splice(j, 1);
-						recentKeywords.splice(j, 1);
-					}
-					names.splice(i, 1);
-					icons.splice(i, 1);
-					uris.splice(i, 1);
-					keywords.splice(i, 1);
+						recentIds.splice(aRecentIndex, 1);
+						recentNames.splice(aRecentIndex, 1);
+						recentIcons.splice(aRecentIndex, 1);
+						recentUris.splice(aRecentIndex, 1);
+						recentKeywords.splice(aRecentIndex, 1);
+					});
+					names.splice(aIndex, 1);
+					icons.splice(aIndex, 1);
+					uris.splice(aIndex, 1);
+					keywords.splice(aIndex, 1);
 				}
 				else {
-					for (var j = 0, maxj = recentUris.length; j < maxj; j++)
-					{
-						if (recentUris[j] != uris[i] &&
-							recentKeywords[j] != keywords[i])
-							continue;
+					recentUris.slice().forEach(function(aRecentUri, aRecentIndex) {
+						if (aRecentUri != uris[aIndex] &&
+							aRecentUri != keywords[aIndex])
+							return;
 
-						recentIds.splice(j, 1, '');
-						recentNames.splice(j, 1, data.name);
-						recentIcons.splice(j, 1, data.icon);
-						recentUris.splice(j, 1, data.uri);
-						recentKeywords.splice(j, 1, keyword);
-					}
-					names.splice(i, 1, data.name);
-					icons.splice(i, 1, data.icon);
-					uris.splice(i, 1, data.uri);
-					keywords.splice(i, 1, keyword);
+						recentIds.splice(aRecentIndex, 1, '');
+						recentNames.splice(aRecentIndex, 1, data.name);
+						recentIcons.splice(aRecentIndex, 1, data.icon);
+						recentUris.splice(aRecentIndex, 1, data.uri);
+						recentKeywords.splice(aRecentIndex, 1, keyword);
+					});
+					names.splice(aIndex, 1, data.name);
+					icons.splice(aIndex, 1, data.icon);
+					uris.splice(aIndex, 1, data.uri);
+					keywords.splice(aIndex, 1, keyword);
 				}
-				break;
-			}
+				return true;
+			}, this);
 		}
 
 		if (recentNum != recentUris.length) {
@@ -1655,7 +1634,7 @@ SecondSearchBrowser.prototype = {
 	},
    
 /* prefs */ 
-	
+	 
 	domain  : 'secondsearch', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
