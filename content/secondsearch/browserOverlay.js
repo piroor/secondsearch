@@ -209,7 +209,6 @@ SecondSearchBrowser.prototype = {
 			range.setEndBefore(popup.lastChild);
 		}
 		range.deleteContents();
-		range.detach();
 
 
 		var current = this.getCurrentEngine();
@@ -217,30 +216,25 @@ SecondSearchBrowser.prototype = {
 			this.removeEngineFromRecentList(current);
 
 		var engines = this.getRecentEngines();
-		if (popup.shownBy == this.SHOWN_BY_DROP) {
+		if (popup.shownBy == this.SHOWN_BY_DROP)
 			engines.unshift(current);
-		}
 
-		var refNode = null;
-		if (this.popupPosition == 1) {
-			refNode = popup.firstChild;
-		}
-		else {
+		if (this.popupPosition != 1)
 			engines.reverse();
-		}
 
 		var template = popup.getAttribute('labelTemplate');
+		var fragment = document.createDocumentFragment();
 		engines.forEach(function(aEngine) {
 			var node = document.createElement('menuitem');
 			node.setAttribute('label', template.replace(/\%s/i, (aEngine.name || '')));
 			node.setAttribute('src',   aEngine.icon || '');
 			node.setAttribute('class', 'menuitem-iconic');
 			node.setAttribute('engineName', (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' ));
-			if (refNode)
-				popup.insertBefore(node, refNode);
-			else
-				popup.appendChild(node);
-		}, this);
+			fragment.appendChild(node);
+		});
+
+		range.insertNode(fragment);
+		range.detach();
 	},
  
 	switchTo : function(aEngine) 
