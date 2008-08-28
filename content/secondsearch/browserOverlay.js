@@ -90,28 +90,59 @@ SecondSearchBrowser.prototype = {
 		var bar = this.searchbar;
 		return bar ? (
 				bar.textbox || /* Firefox 3 */
-				bar._textbox || /* Firefox 2 */
-				bar.mTextbox /* Firefox 1.5 */
+				bar._textbox /* Firefox 2 */
 			) : null ;
 	},
  
-	get source() 
+	get engines()
 	{
-//		var organized = document.getElementById('search-popup');
-//		if (organized) return organized;
-
-		var bar = this.searchbar;
-		var node = bar ? document.getAnonymousElementByAttribute(bar, 'anonid', 'searchbar-popup') : null ;
-		if (node &&
-			node.hasChildNodes() &&
-			node.firstChild.localName == 'menuseparator') {
-			this.searchbar.rebuildPopup();
-		}
-		return node;
+		return this.SearchService.getVisibleEngines({});
 	},
-	get sourceItems()
+ 
+	get SearchService()
 	{
-		return this.evaluateXPath('descendant::xul:menuitem[contains(@class, "searchbar-engine-menuitem")]', this.source);
+		if (!this._SearchService)
+			this._SearchService = Components
+				.classes['@mozilla.org/browser/search-service;1']
+				.getService(Components.interfaces.nsIBrowserSearchService);
+		return this._SearchService;
+	},
+	_SearchService : null,
+ 
+	get searchStringBundle()
+	{
+		if (!this._searchStringBundle)
+			this._searchStringBundle = Components
+				.classes['@mozilla.org/intl/stringbundle;1']
+				.getService(Components.interfaces.nsIStringBundleService)
+				.createBundle('chrome://browser/locale/search.properties');
+		return this._searchStringBundle;
+	},
+	_searchStringBundle : null,
+ 
+	createItemForEngine : function(aEngine)
+	{
+		var item = document.createElement('menuitem');
+		item.setAttribute('label', aEngine.name);
+		item.setAttribute('engineName', aEngine.name);
+		item.setAttribute('id', aEngine.name);
+		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
+		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
+		if (aEngine.iconURI)
+			item.setAttribute('src', aEngine.iconURI.spec);
+		return item;
+	},
+	createItemForKeyword : function(aKeyword)
+	{
+		var item = document.createElement('menuitem');
+		item.setAttribute('label', aKeyword.name);
+		item.setAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
+		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
+		item.setAttribute('class', 'menuitem-iconic');
+		item.setAttribute('keyword', aKeyword.keyword);
+		if (aKeyword.icon)
+			item.setAttribute('src', aKeyword.icon);
+		return item;
 	},
  
 	get allMenuItem() 
@@ -124,8 +155,7 @@ SecondSearchBrowser.prototype = {
 		var bar = this.searchbar;
 		return bar ? (
 				bar.searchButton || /* Firefox 3 */
-				bar._engineButton || /* Firefox 2 */
-				document.getAnonymousElementByAttribute(bar, 'id', 'searchbar-dropmarker') /* Firefox 1.5 */
+				bar._engineButton /* Firefox 2 */
 			) : null ;
 	},
  
@@ -158,44 +188,32 @@ SecondSearchBrowser.prototype = {
 
 		var count = 0;
 
-		var items = this.sourceItems;
-		var item;
-		for (var i = 0, maxi = items.snapshotLength; i < maxi; i++)
-		{
-			item = items.snapshotItem(i);
-			if (parent && parent.getElementsByAttribute('engineName', item.getAttribute('label')).length)
-				continue;
+		var engines = this.engines;
+		engines.forEach(function(aEngine) {
+			if (parent && parent.getElementsByAttribute('engineName', aEngine.name).length)
+				return;
 
-			popup.appendChild(item.cloneNode(true));
-			popup.lastChild.setAttribute('engineName', popup.lastChild.getAttribute('label'));
-			popup.lastChild.id = 'secondsearch-'+(popup.lastChild.id || encodeURIComponent(popup.lastChild.getAttribute('label')));
+			var item = this.createItemForEngine(aEngine);
+			item.setAttribute('id', 'secondsearch-'+(item.getAttribute('id') || encodeURIComponent(aEngine.name)));
 			if (!count)
-				popup.lastChild.setAttribute('_moz-menuactive', 'true');
+				item.setAttribute('_moz-menuactive', 'true');
+			popup.appendChild(item);
 
 			count++;
-		}
+		}, this);
 
 		if (this.keywords.length) {
 			if (count)
 				popup.appendChild(document.createElement('menuseparator'));
 
-			for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
-			{
-				if (this.keywords[i].uri &&
+			this.keywords.forEach(function(aKeyword) {
+				if (aKeyword.uri &&
 					parent &&
-					parent.getElementsByAttribute('engineName', this.keywords[i].name+'\n'+this.keywords[i].keyword).length)
-					continue;
-
-				popup.appendChild(document.createElement('menuitem'));
-				popup.lastChild.setAttribute('label',      this.keywords[i].name);
-				popup.lastChild.setAttribute('class',      'menuitem-iconic');
-				popup.lastChild.setAttribute('src',        this.keywords[i].icon);
-				popup.lastChild.setAttribute('keyword',    this.keywords[i].keyword);
-				popup.lastChild.setAttribute('engineName', this.keywords[i].name+'\n'+this.keywords[i].keyword);
-				popup.lastChild.id = 'secondsearch-keyword-'+encodeURIComponent(this.keywords[i].name);
-
+					parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword).length)
+					return;
+				popup.appendChild(this.createItemForKeyword(aKeyword));
 				count++;
-			}
+			}, this);
 
 			if (popup.lastChild && popup.lastChild.localName == 'menuseparator')
 				popup.removeChild(popup.lastChild);
@@ -247,26 +265,24 @@ SecondSearchBrowser.prototype = {
 
 		var refNode = null;
 		if (this.popupPosition == 1) {
-			engines.reverse();
 			refNode = popup.firstChild;
+		}
+		else {
+			engines.reverse();
 		}
 
 		var template = popup.getAttribute('labelTemplate');
-		var node;
-		for (var i = engines.length-1; i > -1; i--)
-		{
-			node = document.createElement('menuitem');
-			if (refNode) {
-				popup.insertBefore(node, refNode);
-			}
-			else {
-				popup.appendChild(node);
-			}
-			node.setAttribute('label', template.replace(/\%s/i, (engines[i].name || '')));
-			node.setAttribute('src',   engines[i].icon || '');
+		engines.forEach(function(aEngine) {
+			var node = document.createElement('menuitem');
+			node.setAttribute('label', template.replace(/\%s/i, (aEngine.name || '')));
+			node.setAttribute('src',   aEngine.icon || '');
 			node.setAttribute('class', 'menuitem-iconic');
-			node.setAttribute('engineName', (engines[i].name || '')+(engines[i].keyword ? '\n'+engines[i].keyword : '' ));
-		}
+			node.setAttribute('engineName', (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' ));
+			if (refNode)
+				popup.insertBefore(node, refNode);
+			else
+				popup.appendChild(node);
+		}, this);
 	},
  
 	switchTo : function(aEngine) 
@@ -277,12 +293,7 @@ SecondSearchBrowser.prototype = {
 		if (current.name != aEngine.name) {
 			this.removeEngineFromRecentList(aEngine);
 			this.addEngineToRecentList(current);
-			if ('_engines' in bar) { // Firefox 2
-				bar.currentEngine = this.getSearchEngineFromName(aEngine.name);
-			}
-			else { // Firefox 1.5
-				box.currentEngine = aEngine.id;
-			}
+			bar.currentEngine = this.getSearchEngineFromName(aEngine.name);
 		}
 		box.focus();
 		box.select();
@@ -291,7 +302,7 @@ SecondSearchBrowser.prototype = {
 	get popupHeight() 
 	{
 		return (this.popupType == 0) ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length :
-				(this.sourceItems.length + this.keywords.length) ;
+				(this.engines.length + this.keywords.length) ;
 	},
  
 	initEmptySearchBar : function() 
@@ -378,7 +389,7 @@ SecondSearchBrowser.prototype = {
 					)
 		);
 
-		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) { // Firefox 2 or later
+		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
 			eval(
 				'search.handleSearchCommand = '+
 					search.handleSearchCommand.toSource()
@@ -418,24 +429,6 @@ SecondSearchBrowser.prototype = {
 			search.__secondsearch__doSearch = search.doSearch;
 			search.doSearch = this.doSearchbarSearch;
 			search._popup.addEventListener('command', this, true);
-		}
-		else if ('onEnginePopupCommand' in textbox && textbox.onEnginePopupCommand.toSource().indexOf('SecondSearch') < 0) { // Firefox 1.5
-			eval(
-				'textbox.onEnginePopupCommand = '+
-					textbox.onEnginePopupCommand.toSource()
-						.replace('this.currentEngine = target.id',
-							'window.getSecondSearch().addEngineToRecentList(window.getSecondSearch().getCurrentEngine());'+
-							'this.currentEngine = target.id'
-						)
-			);
-			eval(
-				'textbox.__secondsearch__onTextEntered = '+
-					textbox.__secondsearch__onTextEntered.toSource()
-						.replace(
-							'(evt && evt.altKey)',
-							'$& || window.getSecondSearch().openintab'
-						)
-			);
 		}
 
 		if ('SearchLoadURL' in window) { // Fx 1.5?
@@ -665,18 +658,6 @@ SecondSearchBrowser.prototype = {
 			else if ('handleSearchCommand' in bar) { // Firefox 2
 				retVal = bar.handleSearchCommand(aEvent, true);
 			}
-			else { // Firefox 1.5
-				var uri = this.getSearchURI(this.searchterm, engine.id);
-				var newTab = (aEvent && aEvent.altKey) || (aEvent.type == 'click' && aEvent.button == 1);
-				var isManual = newTab;
-				newTab = this.openintab ? !newTab : newTab ;
-				if (!isManual &&
-					newTab &&
-					this.reuseBlankTab &&
-					this.currentURI == 'about:blank')
-					newTab = !newTab;
-				retVal = SearchLoadURL(uri, newTab);
-			}
 		}
 
 		this.selectedEngine = null;
@@ -791,29 +772,8 @@ SecondSearchBrowser.prototype = {
 	getSearchURI : function(aTerm, aEngine) 
 	{
 		var bar = this.searchbar;
-		var current = bar.getAttribute('searchengine');
-		if (current) { // Firefox 1.5
-			var ISEARCHSVC = Components.classes['@mozilla.org/rdf/datasource;1?name=internetsearch'].getService(Components.interfaces.nsIInternetSearchService);
-			if (aEngine) current = aEngine;
-			try {
-				current = ISEARCHSVC.GetInternetSearchURL(current, (aTerm || ''), 0, 0, {value:0});
-				if (!aTerm) {
-					var uri = Components.classes['@mozilla.org/network/io-service;1'].getService(Components.interfaces.nsIIOService).newURI(current, null, null);
-					try {
-						current = uri.host;
-					}
-					catch (e) {
-					}
-				}
-			}
-			catch(e) {
-			}
-		}
-		if (!current && 'currentEngine' in this.searchbar) { // Firefox 2
-			var engine = bar.currentEngine;
-			current = engine.getSubmission((aTerm || ''), null).uri.spec;
-		}
-		return current;
+		var engine = bar.currentEngine;
+		return engine.getSubmission((aTerm || ''), null).uri.spec;
 	},
  
 	checkToDoSearch : function(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
@@ -869,21 +829,22 @@ SecondSearchBrowser.prototype = {
 	
 	isEngineAvailable : function(aName) 
 	{
-		var bar = this.searchbar;
-		if ('_engines' in bar) // Firefox 2
-			return this.getSearchEngineFromName(aName) ? true : false ;
-		return this.source.getElementsByAttribute('label', aName).length ? true : false ;
+		return this.engines.some(function(aEngine) {
+				return aEngine.name == aName;
+			});
 	},
  
 	getSearchEngineFromName : function(aName) 
-	{ // Firefox 2
-		var bar = this.searchbar;
-		for (var i = 0, maxi = bar._engines.length; i < maxi; i++)
-		{
-			if (bar._engines[i].name == aName)
-				return bar._engines[i];
-		}
-		return null;
+	{
+		var engine = null;
+		this.engines.some(function(aEngine) {
+			if (aEngine.name == aName) {
+				engine = aEngine;
+				return true;
+			}
+			return false;
+		});
+		return engine;
 	},
  
 	getEngineFromName : function(aName, aNot) 
@@ -914,49 +875,22 @@ SecondSearchBrowser.prototype = {
 
 		aName = aName[0];
 
-		if ('_engines' in bar) { // Firefox 2
-			for (var i = 0, maxi = bar._engines.length; i < maxi; i++)
-			{
-				if (aNot ?
-						bar._engines[i].name == aName :
-						bar._engines[i].name != aName
-					) continue;
+		this.engines.some(function(aEngine) {
+			if (aNot ?
+					aEngine.name == aName :
+					aEngine.name != aName
+				)
+				return false;
 
-				engine = {
-					name    : bar._engines[i].name,
-					icon    : (bar._engines[i].iconURI ? bar._engines[i].iconURI.spec : '' ),
-					uri     : bar._engines[i].getSubmission('', null).uri.spec,
-					keyword : '',
-					id      : ''
-				};
-				break;
-			}
-		}
-		else { // Firefox 1.5
-			var items = this.sourceItems;
-			var item;
-			for (var i = 0, maxi = items.snapshotLength; i < maxi; i++)
-			{
-				item = items.snapshotItem(i);
-				if (
-					!item.id ||
-					(aNot ?
-						item.getAttribute('label') == aName :
-						item.getAttribute('label') != aName
-					)
-					) continue;
-
-				engine = {
-					name    : item.getAttribute('label'),
-					icon    : item.getAttribute('src'),
-					uri     : this.getSearchURI('', item.id),
-					keyword : '',
-					id      : item.id
-				};
-				break;
-			}
-		}
-
+			engine = {
+				name    : aEngine.name,
+				icon    : (aEngine.iconURI ? aEngine.iconURI.spec : '' ),
+				uri     : aEngine.getSubmission('', null).uri.spec,
+				keyword : '',
+				id      : ''
+			};
+			return true;
+		}, this);
 
 		return engine;
 	},
@@ -964,29 +898,13 @@ SecondSearchBrowser.prototype = {
 	getCurrentEngine : function() 
 	{
 		var bar = this.searchbar;
-		var engine;
-		if ('_engines' in bar) { // Firefox 2
-			engine = {
+		var engine = {
 				name    : bar.currentEngine.name,
 				icon    : (bar.currentEngine.iconURI ? bar.currentEngine.iconURI.spec : '' ),
 				uri     : bar.currentEngine.getSubmission('', null).uri.spec,
 				keyword : '',
 				id      : ''
 			};
-		}
-		else { // Firefox 1.5
-			var box = this.textbox;
-			var engineRes = box.rdfService.GetResource(box.currentEngine);
-			const kNC_Name = box.rdfService.GetResource('http://home.netscape.com/NC-rdf#Name');
-			var name = box.readRDFString(engineRes, kNC_Name);
-			engine = {
-				name    : name,
-				icon    : bar.getAttribute('src'),
-				uri     : this.getSearchURI('', box.currentEngine),
-				keyword : '',
-				id      : box.currentEngine
-			};
-		}
 		return engine;
 	},
  
@@ -1000,7 +918,6 @@ SecondSearchBrowser.prototype = {
 
 		var list = [];
 		var listDone = {};
-		var source = this.source;
 
 		for (var i = 0, maxi = uris.length; i < maxi; i++)
 		{
@@ -1026,19 +943,17 @@ SecondSearchBrowser.prototype = {
 
 		if (list.length < this.historyNum) {
 			var engine = this.getCurrentEngine();
-			var items = this.sourceItems;
+			var engines = this.engines;
 			var source;
 			var item;
-			for (var i = 0, maxi = this.historyNum, childNum = items.snapshotLength; list.length < maxi; i++)
+			for (var i = 0, maxi = this.historyNum, childNum = engines.length; list.length < maxi; i++)
 			{
 				if (i == childNum) break;
-				source = items.snapshotItem(i);
-				if (source.localName != 'menuitem' ||
-					source.getAttribute('label') == engine.name ||
-					source.getAttribute('anonid') == 'open-engine-manager')
+				source = engines[i];
+				if (source.name == engine.name)
 					continue;
 
-				item = this.getEngineFromName(source.getAttribute('label'));
+				item = this.getEngineFromName(source.name);
 				if (encodeURIComponent(item.name)+':'+encodeURIComponent(item.uri) in listDone)
 					continue;
 
