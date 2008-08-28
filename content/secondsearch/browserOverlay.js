@@ -1192,8 +1192,8 @@ SecondSearchBrowser.prototype = {
 			}
 			if (aMode != 'delete') {
 				oldData = {
-					uri     : this.keywordsHash[data.uri].uri,
-					keyword : this.keywordsHash[data.uri].keyword
+					uri     : aKeyword.uri,
+					keyword : aKeyword.keyword
 				};
 				this.keywordsHash[data.uri].name    = data.name;
 				this.keywordsHash[data.uri].icon    = data.icon;
@@ -1208,41 +1208,51 @@ SecondSearchBrowser.prototype = {
 			this.keywordsHash[data.uri] = data;
 		}
 		else {
-			var ids      = this.getArrayPref('secondsearch.recentengines.id');
-			var names    = this.getArrayPref('secondsearch.recentengines.name');
-			var icons    = this.getArrayPref('secondsearch.recentengines.icon');
-			var uris     = this.getArrayPref('secondsearch.recentengines.uri');
-			var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
-
-			var recentEngines = [];
-			uris.forEach(function(aURI, aIndex) {
-				if (aURI == oldData.uri ||
-					keywords[aIndex] == oldData.keyword) {
-					if (aMode == 'delete') return;
-
-					recentEngines.push({
-						name    : data.name,
-						icon    : data.icon,
-						uri     : data.uri,
-						keyword : keyword,
-						id      : ''
-					});
-					return;
-				}
-				recentEngines.push({
-					name    : names[aIndex],
-					icon    : icons[aIndex],
-					uri     : aURI,
-					keyword : keywords[aIndex],
-					id      : ids[aIndex]
-				});
-			}),
-
-			if (uris.length != recentEngines.length)
-				this.saveRecentEnginesCache(recentEngines);
+			this.updateRecentEnginesForKeywordModification(
+				oldData,
+				(aMode == 'delete' ? null : data )
+			);
 		}
 
 		this.saveKeywordsCache();
+	},
+ 
+	updateRecentEnginesForKeywordModification : function(aOldData, aNewData)
+	{
+		var ids      = this.getArrayPref('secondsearch.recentengines.id');
+		var names    = this.getArrayPref('secondsearch.recentengines.name');
+		var icons    = this.getArrayPref('secondsearch.recentengines.icon');
+		var uris     = this.getArrayPref('secondsearch.recentengines.uri');
+		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
+
+		var recentEngines = [];
+		var modified = false;
+		uris.forEach(function(aURI, aIndex) {
+			if (aURI == aOldData.uri ||
+				keywords[aIndex] == aOldData.keyword) {
+				modified = true;
+				if (!aNewData) return;
+
+				recentEngines.push({
+					name    : aNewData.name,
+					icon    : aNewData.icon,
+					uri     : aNewData.uri,
+					keyword : aNewData.keyword,
+					id      : ''
+				});
+				return;
+			}
+			recentEngines.push({
+				name    : names[aIndex],
+				icon    : icons[aIndex],
+				uri     : aURI,
+				keyword : keywords[aIndex],
+				id      : ids[aIndex]
+			});
+		}),
+
+		if (modified)
+			this.saveRecentEnginesCache(recentEngines);
 	},
  
 	saveKeywordsCache : function()
@@ -1376,123 +1386,54 @@ SecondSearchBrowser.prototype = {
 	
 	updateKeywordFromRDF : function(aSource, aMode) 
 	{
-		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
-		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
-		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
-		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
-
-		var recentIds      = this.getArrayPref('secondsearch.recentengines.id');
-		var recentNames    = this.getArrayPref('secondsearch.recentengines.name');
-		var recentIcons    = this.getArrayPref('secondsearch.recentengines.icon');
-		var recentUris     = this.getArrayPref('secondsearch.recentengines.uri');
-		var recentKeywords = this.getArrayPref('secondsearch.recentengines.keyword');
-
 		var res = this.RDF.GetResource(aSource);
-		var shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
-		shortcut = shortcut.hasMoreElements() ? shortcut.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ;
+		var keyword = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
 
-		if (!shortcut) aMode = 'remove';
+		var name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
+		var icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
+		var data = {
+				name    : (name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ),
+				icon    : (icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ),
+				uri     : aSource,
+				keyword : (keyword.hasMoreElements() ? keyword.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' )
+			};
+		keyword = data.keyword;
 
-		switch (aMode)
-		{
-			case 'change':
-			case 'add':
-				var name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
-				name = name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ;
-				var icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
-				icon = icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ;
+		if (!keyword) aMode = 'delete';
 
-				if (aSource in this.keywordsHash) {
-					this.keywordsHash[aSource].name    = name;
-					this.keywordsHash[aSource].icon    = icon;
-					this.keywordsHash[aSource].uri     = aSource;
-					this.keywordsHash[aSource].keyword = shortcut;
-					for (var i = 0, maxi = uris.length; i < maxi; i++)
-					{
-						if (uris[i] != aSource) continue;
+		var oldData = null;
+		this.keywords.slice().some(function(aKeyword, aIndex) {
+			if (aKeyword.uri != data.uri &&
+				aKeyword.keyword != keyword)
+				return false;
 
-						for (var j = 0, maxj = recentUris.length; j < maxj; j++)
-						{
-							if (recentUris[j] != aSource &&
-								recentKeywords[j] != shortcut)
-								continue;
+			if (aMode != 'add') {
+				delete this.keywordsHash[aKeyword.uri];
+				this.keywords.splice(aIndex, 1);
+				oldData = {
+					uri     : aKeyword.uri,
+					keyword : aKeyword.keyword
+				};
+			}
+			if (aMode != 'delete') {
+				this.keywords.push(data);
+				this.keywordsHash[data.uri] = data;
+			}
+			return true;
+		}, this);
 
-							recentIds.splice(j, 1, '');
-							recentNames.splice(j, 1, name);
-							recentIcons.splice(j, 1, icon);
-							recentUris.splice(j, 1, aSource);
-							recentKeywords.splice(j, 1, shortcut);
-						}
-
-						names.splice(i, 1, name);
-						icons.splice(i, 1, icon);
-						uris.splice(i, 1, aSource);
-						keywords.splice(i, 1, shortcut);
-						break;
-					}
-				}
-				else {
-					this.keywords.push({
-						name    : name,
-						icon    : icon,
-						uri     : aSource,
-						keyword : shortcut
-					});
-					this.keywordsHash[aSource] = this.keywords[this.keywords.length-1];
-					names.push(name);
-					icons.push(icon);
-					uris.push(aSource);
-					keywords.push(shortcut);
-				}
-				break;
-
-			case 'remove':
-				for (var i = 0, maxi = this.keywords.length; i < maxi; i++)
-				{
-					if (this.keywords[i].uri != aSource) continue;
-					this.keywords.splice(i, 1);
-					delete this.keywordsHash[aSource];
-					break;
-				}
-				for (var i = 0, maxi = uris.length; i < maxi; i++)
-				{
-					if (uris[i] != aSource) continue;
-
-					for (var j = 0, maxj = recentUris.length; j < maxj; j++)
-					{
-						if (recentUris[j] != uris[i] &&
-							recentKeywords[j] != keywords[i])
-							continue;
-
-						recentIds.splice(j, 1);
-						recentNames.splice(j, 1);
-						recentIcons.splice(j, 1);
-						recentUris.splice(j, 1);
-						recentKeywords.splice(j, 1);
-					}
-
-					names.splice(i, 1);
-					icons.splice(i, 1);
-					uris.splice(i, 1);
-					keywords.splice(i, 1);
-					break;
-				}
-				break;
+		if (!oldData) {
+			this.keywords.push(data);
+			this.keywordsHash[data.uri] = data;
+		}
+		else {
+			this.updateRecentEnginesForKeywordModification(
+				oldData,
+				(aMode == 'delete' ? null : data )
+			);
 		}
 
-		if (recentNum != recentUris.length) {
-			this.setArrayPref('secondsearch.recentengines.id', recentIds);
-			this.setArrayPref('secondsearch.recentengines.name', recentNames);
-			this.setArrayPref('secondsearch.recentengines.icon', recentIcons);
-			this.setArrayPref('secondsearch.recentengines.uri', recentUris);
-			this.setArrayPref('secondsearch.recentengines.keyword', recentKeywords);
-		}
-
-		this.setArrayPref('secondsearch.keyword.cache.name', names);
-		this.setArrayPref('secondsearch.keyword.cache.icon', icons);
-		this.setArrayPref('secondsearch.keyword.cache.uri', uris);
-		this.setArrayPref('secondsearch.keyword.cache.keyword', keywords);
-		this.setIntPref('secondsearch.keyword.cache.count', uris.length);
+		this.saveKeywordsCache();
 	},
  
 	get RDF() 
@@ -1546,7 +1487,7 @@ SecondSearchBrowser.prototype = {
 				},
 				onUnassert: function (aDataSource, aSource, aProperty, aTarget)
 				{
-					this.setOverflowTimeout(aSource, aProperty, 'remove');
+					this.setOverflowTimeout(aSource, aProperty, 'delete');
 				},
 				onChange: function (aDataSource, aSource, aProperty, aOldTarget, aNewTarget)
 				{
