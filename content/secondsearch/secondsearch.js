@@ -542,7 +542,8 @@ catch(e) {
   
 	clearAfterSearch : function() 
 	{
-		if (!this.getBoolPref('secondsearch.clear_after_search'))
+		if (!this.canClearAfterSearch ||
+			!this.getBoolPref('secondsearch.clear_after_search'))
 			return;
 
 		this.stopClearAfterSearch();
@@ -558,6 +559,7 @@ catch(e) {
 			window.clearTimeout(this.clearAfterSearchTimer);
 	},
 	clearAfterSearchTimer : null,
+	canClearAfterSearch : true,
   
 /* update searchbar */ 
 	
@@ -1002,7 +1004,11 @@ catch(e) {
 
 			var textbox = this.owner.textbox;
 			textbox.value = string;
-			this.owner.onSearchTermDrop(aEvent);
+			var retVal = this.owner.onSearchTermDrop(aEvent);
+			if (retVal !== void(0) && !retVal) {
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
+			}
 			this.owner.clearAfterSearch();
 			window.setTimeout(function(aOwner) {
 				aOwner.hideSecondSearch();

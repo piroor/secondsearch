@@ -76,13 +76,26 @@ SecondSearchBrowser.prototype = {
 		return val;
 	},
 	defaultReuseBlankTab : true,
+ 
+	get overrideLocationBar() 
+	{
+		var val = this.getBoolPref('secondsearch.override.locationBar');
+		if (val === null) {
+			val = this.defaultOverrideLocationBar;
+			this.setBoolPref('secondsearch.override.locationBar', val);
+		}
+		return val;
+	},
+	defaultOverrideLocationBar : true,
   
 /* elements */ 
 	
 	get searchbar() 
 	{
 		var bar = document.getElementsByTagName('searchbar');
-		return bar && bar.length ? bar[0] : null ;
+		return (bar && bar.length) ? bar[0] :
+			this.overrideLocationBar ? document.getElementById('urlbar') :
+			null ;
 	},
  
 	get textbox() 
@@ -90,7 +103,8 @@ SecondSearchBrowser.prototype = {
 		var bar = this.searchbar;
 		return bar ? (
 				bar.textbox || /* Firefox 3 */
-				bar._textbox /* Firefox 2 */
+				bar._textbox || /* Firefox 2 */
+				(bar.localName == 'textbox' ? bar : null ) /* location bar*/
 			) : null ;
 	},
  
@@ -104,8 +118,15 @@ SecondSearchBrowser.prototype = {
 		var bar = this.searchbar;
 		return bar ? (
 				bar.searchButton || /* Firefox 3 */
-				bar._engineButton /* Firefox 2 */
+				bar._engineButton || /* Firefox 2 */
+				document.getElementById('page-proxy-stack') || /* Firefox 3, location bar*/
+				document.getElementById('page-proxy-deck') /* Firefox 2, location bar*/
 			) : null ;
+	},
+ 
+	get canClearAfterSearch()
+	{
+		return this.searchbar.localName == 'searchbar';
 	},
   
 /* UI */ 
@@ -212,11 +233,11 @@ SecondSearchBrowser.prototype = {
 
 
 		var current = this.getCurrentEngine();
-		if (this.isEngineInRecentList(current))
+		if (current && this.isEngineInRecentList(current))
 			this.removeEngineFromRecentList(current);
 
 		var engines = this.getRecentEngines();
-		if (popup.shownBy == this.SHOWN_BY_DROP)
+		if (current && popup.shownBy == this.SHOWN_BY_DROP)
 			engines.unshift(current);
 
 		if (this.popupPosition != 1)
@@ -240,13 +261,17 @@ SecondSearchBrowser.prototype = {
 	switchTo : function(aEngine) 
 	{
 		var bar = this.searchbar;
-		var box = this.textbox;
+		if (bar.localName != 'searchbar') return;
+
 		var current = this.getCurrentEngine();
+		if (!current) return;
+
 		if (current.name != aEngine.name) {
 			this.removeEngineFromRecentList(aEngine);
 			this.addEngineToRecentList(current);
 			bar.currentEngine = this.getSearchEngineFromName(aEngine.name);
 		}
+		var box = this.textbox;
 		box.focus();
 		box.select();
 	},
@@ -308,118 +333,122 @@ SecondSearchBrowser.prototype = {
 		textbox.__secondsearch__onKeyPress = textbox.onKeyPress;
 		textbox.onKeyPress = this.onTextboxKeyPress;
 
-		eval(
-			'textbox.searchbarDNDObserver.onDrop = '+
-				textbox.searchbarDNDObserver.onDrop.toSource()
-					.replace('this.mOuter.onTextEntered',
-						'var ss = window.getSecondSearch();'+
-						'if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {'+
-							'ss.showSecondSearch(ss.SHOWN_BY_DROP);'+
-							'return;'+
-						'}'+
-						'else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE || ss.handleDragdropOnlyOnButton) {'+
-							'return;'+
-						'}'+
-						'this.mOuter.onTextEntered'
-					)
-		);
-		eval(
-			'textbox.searchbarDNDObserver.getSupportedFlavours = '+
-				textbox.searchbarDNDObserver.getSupportedFlavours.toSource()
-					.replace('flavourSet.appendFlavour',
-						'var ss = window.getSecondSearch();'+
-						'if ('+
-							'('+
-								'ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||'+
-								'ss.handleDragdropOnlyOnButton'+
-							') &&'+
-							'("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )'+
-							') {'+
-							'return flavourSet;'+
-						'};'+
-						'flavourSet.appendFlavour'
-					)
-		);
-
-		if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
+		if (search.localName == 'searchbar') { // search bar
 			eval(
-				'search.handleSearchCommand = '+
-					search.handleSearchCommand.toSource()
-						.replace(')', ', aOverride)')
-						.replace(/doSearch\(([^\)]+)\)/, 'doSearch($1, aOverride)')
-			);
-			var source = search.doSearch.toSource();
-			if (source.indexOf('openUILinkIn') > -1) { // Firefox 3
-				eval(
-					'search.doSearch = '+
-						source
-							.replace(
-								'{',
-								'$& window.getSecondSearch().readyToSearch();'
-							).replace(
-								/(\}\)?)$/,
-								'window.getSecondSearch().searchDone(); $1'
-							)
-				);
-			}
-			else { // Firefox 2
-				eval(
-					'search.doSearch = '+
-						source
-							.replace(
-								/([\w\d\.]+).focus\(\)/,
-								'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-							).replace(
-								/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
-								'$1 window.getSecondSearch().loadInBackground $2'
-							).replace(
-								'if (gURLBar)',
-								'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-							)
-				);
-			}
-			search.__secondsearch__doSearch = search.doSearch;
-			search.doSearch = this.doSearchbarSearch;
-			search._popup.addEventListener('command', this, true);
-		}
-
-		if ('SearchLoadURL' in window) { // Fx 1.5?
-			eval('window.SearchLoadURL = '+
-				window.SearchLoadURL.toSource().replace(
-					/([\w\d\.]+).focus\(\)/,
-					'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-				).replace(
-					/([\w\d\.]+).selectedTab = /,
-					'if (!window.getSecondSearch().loadInBackground) $1.selectedTab = '
-				).replace(
-					'if (gURLBar)',
-					'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-				)
-			);
-		}
-
-		// GSuggest
-		if ('GSuggest' in window && !GSuggest.__secondsearch__operateSuggesList) {
-			GSuggest.__secondsearch__operateSuggesList = GSuggest.operateSuggesList;
-			GSuggest.operateSuggesList = this.operateSuggesList;
-			GSuggest.secondSearch = this;
-		}
-
-		// Tab Mix Plus, only Firefox 2?
-		if ('handleSearchCommand' in search &&
-			'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
-			window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
-			eval(
-				'window.TMP_SearchLoadURL = '+
-					window.TMP_SearchLoadURL.toSource()
-						.replace('var submission = searchbar.currentEngine',
-							'var overrideEngine = null;'+
-							'if (window.getSecondSearch().selectedEngine) {'+
-								'overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);'+
-							'};'+
-							'var submission = (overrideEngine || searchbar.currentEngine)'
+				'textbox.searchbarDNDObserver.onDrop = '+
+					textbox.searchbarDNDObserver.onDrop.toSource()
+						.replace('this.mOuter.onTextEntered',
+							'var ss = window.getSecondSearch();'+
+							'if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {'+
+								'ss.showSecondSearch(ss.SHOWN_BY_DROP);'+
+								'return;'+
+							'}'+
+							'else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE || ss.handleDragdropOnlyOnButton) {'+
+								'return;'+
+							'}'+
+							'this.mOuter.onTextEntered'
 						)
 			);
+			eval(
+				'textbox.searchbarDNDObserver.getSupportedFlavours = '+
+					textbox.searchbarDNDObserver.getSupportedFlavours.toSource()
+						.replace('flavourSet.appendFlavour',
+							'var ss = window.getSecondSearch();'+
+							'if ('+
+								'('+
+									'ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||'+
+									'ss.handleDragdropOnlyOnButton'+
+								') &&'+
+								'("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )'+
+								') {'+
+								'return flavourSet;'+
+							'};'+
+							'flavourSet.appendFlavour'
+						)
+			);
+
+			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
+				eval(
+					'search.handleSearchCommand = '+
+						search.handleSearchCommand.toSource()
+							.replace(')', ', aOverride)')
+							.replace(/doSearch\(([^\)]+)\)/, 'doSearch($1, aOverride)')
+				);
+				var source = search.doSearch.toSource();
+				if (source.indexOf('openUILinkIn') > -1) { // Firefox 3
+					eval(
+						'search.doSearch = '+
+							source
+								.replace(
+									'{',
+									'$& window.getSecondSearch().readyToSearch();'
+								).replace(
+									/(\}\)?)$/,
+									'window.getSecondSearch().searchDone(); $1'
+								)
+					);
+				}
+				else { // Firefox 2
+					eval(
+						'search.doSearch = '+
+							source
+								.replace(
+									/([\w\d\.]+).focus\(\)/,
+									'if (!window.getSecondSearch().loadInBackground) $1.focus()'
+								).replace(
+									/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
+									'$1 window.getSecondSearch().loadInBackground $2'
+								).replace(
+									'if (gURLBar)',
+									'if (gURLBar && !window.getSecondSearch().loadInBackground)'
+								)
+					);
+				}
+				search.__secondsearch__doSearch = search.doSearch;
+				search.doSearch = this.doSearchbarSearch;
+				search._popup.addEventListener('command', this, true);
+			}
+
+			if ('SearchLoadURL' in window) { // Fx 1.5?
+				eval('window.SearchLoadURL = '+
+					window.SearchLoadURL.toSource().replace(
+						/([\w\d\.]+).focus\(\)/,
+						'if (!window.getSecondSearch().loadInBackground) $1.focus()'
+					).replace(
+						/([\w\d\.]+).selectedTab = /,
+						'if (!window.getSecondSearch().loadInBackground) $1.selectedTab = '
+					).replace(
+						'if (gURLBar)',
+						'if (gURLBar && !window.getSecondSearch().loadInBackground)'
+					)
+				);
+			}
+
+			// GSuggest
+			if ('GSuggest' in window && !GSuggest.__secondsearch__operateSuggesList) {
+				GSuggest.__secondsearch__operateSuggesList = GSuggest.operateSuggesList;
+				GSuggest.operateSuggesList = this.operateSuggesList;
+				GSuggest.secondSearch = this;
+			}
+
+			// Tab Mix Plus, only Firefox 2?
+			if ('handleSearchCommand' in search &&
+				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
+				window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
+				eval(
+					'window.TMP_SearchLoadURL = '+
+						window.TMP_SearchLoadURL.toSource()
+							.replace('var submission = searchbar.currentEngine',
+								'var overrideEngine = null;'+
+								'if (window.getSecondSearch().selectedEngine) {'+
+									'overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);'+
+								'};'+
+								'var submission = (overrideEngine || searchbar.currentEngine)'
+							)
+				);
+			}
+		}
+		else { // location bar
 		}
 
 		if (this.placesAvailable)
@@ -532,18 +561,23 @@ SecondSearchBrowser.prototype = {
 	onSearchTermDrop : function(aEvent) 
 	{
 		if (aEvent.target == this.searchbar) {
+			if (this.searchbar.localName != 'searchbar')
+				return false;
 			this.textbox.onTextEntered(aEvent);
 		}
 		else if (aEvent.target.localName == 'menuitem') {
 			this.doSearchBy(aEvent.target, aEvent);
 		}
+		return true;
 	},
  
 	onCommand : function(aEvent) 
 	{
 		var node = aEvent.originalTarget || aEvent.target;
-		if (node.getAttribute('class').indexOf('addengine-item') > -1)
-			this.addEngineToRecentList(this.getCurrentEngine());
+		if (node.getAttribute('class').indexOf('addengine-item') < 0) return;
+		var current = this.getCurrentEngine();
+		if (current)
+			this.addEngineToRecentList(current);
 	},
  
 	onOperationPre : function(aEvent) 
@@ -580,7 +614,6 @@ SecondSearchBrowser.prototype = {
 		this.selectedEngine = engine;
 		this.doingSearch = true;
 
-		var bar = this.searchbar;
 		var retVal;
 
 		this.hideSecondSearch(true);
@@ -596,7 +629,9 @@ SecondSearchBrowser.prototype = {
 		}
 		else {
 			this.addEngineToRecentList(engine);
-			if (engine.keyword) {
+			var bar = this.searchbar;
+			var isSearchBar = 'handleSearchCommand' in bar;
+			if (engine.keyword || !isSearchBar) {
 				var postData = {};
 				var uri = ('getShortcutOrURL' in window) ?
 					getShortcutOrURL(engine.keyword+' '+this.searchterm, postData) :
@@ -607,7 +642,7 @@ SecondSearchBrowser.prototype = {
 
 				this.loadForSearch(uri, (postData.value || null), aEvent);
 			}
-			else if ('handleSearchCommand' in bar) { // Firefox 2
+			else if (isSearchBar) { // Firefox 2
 				retVal = bar.handleSearchCommand(aEvent, true);
 			}
 		}
@@ -630,13 +665,7 @@ SecondSearchBrowser.prototype = {
 		var isManual = newTab;
 
 		var inBackground = false;
-		if ('TabbrowserService' in window) { // TBE
-			var behavior = this.getIntPref('browser.tabs.opentabfor.searchbar.behavior');
-			newTab = behavior > 0 ? !newTab : newTab ;
-			if (newTab) isManual = false;
-			inBackground = behavior == 2;
-		}
-		else if ('TM_init' in window) { // Tab Mix Plus
+		if ('TM_init' in window) { // Tab Mix Plus
 			newTab = this.getBoolPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
 			if (newTab) isManual = false;
 			inBackground = this.getBoolPref('extensions.tabmix.loadSearchInBackground');
@@ -721,13 +750,6 @@ SecondSearchBrowser.prototype = {
 		}
 	},
  
-	getSearchURI : function(aTerm, aEngine) 
-	{
-		var bar = this.searchbar;
-		var engine = bar.currentEngine;
-		return engine.getSubmission((aTerm || ''), null).uri.spec;
-	},
- 
 	checkToDoSearch : function(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
 	{
 		if (!this.doingSearch) return false;
@@ -805,11 +827,6 @@ SecondSearchBrowser.prototype = {
 	},
 	_searchStringBundle : null,
   
-	get engine() 
-	{
-		return this.searchbar.getAttribute('searchengine');
-	},
- 
 	isEngineAvailable : function(aName) 
 	{
 		return this.engines.some(function(aEngine) {
@@ -832,7 +849,6 @@ SecondSearchBrowser.prototype = {
  
 	getEngineFromName : function(aName, aNot) 
 	{
-		var bar = this.searchbar;
 		var engine;
 
 		aName = aName.split('\n');
@@ -881,6 +897,7 @@ SecondSearchBrowser.prototype = {
 	getCurrentEngine : function() 
 	{
 		var bar = this.searchbar;
+		if (bar.localName != 'searchbar') return null;
 		var engine = {
 				name    : bar.currentEngine.name,
 				icon    : (bar.currentEngine.iconURI ? bar.currentEngine.iconURI.spec : '' ),
@@ -932,7 +949,7 @@ SecondSearchBrowser.prototype = {
 			{
 				if (i == childNum) break;
 				source = engines[i];
-				if (source.name == engine.name)
+				if (engine && source.name == engine.name)
 					continue;
 
 				item = this.getEngineFromName(source.name);
@@ -1249,7 +1266,7 @@ SecondSearchBrowser.prototype = {
 				keyword : keywords[aIndex],
 				id      : ids[aIndex]
 			});
-		}),
+		});
 
 		if (modified)
 			this.saveRecentEnginesCache(recentEngines);

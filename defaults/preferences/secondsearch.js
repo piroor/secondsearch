@@ -14,6 +14,7 @@ pref("secondsearch.clear_after_search", false);
 pref("secondsearch.clear_after_search.delay", 10000);
 pref("secondsearch.reuse_blank_tab",    true);
 pref("secondsearch.timeout",            5000);
+pref("secondsearch.override.locationBar", true);
 
 pref("secondsearch.keyword.updating", false);
 
