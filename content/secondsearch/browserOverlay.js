@@ -568,11 +568,13 @@ SecondSearchBrowser.prototype = {
  
 	onTextEntered : function(aEvent) 
 	{
-		if (window.getSecondSearch().getCurrentItem())
+		var ss = window.getSecondSearch();
+		if (ss.getCurrentItem()) {
 			return false;
+		}
 		else {
 			var retVal = this.__secondsearch__onTextEntered(aEvent);
-			window.getSecondSearch().clearAfterSearch();
+			ss.clearAfterSearch();
 			return retVal;
 		}
 	},
@@ -770,6 +772,11 @@ SecondSearchBrowser.prototype = {
 			)
 			) {
 			this.browser.contentWindow.focus();
+
+			// for location bar
+			if (this.browser.userTypedValue == this.searchterm)
+				this.browser.userTypedValue = null;
+
 			var t = 'loadOneTab' in this.browser ?
 				this.browser.loadOneTab(aURI, null, null, aPostData, false, true) :
 				this.browser.addTab(aURI, null, null, aPostData);
@@ -816,6 +823,11 @@ SecondSearchBrowser.prototype = {
 			}
 			var loadInBackground = ss.loadInBackground;
 			if (aWhere.indexOf('tab') > -1) {
+
+				// for location bar
+				if (ss.browser.userTypedValue == ss.searchterm)
+					ss.browser.userTypedValue = null;
+
 				if (!loadInBackground) ss.browser.contentWindow.focus();
 				ss.browser.loadOneTab(url, null, null, postData, loadInBackground, false);
 				if (gURLBar && !loadInBackground)
