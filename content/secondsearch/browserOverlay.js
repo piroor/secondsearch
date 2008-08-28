@@ -1070,7 +1070,7 @@ SecondSearchBrowser.prototype = {
 		var retVal;
 		var engines = [];
 		uris.forEach(function(aURI, aIndex) {
-			if (!aURI || !keywords[aIndex]) return;
+			if (!aURI && !keywords[aIndex]) return;
 
 			if (names[aIndex] == aEngine.name) {
 				switch (aOperation)
