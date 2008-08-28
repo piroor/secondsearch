@@ -1,5 +1,6 @@
 <!ENTITY secondsearch.searchBy     "mint &#37;s">
 <!ENTITY secondsearch.searchByMore "Keresés">
+<!ENTITY secondsearch.loadAsURI    "Load as an URI">
 
 <!ENTITY secondsearch.config.title     "Second Search beállítások">
 <!ENTITY secondsearch.config.disabled  "Second Search beállítások nem működik a Firefox 1.0 változatával. Nyissa meg az &quot;about:config&quot; oldalt és keresse meg a &quot;secondsearch.&quot; mezőket.">

@@ -184,6 +184,17 @@ SecondSearchBrowser.prototype = {
 				items.push(document.createElement('menuseparator'));
 			items = items.concat(keywords);
 		}
+
+		if (popup.shownBy == this.SHOWN_BY_DROP &&
+			this.droppedURI) {
+			if (items.length)
+				items.push(document.createElement('menuseparator'));
+			var item = document.createElement('menuitem');
+			item.setAttribute('label', popup.getAttribute('labelLoadAsURI'));
+			item.setAttribute('engineName', this.kLOAD_AS_URI);
+			items.push(item);
+		}
+
 		if (items.length)
 			items[0].setAttribute('_moz-menuactive', 'true');
 
@@ -242,8 +253,18 @@ SecondSearchBrowser.prototype = {
 			this.removeEngineFromRecentList(current);
 
 		var engines = this.getRecentEngines();
-		if (current && popup.shownBy == this.SHOWN_BY_DROP)
-			engines.unshift(current);
+		if (popup.shownBy == this.SHOWN_BY_DROP) {
+			if (current) {
+				engines.unshift(current);
+			}
+			else if (this.droppedURI) {
+				engines.unshift(null);
+				engines.unshift({
+					label : popup.getAttribute('labelLoadAsURI'),
+					name  : this.kLOAD_AS_URI
+				});
+			}
+		}
 
 		if (this.popupPosition != 1)
 			engines.reverse();
@@ -251,8 +272,12 @@ SecondSearchBrowser.prototype = {
 		var template = popup.getAttribute('labelTemplate');
 		var fragment = document.createDocumentFragment();
 		engines.forEach(function(aEngine) {
+			if (!aEngine) {
+				fragment.appendChild(document.createElement('menuseparator'));
+				return;
+			}
 			var node = document.createElement('menuitem');
-			node.setAttribute('label', template.replace(/\%s/i, (aEngine.name || '')));
+			node.setAttribute('label', aEngine.label || template.replace(/\%s/i, (aEngine.name || '')));
 			node.setAttribute('src',   aEngine.icon || '');
 			node.setAttribute('class', 'menuitem-iconic');
 			node.setAttribute('engineName', (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' ));
@@ -465,10 +490,28 @@ SecondSearchBrowser.prototype = {
 						'{',
 						<![CDATA[$&
 							var ss = window.getSecondSearch();
+							ss.droppedURI = null;
+							var showSecondSearch = false;
 							if (aXferData.flavour.contentType == 'text/unicode' &&
 								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
+								showSecondSearch = true;
+							}
+						]]>.toString()
+					).replace(
+						'return;',
+						<![CDATA[
+							if (showSecondSearch)
 								ss.showSecondSearch(ss.SHOWN_BY_DROP);
-								return;
+						$&]]>.toString()
+					).replace(
+						'handleURLBarCommand();',
+						<![CDATA[
+							if (showSecondSearch) {
+								ss.droppedURI = this.value;
+								ss.showSecondSearch(ss.SHOWN_BY_DROP);
+							}
+							else {
+								$&;
 							}
 						]]>.toString()
 					)
@@ -633,7 +676,13 @@ SecondSearchBrowser.prototype = {
 		if (!aItem.getAttribute('engineName'))
 			aItem.setAttribute('engineName', aItem.getAttribute('label'));
 
-		var engine = this.getEngineFromName(aItem.getAttribute('engineName'));
+		var engineName = aItem.getAttribute('engineName');
+		if (engineName == this.kLOAD_AS_URI) { // location bar
+			this.loadDroppedURI();
+			return false;
+		}
+
+		var engine = this.getEngineFromName(engineName);
 		this.selectedEngine = engine;
 		this.doingSearch = true;
 
@@ -833,6 +882,17 @@ SecondSearchBrowser.prototype = {
 		this.doingSearch = false;
 	},
 	doingSearch : false,
+ 
+	loadDroppedURI : function()
+	{
+		if ('handleURLBarCommand' in window) {
+			this.textbox.value = this.droppedURI;
+			handleURLBarCommand();
+			this.droppedURI = null;
+		}
+	},
+	droppedURI : null,
+	kLOAD_AS_URI : 'secondsearch::loadAsURI',
   
 /* operate engines */ 
 	 

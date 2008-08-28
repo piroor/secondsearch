@@ -1,5 +1,6 @@
 <!ENTITY secondsearch.searchBy     "by &#37;s">
 <!ENTITY secondsearch.searchByMore "Search by">
+<!ENTITY secondsearch.loadAsURI    "Load as an URI">
 
 
 

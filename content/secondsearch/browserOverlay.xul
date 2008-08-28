@@ -27,7 +27,8 @@
 			ondragexit="SecondSearch.handleEvent(event);"
 			ondragover="SecondSearch.handleEvent(event);"
 			ondragdrop="SecondSearch.handleEvent(event);"
-			labelTemplate="&secondsearch.searchBy;">
+			labelTemplate="&secondsearch.searchBy;"
+			labelLoadAsURI="&secondsearch.loadAsURI;">
 		<menu label="&secondsearch.searchByMore;"
 			id="secondsearch_popup_all">
 			<menupopup/>
