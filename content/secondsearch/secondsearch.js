@@ -256,21 +256,25 @@ SecondSearchBase.prototype = {
 			else {
 				var num = this.popupHeight;
 				var anchor, align, position;
+
+				var anchorNode = this.canFitPopupToSearchField ? bar : bar.parentNode ;
+				var anchorBox = anchorNode.boxObject;
+				var rootBox = document.documentElement.boxObject;
 				if (pos == 0 &&
-					bar.boxObject.screenY >= document.documentElement.boxObject.y + (bar.boxObject.height * (num+1) * 0.8)) { // above
+					anchorBox.screenY >= rootBox.screenY + (anchorBox.height * (num+1) * 0.8)) { // above
 	//dump('above\n');
 					anchor = 'topleft';
 					align  = 'bottomleft';
 					position = 'before_start';
 				}
 				else if (pos == 1 &&
-					bar.boxObject.screenY + bar.boxObject.height + this.textbox.popup.boxObject.height <= document.documentElement.boxObject.y + document.documentElement.boxObject.height - (bar.boxObject.height * (num+1) * 0.8)) { // below
+					anchorBox.screenY + anchorBox.height + this.textbox.popup.boxObject.height <= rootBox.screenY + rootBox.height - (anchorBox.height * (num+1) * 0.8)) { // below
 	//dump('below\n');
 					anchor = 'bottomleft';
 					align  = 'topleft';
 					position = 'after_start';
 				}
-				else if (bar.boxObject.screenX < document.documentElement.boxObject.y+bar.boxObject.width) { // right
+				else if (anchorBox.screenX < rootBox.screenY + anchorBox.width) { // right
 	//dump('right\n');
 					anchor = 'bottomright';
 					align  = 'bottomleft';
@@ -283,32 +287,36 @@ SecondSearchBase.prototype = {
 					position = 'start_after';
 				}
 
-				var anchorNode = this.canFitPopupToSearchField ? bar : bar.parentNode ;
+				if (this.isGecko19) popup.style.opacity = 0;
+				var self = this;
+				var correctPopupPosition = function() {
+					var popupBox = popup.boxObject;
+					if (
+						(pos == 0 && anchorBox.screenY < popupBox.screenY + popupBox.height) ||
+						(pos == 1 && anchorBox.screenY + anchorBox.height > popupBox.screenY)
+						) {
+						if (anchorBox.screenX - popupBox.width < 0) {
+							popup.moveTo(anchorBox.screenX + anchorBox.width, anchorBox.screenY);
+						}
+						else {
+							popup.moveTo(anchorBox.screenX - popupBox.width, anchorBox.screenY);
+						}
+					}
+					if (self.isGecko19) popup.style.opacity = 1;
+				};
 
 				document.popupNode = bar;
-				if (this.isGecko19) popup.style.opacity = 0;
 				if ('openPopup' in popup) { // Firefox 3
 					popup.openPopup(anchorNode, position, 0, 0, true, true); // show as context menu, to prevent it gets focus.
+					popup.addEventListener('popupshown', function() {
+						popup.removeEventListener('popupshown', arguments.callee, false);
+						correctPopupPosition();
+					}, false);
 				}
 				else {
 					popup.showPopup(anchorNode, -1, -1, 'menupopup', anchor, align);
+					correctPopupPosition();
 				}
-
-				var popupBox = popup.boxObject;
-				var anchorBox = anchorNode.boxObject;
-				var rootBox = document.documentElement.boxObject;
-				if (
-					(pos == 0 && anchorBox.screenY < popupBox.screenY + popupBox.height) ||
-					(pos == 1 && anchorBox.screenY + anchorBox.height > popupBox.screenY)
-					) {
-					if (anchorBox.screenX - popupBox.width < 0) {
-						popup.moveTo(anchorBox.screenX + anchorBox.width, anchorBox.screenY);
-					}
-					else {
-						popup.moveTo(anchorBox.screenX - popupBox.width, anchorBox.screenY);
-					}
-				}
-				if (this.isGecko19) popup.style.opacity = 1;
 			}
 
 			var current = this.getCurrentItem(popup);
