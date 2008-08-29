@@ -1216,12 +1216,13 @@ SecondSearchBrowser.prototype = {
 		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
 		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
-		if (
-			(this.placesAvailable && uris.join('|').indexOf('rdf:#') > -1) || // from Fx 2 to Fx 3
-			[names.length, icons.length, uris.length, keywords.length].some(function(aCount) {
-				return aCount != ids.length;
-			}) // from old version of Second Search to new one
-			)
+		if (!aForceUpdate &&
+			(
+				(this.placesAvailable && uris.join('|').indexOf('rdf:#') > -1) || // from Fx 2 to Fx 3
+				[names.length, icons.length, uris.length, keywords.length].some(function(aCount) {
+					return aCount != ids.length;
+				}) // from old version of Second Search to new one
+			))
 			aForceUpdate = true;
 
 		var count = this.getIntPref('secondsearch.keyword.cache.count');
@@ -1274,14 +1275,14 @@ SecondSearchBrowser.prototype = {
 				try{
 					res = res.QueryInterface(Components.interfaces.nsIRDFResource);
 					shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
-					if (!shortcut) continue;
+					if (!shortcut || !shortcut.hasMoreElements()) continue;
 					shortcut = shortcut.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral);
 					if (!shortcut.Value || shortcut.Value in doneKeywords) continue;
 
 					name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
 					icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
 					this.keywordsHash[res.Value] = {
-						id      : uri,
+						id      : res.Value,
 						name    : name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : shortcut.Value ,
 						icon    : icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ,
 						uri     : res.Value,
