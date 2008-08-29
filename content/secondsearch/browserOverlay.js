@@ -124,12 +124,12 @@ SecondSearchBrowser.prototype = {
 			) : null ;
 	},
  
-	get canClearAfterSearch()
+	get canClearAfterSearch() 
 	{
 		return this.searchbar.localName == 'searchbar';
 	},
  
-	get canFitPopupToSearchField()
+	get canFitPopupToSearchField() 
 	{
 		return this.searchbar.localName == 'searchbar';
 	},
@@ -166,15 +166,22 @@ SecondSearchBrowser.prototype = {
 				return item;
 			}, this);
 
+		var iconUpdated = false;
 		var keywords = this.keywords
 			.filter(function(aKeyword) {
 				return !aKeyword.uri ||
 					!parent ||
 					!parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword).length;
-			})
+			}, this)
 			.map(function(aKeyword) {
+				if (!aKeyword.icon) {
+					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
+					if (aKeyword.icon) iconUpdated = true;
+				}
 				return this.createItemForKeyword(aKeyword);
 			}, this);
+		if (iconUpdated)
+			this.saveKeywordsCache();
 
 		items = items.concat(engines);
 		if (keywords.length) {
@@ -238,7 +245,74 @@ SecondSearchBrowser.prototype = {
 			item.setAttribute('src', aKeyword.icon);
 		return item;
 	},
-  
+ 
+	getFaviconForPage : function(aURI) 
+	{
+		if (!this.placesAvailable) return '';
+
+		var sql = <![CDATA[
+				SELECT f.url
+				  FROM moz_places p
+				       LEFT JOIN moz_favicons f ON p.favicon_id = f.id
+				 WHERE f.url NOT NULL AND (]]>.toString();
+		var uri = aURI;
+		var uris = [];
+		while (/^\w+:\/\/[^\/]+\//.test(uri))
+		{
+			uri = uri.replace(/[^\/]+\/?$/, '');
+			uris.push(uri);
+		}
+		sql += uris.map(function(aURI, aIndex) {
+				return 'p.url GLOB ?'+(aIndex+1)
+			}).join(' OR ') +
+			') '+
+			'ORDER BY LENGTH(p.url) DESC';
+
+		var statement = this.placesDB.createStatement(sql);
+		var result;
+		try {
+			uris.forEach(function(aURI, aIndex) {
+				statement.bindStringParameter(aIndex, aURI+'*');
+			});
+			while (statement.executeStep())
+			{
+				result = statement.getString(0);
+				if (!this.FavIconService.isFailedFavicon(this.makeURIFromSpec(result)))
+					break;
+			}
+		}
+		finally {
+			statement.reset();
+		}
+		return result ? 'moz-anno:favicon:'+result : '' ;
+	},
+	
+	makeURIFromSpec : function(aURI) 
+	{
+		var newURI;
+		aURI = aURI || '';
+		if (aURI && String(aURI).indexOf('file:') == 0) {
+			var fileHandler = this.IOService.getProtocolHandler('file')
+					.QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+			var tempLocalFile = fileHandler.getFileFromURLSpec(aURI);
+			newURI = this.IOService.newFileURI(tempLocalFile);
+		}
+		else {
+			newURI = this.IOService.newURI(aURI, null, null);
+		}
+		return newURI;
+	},
+	
+	get IOService() { 
+		if (!this._IOService) {
+			this._IOService = Components
+					.classes['@mozilla.org/network/io-service;1']
+					.getService(Components.interfaces.nsIIOService);
+		}
+		return this._IOService;
+	},
+	_IOService : null,
+   	 
 	initRecentEngines : function(aPopup) 
 	{
 		var popup = aPopup || this.popup;
@@ -251,7 +325,6 @@ SecondSearchBrowser.prototype = {
 			range.setEndBefore(popup.lastChild);
 		}
 		range.deleteContents();
-
 
 		var current = this.getCurrentEngine();
 		if (current && this.isEngineInRecentList(current))
@@ -354,7 +427,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* update searchbar */ 
-	 
+	
 	initBar : function() 
 	{
 		if (!this.initBarBase()) return;
@@ -642,7 +715,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* event handling */ 
-	 
+	
 	onSearchTermDrop : function(aEvent) 
 	{
 		if (aEvent.target == this.searchbar) {
@@ -686,7 +759,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* do search */ 
-	 
+	
 	doSearchBy : function(aItem, aEvent) 
 	{
 		if (!aItem.getAttribute('engineName'))
@@ -909,7 +982,7 @@ SecondSearchBrowser.prototype = {
 	},
 	doingSearch : false,
  
-	loadDroppedURI : function()
+	loadDroppedURI : function() 
 	{
 		if ('handleURLBarCommand' in window) {
 			this.textbox.value = this.droppedURI;
@@ -921,12 +994,12 @@ SecondSearchBrowser.prototype = {
 	kLOAD_AS_URI : 'secondsearch::loadAsURI',
   
 /* operate engines */ 
-	 
+	
 	get engines() 
 	{
 		return this.SearchService.getVisibleEngines({});
 	},
-	 
+	
 	get SearchService() 
 	{
 		if (!this._SearchService)
@@ -1040,6 +1113,7 @@ SecondSearchBrowser.prototype = {
 		var list = [];
 		var listDone = {};
 
+		var iconUpdated = false;
 		uris.forEach(function(aURI, aIndex) {
 			if (
 				keywords[aIndex] ?
@@ -1051,15 +1125,24 @@ SecondSearchBrowser.prototype = {
 				)
 				return;
 
+			var favicon = icons[aIndex] || this.getFaviconForPage(aURI);
+			if (favicon != icons[aIndex]) {
+				icons[aIndex] = favicon;
+				iconUpdated = true;
+			}
+
 			list.push({
 				name    : names[aIndex],
-				icon    : icons[aIndex],
+				icon    : favicon,
 				uri     : aURI,
 				keyword : (keywords[aIndex] ? keywords[aIndex] : '' ),
 				id      : ids[aIndex]
 			});
 			listDone[encodeURIComponent(names[aIndex])+':'+encodeURIComponent(aURI)] = true;
 		}, this);
+
+		if (iconUpdated)
+			this.setArrayPref('secondsearch.recentengines.icon', icons);
 
 		if (list.length < this.historyNum) {
 			var engine = this.getCurrentEngine();
@@ -1168,7 +1251,7 @@ SecondSearchBrowser.prototype = {
 	},
    
 /* keywords */ 
-	 
+	
 	keywords : [], 
 	keywordsHash : {},
  
@@ -1297,26 +1380,18 @@ SecondSearchBrowser.prototype = {
 			this.saveKeywordsCache();
 		}
 	},
- 	
+ 
 	// Firefox 3: SQLite based bookmarks 
 	 
 	newKeywordFromPlaces : function(aId) 
 	{
-		var name    = this.NavBMService.getItemTitle(aId);
-		var uri     = this.NavBMService.getBookmarkURI(aId);
-		var keyword = this.NavBMService.getKeywordForBookmark(aId);
-		var favicon = '';
-		try {
-			favicon = this.FavIconService.getFaviconForPage(uri).spec;
-		}
-		catch(e) {
-		}
+		var uri = this.NavBMService.getBookmarkURI(aId);
 		return {
 			id      : 'bookmark:'+aId,
-			name    : name,
-			icon    : favicon,
+			name    : this.NavBMService.getItemTitle(aId),
+			icon    : this.getFaviconForPage(uri.spec),
 			uri     : uri.spec,
-			keyword : keyword
+			keyword : this.NavBMService.getKeywordForBookmark(aId)
 		};
 	},
  
@@ -1372,7 +1447,7 @@ SecondSearchBrowser.prototype = {
 		this.saveKeywordsCache();
 	},
  
-	updateRecentEnginesForKeywordModification : function(aOldData, aNewData)
+	updateRecentEnginesForKeywordModification : function(aOldData, aNewData) 
 	{
 		var ids      = this.getArrayPref('secondsearch.recentengines.id');
 		var names    = this.getArrayPref('secondsearch.recentengines.name');
@@ -1411,7 +1486,7 @@ SecondSearchBrowser.prototype = {
 			this.saveRecentEnginesCache(recentEngines);
 	},
  
-	saveKeywordsCache : function()
+	saveKeywordsCache : function() 
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 

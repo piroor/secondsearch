@@ -265,14 +265,7 @@ SecondSearchBase.prototype = {
 			var anchorNode = self.canFitPopupToSearchField ? bar : this.engineButton ;
 			var anchorBox = anchorNode.boxObject;
 			var rootBox = document.documentElement.boxObject;
-			var popupStatus = 'count:'+popup.childNodes.length+'\n'+
-					'position:'+pos+'\n'+
-					Array.slice(popup.childNodes)
-						.map(function(aItem) {
-							return aItem.localName+':'+(aItem.getAttribute('label') || '');
-						})
-						.sort()
-						.join('\n');
+			var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup);
 			if (
 				popup.lastX !== void(0) &&
 				popup.lastY !== void(0) &&
@@ -350,17 +343,18 @@ SecondSearchBase.prototype = {
 			popup.showPopup(anchorNode, -1, -1, 'menupopup', anchor, align);
 		}
 
-		var postProcess = function() {
-			var current = self.getCurrentItem(popup);
-			if (current) current.removeAttribute('_moz-menuactive');
-		};
-		if (this.isGecko19)
-			popup.addEventListener('popupshown', function() {
-				popup.removeEventListener('popupshown', arguments.callee, false);
-				postProcess();
-			}, false);
-		else
-			postProcess();
+		var current = this.getCurrentItem(popup);
+		if (current) current.removeAttribute('_moz-menuactive');
+	},
+	getPopupStatus : function(aPopup, aIgnoreOrder)
+	{
+		var items = Array.slice(aPopup.childNodes)
+				.map(function(aItem) {
+					return aItem.localName+':'+(aItem.getAttribute('label') || '');
+				});
+		if (aIgnoreOrder) items.sort();
+
+		return items.join('\n');
 	},
 	canFitPopupToSearchField : true,
 	correctingPopupPosition : false,
@@ -532,7 +526,10 @@ try{
 				if (current && current.parentNode != popup) {
 					current.removeAttribute('_moz-menuactive');
 					current.parentNode.hidePopup();
-					current.parentNode.shown = true;
+					current.parentNode.shown = false;
+					window.setTimeout(function(aMenu) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+						aMenu.setAttribute('_moz-menuactive', true);
+					}, 0, current.parentNode.parentNode);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					return false;
