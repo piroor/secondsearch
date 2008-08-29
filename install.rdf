@@ -9,10 +9,8 @@
                    em:creator="SHIMODA Hiroshi"
                    em:description="Shows tiny popup for the search bar, to allow you to search by another engine quickly."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en"
-                   em:optionsURL="chrome://secondsearch/content/config.xul">
-<!--
-                   em:iconURL=""
--->
+                   em:optionsURL="chrome://secondsearch/content/config.xul"
+                   em:iconURL="chrome://secondsearch/content/icon.png">
 	<em:translator>Mikes Kaszmán István (hu-HU locale)</em:translator>
 
 
