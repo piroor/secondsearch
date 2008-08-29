@@ -1216,9 +1216,12 @@ SecondSearchBrowser.prototype = {
 		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
 		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
-		if ([names.length, icons.length, uris.length, keywords.length].some(function(aCount) {
+		if (
+			(this.placesAvailable && uris.join('|').indexOf('rdf:#') > -1) || // from Fx 2 to Fx 3
+			[names.length, icons.length, uris.length, keywords.length].some(function(aCount) {
 				return aCount != ids.length;
-			}))
+			}) // from old version of Second Search to new one
+			)
 			aForceUpdate = true;
 
 		var count = this.getIntPref('secondsearch.keyword.cache.count');
@@ -1256,6 +1259,7 @@ SecondSearchBrowser.prototype = {
 			finally {
 				statement.reset();
 			}
+			this.saveKeywordsCache();
 		}
 		else { // initialize for Firefox 2
 			var resources = this.bookmarksDS.GetAllResources()
@@ -1289,8 +1293,8 @@ SecondSearchBrowser.prototype = {
 				catch(e) {
 				}
 			}
+			this.saveKeywordsCache();
 		}
-		this.saveKeywordsCache();
 	},
  	
 	// Firefox 3: SQLite based bookmarks 
@@ -1307,7 +1311,7 @@ SecondSearchBrowser.prototype = {
 		catch(e) {
 		}
 		return {
-			id      : 'place:'+aId,
+			id      : 'bookmark:'+aId,
 			name    : name,
 			icon    : favicon,
 			uri     : uri.spec,
@@ -1317,12 +1321,12 @@ SecondSearchBrowser.prototype = {
  
 	updateKeywordFromPlaces : function(aId, aMode) 
 	{
-		var data    = this.newKeywordFromPlaces(aId);
-		var oldData = null;
-		var idString = 'place:'+aId;
+		var data     = this.newKeywordFromPlaces(aId);
+		var oldData  = null;
 
 		this.keywords.slice().some(function(aKeyword, aIndex) {
-			if (aKeyword.id != idString)
+			if (aKeyword.id != data.id &&
+				aKeyword.keyword != data.keyword)
 				return false;
 
 			if (aMode == 'delete' ||
@@ -1352,8 +1356,10 @@ SecondSearchBrowser.prototype = {
 		}, this);
 
 		if (!oldData) {
-			this.keywords.push(data);
-			this.keywordsHash[data.uri] = data;
+			if (aMode != 'delete') {
+				this.keywords.push(data);
+				this.keywordsHash[data.uri] = data;
+			}
 		}
 		else {
 			this.updateRecentEnginesForKeywordModification(
@@ -1474,7 +1480,7 @@ SecondSearchBrowser.prototype = {
 //dump('onItemRemoved '+aId+'\n');
 //var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
 //dump('  keyword: '+keyword+'\n');
-					var idString = 'place:'+aId;
+					var idString = 'bookmark:'+aId;
 					this.owner.keywords.some(function(aKeyword) {
 						if (aKeyword.id != idString) return false;
 						this.owner.updateKeywordFromPlaces(aId, 'delete');
@@ -1560,15 +1566,15 @@ SecondSearchBrowser.prototype = {
 				return false;
 
 			if (aMode != 'add') {
-				delete this.keywordsHash[aKeyword.uri];
-				this.keywords.splice(aIndex, 1);
 				oldData = {
 					id      : aKeyword.id,
 					uri     : aKeyword.uri,
 					keyword : aKeyword.keyword
 				};
+				delete this.keywordsHash[aKeyword.uri];
+				this.keywords.splice(aIndex, 1);
 			}
-			if (aMode != 'delete') {
+			if (aMode != 'delete' && data.uri) {
 				this.keywords.push(data);
 				this.keywordsHash[data.uri] = data;
 			}
@@ -1576,8 +1582,10 @@ SecondSearchBrowser.prototype = {
 		}, this);
 
 		if (!oldData) {
-			this.keywords.push(data);
-			this.keywordsHash[data.uri] = data;
+			if (aMode != 'delete') {
+				this.keywords.push(data);
+				this.keywordsHash[data.uri] = data;
+			}
 		}
 		else {
 			this.updateRecentEnginesForKeywordModification(
