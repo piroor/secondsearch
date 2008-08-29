@@ -227,7 +227,7 @@ SecondSearchBrowser.prototype = {
 		item.setAttribute('label', aKeyword.name);
 		item.setAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
 		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
-		item.setAttribute('class', 'menuitem-iconic');
+		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('keyword', aKeyword.keyword);
 		if (aKeyword.icon)
 			item.setAttribute('src', aKeyword.icon);
@@ -279,7 +279,7 @@ SecondSearchBrowser.prototype = {
 			var node = document.createElement('menuitem');
 			node.setAttribute('label', aEngine.label || template.replace(/\%s/i, (aEngine.name || '')));
 			node.setAttribute('src',   aEngine.icon || '');
-			node.setAttribute('class', 'menuitem-iconic');
+			node.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 			node.setAttribute('engineName', (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' ));
 			fragment.appendChild(node);
 		});
@@ -372,15 +372,17 @@ SecondSearchBrowser.prototype = {
 						'this.mOuter.onTextEntered',
 						<![CDATA[
 							var ss = window.getSecondSearch();
-							if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-								ss.showSecondSearch(ss.SHOWN_BY_DROP);
-								return;
+							if (ss.searchbar == this.mOuter) {
+								if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
+									ss.showSecondSearch(ss.SHOWN_BY_DROP);
+									return;
+								}
+								else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
+										ss.handleDragdropOnlyOnButton) {
+									return;
+								}
 							}
-							else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-									ss.handleDragdropOnlyOnButton) {
-							return;
-						}
-						this.mOuter.onTextEntered]]>.toString()
+							this.mOuter.onTextEntered]]>.toString()
 					)
 				);
 				eval('textbox.searchbarDNDObserver.getSupportedFlavours = '+
@@ -389,6 +391,7 @@ SecondSearchBrowser.prototype = {
 						<![CDATA[
 							var ss = window.getSecondSearch();
 							if (
+								ss.searchbar == this.mOuter &&
 								(
 									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 									ss.handleDragdropOnlyOnButton
@@ -494,7 +497,7 @@ SecondSearchBrowser.prototype = {
 							var showSecondSearch = false;
 							if (aXferData.flavour.contentType == 'text/unicode' &&
 								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-								showSecondSearch = true;
+								showSecondSearch = (ss.searchbar == this);
 							}
 						]]>.toString()
 					).replace(
@@ -610,11 +613,11 @@ SecondSearchBrowser.prototype = {
 			return this.__secondsearch__onKeyPress(aEvent);
 	},
   
-	destroyBar : function() 
+	destroyBar : function(aBar) 
 	{
-		if (!this.destroyBarBase()) return;
+		if (!this.destroyBarBase(aBar)) return;
 
-		var search = this.searchbar;
+		var search = aBar || this.searchbar;
 		var textbox = this.textbox;
 
 		this.removePrefListener(this);
@@ -1661,6 +1664,13 @@ SecondSearchBrowser.prototype = {
 		switch (aPrefName)
 		{
 			default:
+				return;
+
+			case 'secondsearch.override.locationBar':
+				var search = document.getElementsByTagName('searchbar');
+				var locationbar = document.getElementById('urlbar');
+				if ((!search || !search.length) && locationbar)
+					this.destroyBar(locationbar);
 				return;
 
 			case 'secondsearch.popup.position':

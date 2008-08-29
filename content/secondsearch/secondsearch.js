@@ -615,14 +615,14 @@ catch(e) {
 		return true;
 	},
   
-	destroyBar : function() 
+	destroyBar : function(aBar) 
 	{
-		this.destroyBarBase();
+		this.destroyBarBase(aBar);
 	},
 	 
-	destroyBarBase : function() 
+	destroyBarBase : function(aBar) 
 	{
-		var search = this.searchbar;
+		var search = aBar || this.searchbar;
 		if (!search || !search.secondsearchInitialized) return false;;
 
 		search.secondsearchInitialized = false;
