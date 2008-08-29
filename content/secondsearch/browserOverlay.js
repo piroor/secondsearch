@@ -198,7 +198,14 @@ SecondSearchBrowser.prototype = {
 		if (items.length)
 			items[0].setAttribute('_moz-menuactive', 'true');
 
-		if (aReverse) items = items.reverse();
+		range.selectNodeContents(popup);
+		if (aReverse) {
+			items = items.reverse();
+			range.collapse(false);
+		}
+		else {
+			range.collapse(true);
+		}
 
 		var fragment = document.createDocumentFragment();
 		items.forEach(function(aItem) {
@@ -266,8 +273,14 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 
-		if (this.popupPosition != 1)
+		range.selectNodeContents(popup);
+		if (this.popupPosition == 0) { // above
 			engines.reverse();
+			range.collapse(false);
+		}
+		else { // below
+			range.collapse(true);
+		}
 
 		var template = popup.getAttribute('labelTemplate');
 		var fragment = document.createDocumentFragment();
