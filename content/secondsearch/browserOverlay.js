@@ -1216,6 +1216,11 @@ SecondSearchBrowser.prototype = {
 		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
 		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
+		if ([names.length, icons.length, keywords.length].some(function(aCount) {
+				return aCount != uris.length;
+			}))
+			aForceUpdate = true;
+
 		var count = this.getIntPref('secondsearch.keyword.cache.count');
 		if (
 			!aForceUpdate &&
