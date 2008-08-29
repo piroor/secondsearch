@@ -238,6 +238,7 @@ SecondSearchBase.prototype = {
 		if (popup.shown) return;
 
 		popup.shownBy = aReason;
+		this.initPopup();
 
 		var bar = this.searchbar;
 		var self = this;
@@ -256,51 +257,66 @@ SecondSearchBase.prototype = {
 				);
 		}
 		else if (this.isGecko19) {
+			document.popupNode = bar;
+
 			var position = pos == 0 ? 'before_start' : 'after_start' ;
 			var delta = 10;
 
-			popup.removeAttribute('left');
-			popup.removeAttribute('top');
-			popup.style.opacity = 0;
-			popup.style.visibility = 'hidden';
-
-			document.popupNode = bar;
-			popup.openPopup(anchorNode, position, 0, 0, true, true);
-
-			var anchorNode = self.canFitPopupToSearchField ? bar : bar.parentNode ;
+			var anchorNode = self.canFitPopupToSearchField ? bar : this.engineButton ;
 			var anchorBox = anchorNode.boxObject;
 			var rootBox = document.documentElement.boxObject;
+			var popupContents = Array.slice(popup.childNodes)
+					.map(function(aItem) {
+						return aItem.localName+':'+(aItem.getAttribute('label') || '');
+					})
+					.sort()
+					.join('\n') + '\n' + popup.childNodes.length;
+			if (
+				popup.lastX !== void(0) &&
+				popup.lastY !== void(0) &&
+				popup.lastContents == popupContents &&
+				popup.lastAnchorX == anchorBox.screenX &&
+				popup.lastAnchorY == anchorBox.screenY
+				) {
+				popup.openPopupAtScreen(popup.lastX, popup.lastY, true);
+			}
+			else {
+				popup.lastContents = popupContents;
+				popup.lastAnchorX = anchorBox.screenX;
+				popup.lastAnchorY = anchorBox.screenY;
 
-			popup.addEventListener('popupshown', function() {
-				popup.removeEventListener('popupshown', arguments.callee, false);
+				popup.removeAttribute('left');
+				popup.removeAttribute('top');
 
-				self.correctingPopupPosition = true;
-
-				var popupBox = popup.boxObject;
-				if (
-					(pos == 0 && anchorBox.screenY + delta < popupBox.screenY + popupBox.height) ||
-					(pos == 1 && anchorBox.screenY + anchorBox.height - delta > popupBox.screenY)
-					) {
-					popup.hidePopup();
-					popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
-
-					popup.addEventListener('popupshown', function() {
-						popup.removeEventListener('popupshown', arguments.callee, false);
-
-						var popupBox = popup.boxObject;
-						if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
-							popup.hidePopup();
-							popup.openPopupAtScreen(anchorBox.screenX + anchorBox.width, anchorBox.screenY, true);
-						}
-						popup.removeAttribute('style');
-						self.correctingPopupPosition = false;
-					}, false);
-				}
-				else {
-					popup.removeAttribute('style');
-					self.correctingPopupPosition = false;
-				}
-			}, false);
+				popup.openPopup(anchorNode, position, 0, 0, true, true);
+				popup.addEventListener('popupshown', function() {
+					popup.removeEventListener('popupshown', arguments.callee, false);
+					var popupBox = popup.boxObject;
+					popup.lastX = popupBox.screenX;
+					popup.lastY = popupBox.screenY;
+					if (
+						(pos == 0 && anchorBox.screenY + delta < popupBox.screenY + popupBox.height) ||
+						(pos == 1 && anchorBox.screenY + anchorBox.height - delta > popupBox.screenY)
+						) {
+						self.correctingPopupPosition = true;
+						popup.hidePopup();
+						popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
+						popup.addEventListener('popupshown', function() {
+							popup.removeEventListener('popupshown', arguments.callee, false);
+							popupBox = popup.boxObject;
+							popup.lastX = popupBox.screenX;
+							popup.lastY = popupBox.screenY;
+							if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
+								popup.hidePopup();
+								popup.lastX = anchorBox.screenX + anchorBox.width;
+								popup.lastY = anchorBox.screenY;
+								popup.openPopupAtScreen(popup.lastX, popup.lastY, true);
+							}
+							self.correctingPopupPosition = false;
+						}, false);
+					}
+				}, false);
+			}
 		}
 		else {
 			var num = this.popupHeight;
@@ -811,7 +827,7 @@ catch(e) {
 		if (this.correctingPopupPosition) return;
 		var popup = this.popup;
 		popup.shown = true;
-		this.initPopup();
+//		this.initPopup(); // do it before popupshowing! (see "showSecondSearch()")
 	},
 	
 	initPopup : function() 
