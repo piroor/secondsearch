@@ -1210,6 +1210,7 @@ SecondSearchBrowser.prototype = {
 		this.keywordsHash = {};
 		if (!this.shouldShowKeywords) return;
 
+		var ids      = this.getArrayPref('secondsearch.keyword.cache.id');
 		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
 		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
 		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
@@ -1224,6 +1225,7 @@ SecondSearchBrowser.prototype = {
 			uris.forEach(function(aURI, aIndex) {
 				if (!aURI) return;
 				this.keywordsHash[aURI] = {
+					id      : ids[aIndex],
 					name    : names[aIndex],
 					icon    : icons[aIndex],
 					uri     : aURI,
@@ -1270,6 +1272,7 @@ SecondSearchBrowser.prototype = {
 					name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
 					icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
 					this.keywordsHash[res.Value] = {
+						id      : uri,
 						name    : name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : shortcut.Value ,
 						icon    : icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ,
 						uri     : res.Value,
@@ -1299,6 +1302,7 @@ SecondSearchBrowser.prototype = {
 		catch(e) {
 		}
 		return {
+			id      : 'place:'+aId,
 			name    : name,
 			icon    : favicon,
 			uri     : uri.spec,
@@ -1333,6 +1337,7 @@ SecondSearchBrowser.prototype = {
 					uri     : aKeyword.uri,
 					keyword : aKeyword.keyword
 				};
+				this.keywordsHash[data.uri].id      = data.id;
 				this.keywordsHash[data.uri].name    = data.name;
 				this.keywordsHash[data.uri].icon    = data.icon;
 				this.keywordsHash[data.uri].uri     = data.uri;
@@ -1376,7 +1381,7 @@ SecondSearchBrowser.prototype = {
 					icon    : aNewData.icon,
 					uri     : aNewData.uri,
 					keyword : aNewData.keyword,
-					id      : ''
+					id      : aNewData.id
 				});
 				return;
 			}
@@ -1397,6 +1402,8 @@ SecondSearchBrowser.prototype = {
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 
+		this.setArrayPref('secondsearch.keyword.cache.id',
+			this.keywords.map(function(aEngine) { return aEngine.id || aEngine.uri; }));
 		this.setArrayPref('secondsearch.keyword.cache.name',
 			this.keywords.map(function(aEngine) { return aEngine.name; }));
 		this.setArrayPref('secondsearch.keyword.cache.icon',
@@ -1455,22 +1462,21 @@ SecondSearchBrowser.prototype = {
 				owner : this,
 				onItemAdded : function(aId, aContainer, aIndex)
 				{
-//					dump('onItemAdded '+aId+'\n');
-//					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-//					dump('  keyword: '+keyword+'\n');
+dump('onItemAdded '+aId+'\n');
+var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+dump('  keyword: '+keyword+'\n');
 				},
 				onItemRemoved : function(aId, aContainer, aIndex)
 				{
-//					dump('onItemRemoved '+aId+'\n');
-//					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-//					dump('  keyword: '+keyword+'\n');
+dump('onItemRemoved '+aId+'\n');
+var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+dump('  keyword: '+keyword+'\n');
 				},
 				onItemChanged : function(aId, aProperty, aIsAnnotation, aValue)
 				{
-//					dump('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']\n');
-//					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-//					dump('  keyword: '+keyword+'\n');
+dump('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']\n');
 					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+dump('  keyword: '+keyword+'\n');
 					switch (aProperty)
 					{
 						case 'keyword':
@@ -1530,6 +1536,7 @@ SecondSearchBrowser.prototype = {
 		var name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
 		var icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
 		var data = {
+				id      : aSource,
 				name    : (name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ),
 				icon    : (icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ),
 				uri     : aSource,
