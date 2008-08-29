@@ -1312,13 +1312,12 @@ SecondSearchBrowser.prototype = {
  
 	updateKeywordFromPlaces : function(aId, aMode) 
 	{
-		var keyword = this.NavBMService.getKeywordForBookmark(aId);
 		var data    = this.newKeywordFromPlaces(aId);
 		var oldData = null;
+		var idString = 'place:'+aId;
 
 		this.keywords.slice().some(function(aKeyword, aIndex) {
-			if (aKeyword.uri != data.uri &&
-				aKeyword.keyword != keyword)
+			if (aKeyword.id != idString)
 				return false;
 
 			if (aMode == 'delete' ||
@@ -1326,6 +1325,11 @@ SecondSearchBrowser.prototype = {
 				aMode == 'uri') {
 				delete this.keywordsHash[aKeyword.uri];
 				this.keywords.splice(aIndex, 1);
+				oldData = {
+					id      : aKeyword.id,
+					uri     : aKeyword.uri,
+					keyword : aKeyword.keyword
+				};
 			}
 			if (aMode == 'keyword' ||
 				aMode == 'uri') {
@@ -1333,10 +1337,6 @@ SecondSearchBrowser.prototype = {
 				this.keywordsHash[data.uri] = data;
 			}
 			if (aMode != 'delete') {
-				oldData = {
-					uri     : aKeyword.uri,
-					keyword : aKeyword.keyword
-				};
 				this.keywordsHash[data.uri].id      = data.id;
 				this.keywordsHash[data.uri].name    = data.name;
 				this.keywordsHash[data.uri].icon    = data.icon;
@@ -1372,7 +1372,8 @@ SecondSearchBrowser.prototype = {
 		var modified = false;
 		uris.forEach(function(aURI, aIndex) {
 			if (aURI == aOldData.uri ||
-				keywords[aIndex] == aOldData.keyword) {
+				keywords[aIndex] == aOldData.keyword ||
+				ids[aIndex] == aOldData.id) {
 				modified = true;
 				if (!aNewData) return;
 
@@ -1462,15 +1463,18 @@ SecondSearchBrowser.prototype = {
 				owner : this,
 				onItemAdded : function(aId, aContainer, aIndex)
 				{
-dump('onItemAdded '+aId+'\n');
-var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-dump('  keyword: '+keyword+'\n');
 				},
 				onItemRemoved : function(aId, aContainer, aIndex)
 				{
 dump('onItemRemoved '+aId+'\n');
 var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
 dump('  keyword: '+keyword+'\n');
+					var idString = 'place:'+aId;
+					this.owner.keywords.some(function(aKeyword) {
+						if (aKeyword.id != idString) return false;
+						this.owner.updateKeywordFromPlaces(aId, 'delete');
+						return true;
+					}, this);
 				},
 				onItemChanged : function(aId, aProperty, aIsAnnotation, aValue)
 				{
@@ -1482,8 +1486,6 @@ dump('  keyword: '+keyword+'\n');
 						case 'keyword':
 							if (keyword)
 								this.owner.updateKeywordFromPlaces(aId, 'keyword');
-							else
-								this.owner.updateKeywordFromPlaces(aId, 'delete');
 							return;
 
 						case 'title':
@@ -1556,6 +1558,7 @@ dump('  keyword: '+keyword+'\n');
 				delete this.keywordsHash[aKeyword.uri];
 				this.keywords.splice(aIndex, 1);
 				oldData = {
+					id      : aKeyword.id,
 					uri     : aKeyword.uri,
 					keyword : aKeyword.keyword
 				};
