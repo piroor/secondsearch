@@ -140,14 +140,12 @@ SecondSearchBrowser.prototype = {
 	{
 		var popup  = aPopup || this.popup;
 		var parent = aParent || null;
-		var offset = 0;
 
 		var range = document.createRange();
 		range.selectNodeContents(popup);
 		if (popup.hasChildNodes()) {
 			if (popup.firstChild.localName == 'menu') {
 				range.setStartAfter(popup.firstChild);
-				offset = 1;
 			}
 			else if (popup.lastChild.localName == 'menu') {
 				range.setEndBefore(popup.lastChild);
