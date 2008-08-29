@@ -265,23 +265,25 @@ SecondSearchBase.prototype = {
 			var anchorNode = self.canFitPopupToSearchField ? bar : this.engineButton ;
 			var anchorBox = anchorNode.boxObject;
 			var rootBox = document.documentElement.boxObject;
-			var popupContents = Array.slice(popup.childNodes)
-					.map(function(aItem) {
-						return aItem.localName+':'+(aItem.getAttribute('label') || '');
-					})
-					.sort()
-					.join('\n') + '\n' + popup.childNodes.length;
+			var popupStatus = 'count:'+popup.childNodes.length+'\n'+
+					'position:'+pos+'\n'+
+					Array.slice(popup.childNodes)
+						.map(function(aItem) {
+							return aItem.localName+':'+(aItem.getAttribute('label') || '');
+						})
+						.sort()
+						.join('\n');
 			if (
 				popup.lastX !== void(0) &&
 				popup.lastY !== void(0) &&
-				popup.lastContents == popupContents &&
+				popup.lastStatus == popupStatus &&
 				popup.lastAnchorX == anchorBox.screenX &&
 				popup.lastAnchorY == anchorBox.screenY
 				) {
 				popup.openPopupAtScreen(popup.lastX, popup.lastY, true);
 			}
 			else {
-				popup.lastContents = popupContents;
+				popup.lastStatus = popupStatus;
 				popup.lastAnchorX = anchorBox.screenX;
 				popup.lastAnchorY = anchorBox.screenY;
 
