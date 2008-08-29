@@ -31,7 +31,7 @@
 			labelLoadAsURI="&secondsearch.loadAsURI;">
 		<menu label="&secondsearch.searchByMore;"
 			id="secondsearch_popup_all">
-			<menupopup/>
+			<menupopup ignorekeys="true"/>
 		</menu>
 	</menupopup>
 </popupset>
