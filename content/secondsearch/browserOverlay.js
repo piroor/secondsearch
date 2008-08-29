@@ -1216,8 +1216,8 @@ SecondSearchBrowser.prototype = {
 		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
 		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
 
-		if ([names.length, icons.length, keywords.length].some(function(aCount) {
-				return aCount != uris.length;
+		if ([names.length, icons.length, uris.length, keywords.length].some(function(aCount) {
+				return aCount != ids.length;
 			}))
 			aForceUpdate = true;
 
@@ -1471,9 +1471,9 @@ SecondSearchBrowser.prototype = {
 				},
 				onItemRemoved : function(aId, aContainer, aIndex)
 				{
-dump('onItemRemoved '+aId+'\n');
-var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-dump('  keyword: '+keyword+'\n');
+//dump('onItemRemoved '+aId+'\n');
+//var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+//dump('  keyword: '+keyword+'\n');
 					var idString = 'place:'+aId;
 					this.owner.keywords.some(function(aKeyword) {
 						if (aKeyword.id != idString) return false;
@@ -1483,9 +1483,9 @@ dump('  keyword: '+keyword+'\n');
 				},
 				onItemChanged : function(aId, aProperty, aIsAnnotation, aValue)
 				{
-dump('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']\n');
+//dump('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']\n');
 					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-dump('  keyword: '+keyword+'\n');
+//dump('  keyword: '+keyword+'\n');
 					switch (aProperty)
 					{
 						case 'keyword':
