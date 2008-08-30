@@ -173,24 +173,8 @@
 			name="secondsearch.popup.type.dragdrop"
 			type="int"/>
 
-		<preference id="secondsearch.keyword.cache.id"
-			name="secondsearch.keyword.cache.id"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.name"
-			name="secondsearch.keyword.cache.name"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.icon"
-			name="secondsearch.keyword.cache.icon"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.uri"
-			name="secondsearch.keyword.cache.uri"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.keyword"
-			name="secondsearch.keyword.cache.keyword"
+		<preference id="secondsearch.keyword.cache"
+			name="secondsearch.keyword.cache"
 			instantApply="true"
 			type="string"/>
 		<preference id="secondsearch.keyword.cache.count"
@@ -262,24 +246,12 @@
 
 	<button label="&secondsearch.initialize.keywords;"
 		oncommand="
-			setTextValue('secondsearch.keyword.cache.id-textbox', '');
-			setTextValue('secondsearch.keyword.cache.name-textbox', '');
-			setTextValue('secondsearch.keyword.cache.icon-textbox', '');
-			setTextValue('secondsearch.keyword.cache.uri-textbox', '');
-			setTextValue('secondsearch.keyword.cache.keyword-textbox', '');
+			setTextValue('secondsearch.keyword.cache-textbox', '');
 			setTextValue('secondsearch.keyword.cache.count-textbox', -1);
 		"/>
 	<box collapsed="true">
-		<textbox id="secondsearch.keyword.cache.id-textbox"
-			preference="secondsearch.keyword.cache.id"/>
-		<textbox id="secondsearch.keyword.cache.name-textbox"
-			preference="secondsearch.keyword.cache.name"/>
-		<textbox id="secondsearch.keyword.cache.icon-textbox"
-			preference="secondsearch.keyword.cache.icon"/>
-		<textbox id="secondsearch.keyword.cache.uri-textbox"
-			preference="secondsearch.keyword.cache.uri"/>
-		<textbox id="secondsearch.keyword.cache.keyword-textbox"
-			preference="secondsearch.keyword.cache.keyword"/>
+		<textbox id="secondsearch.keyword.cache-textbox"
+			preference="secondsearch.keyword.cache"/>
 		<textbox id="secondsearch.keyword.cache.count-textbox"
 			preference="secondsearch.keyword.cache.count"/>
 	</box>

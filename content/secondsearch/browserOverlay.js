@@ -135,7 +135,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* UI */ 
-	 
+	
 	initAllEngines : function(aPopup, aParent, aReverse) 
 	{
 		var popup  = aPopup || this.popup;
@@ -147,39 +147,29 @@ SecondSearchBrowser.prototype = {
 			.filter(function(aEngine) {
 				return (
 					!parent ||
-					!this.evaluateXPath('child::*[@engineName="'+encodeURIComponent(aEngine.name)+'"]', parent).snapshotLength
+					!this.evaluateXPath('child::*[@engineId="'+aEngine.id+'"]', parent).snapshotLength
 				);
 			}, this);
 
-		var iconUpdated = false;
 		var keywords = this.keywords
 			.filter(function(aKeyword) {
-				if (!aKeyword.icon) {
-					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
-					if (aKeyword.icon) iconUpdated = true;
-				}
 				return (
 					!parent ||
-					!this.evaluateXPath('child::*[@engineName="'+encodeURIComponent(aKeyword.name+'\n'+aKeyword.keyword)+'"]', parent).snapshotLength
+					!this.evaluateXPath('child::*[@engineId="'+aKeyword.id+'"]', parent).snapshotLength
 				);
 			}, this);
-		if (iconUpdated)
-			this.saveKeywordsCache();
 
 
-		var items = engines
-			.map(function(aEngine) {
-				var item = this.createItemForSearchEngine(aEngine);
-				item.setAttribute('id', 'secondsearch-'+encodeURIComponent(aEngine.name));
-				return item;
+		var items = engines.map(function(aEngine) {
+				return this.createItemForEngine(aEngine);
 			}, this);
 
 		if (keywords.length) {
 			if (items.length)
 				items.push(document.createElement('menuseparator'));
 			items = items.concat(
-				keywords.map(function(aKeyword) {
-					return this.createItemForKeyword(aKeyword);
+				keywords.map(function(aEngine) {
+					return this.createItemForEngine(aEngine);
 				}, this)
 			);
 		}
@@ -189,13 +179,12 @@ SecondSearchBrowser.prototype = {
 				items.unshift(document.createElement('menuseparator'));
 			var item = document.createElement('menuitem');
 			item.setAttribute('label', popup.getAttribute('labelLoadAsURI'));
-			item.setAttribute('engineName', encodeURIComponent(this.kLOAD_AS_URI));
+			item.setAttribute('engineId', this.kLOAD_AS_URI);
 			items.unshift(item);
 		}
 
 		if (items.length)
 			items[0].setAttribute('_moz-menuactive', 'true');
-
 
 
 		var range = document.createRange();
@@ -227,33 +216,18 @@ SecondSearchBrowser.prototype = {
 		range.detach();
 	},
 	 
-	createItemForSearchEngine : function(aEngine) 
+	createItemForEngine : function(aEngine, aLabel) 
 	{
 		var item = document.createElement('menuitem');
-		item.setAttribute('label', aEngine.name);
-		item.setAttribute('engineName', encodeURIComponent(aEngine.name));
-		item.setAttribute('id', aEngine.name);
+		item.setAttribute('label', aLabel || aEngine.name);
+		item.setAttribute('engineId', aEngine.id);
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
-		if (aEngine.iconURI) {
-			item.setAttribute('src', aEngine.iconURI.spec);
-			this.addIconCache(aEngine.name, aEngine.iconURI.spec);
-		}
-		return item;
-	},
- 
-	createItemForKeyword : function(aKeyword) 
-	{
-		var engineName = aKeyword.name+'\n'+aKeyword.keyword;
-		var item = document.createElement('menuitem');
-		item.setAttribute('label', aKeyword.name);
-		item.setAttribute('engineName', encodeURIComponent(engineName));
-		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
-		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
-		item.setAttribute('keyword', aKeyword.keyword);
-		if (aKeyword.icon) {
-			item.setAttribute('src', aKeyword.icon);
-			this.addIconCache(engineName, aKeyword.icon);
+		if (aKeyword.keyword)
+			item.setAttribute('keyword', aKeyword.keyword);
+		if (aEngine.icon) {
+			item.setAttribute('src', aEngine.icon);
+			this.addIconCache(aEngine.id, aEngine.icon);
 		}
 		return item;
 	},
@@ -359,7 +333,7 @@ SecondSearchBrowser.prototype = {
 				engines.unshift(null);
 				engines.unshift({
 					label : popup.getAttribute('labelLoadAsURI'),
-					name  : this.kLOAD_AS_URI
+					id    : this.kLOAD_AS_URI
 				});
 			}
 		}
@@ -390,16 +364,10 @@ SecondSearchBrowser.prototype = {
 				fragment.appendChild(document.createElement('menuseparator'));
 				return;
 			}
-			var engineName = (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' );
-			var node = document.createElement('menuitem');
-			node.setAttribute('label', aEngine.label || template.replace(/\%s/i, (aEngine.name || '')));
-			node.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
-			node.setAttribute('engineName', encodeURIComponent(engineName));
-			if (aEngine.icon) {
-				node.setAttribute('src', aEngine.icon);
-				this.addIconCache(engineName, aEngine.icon);
-			}
-			fragment.appendChild(node);
+			fragment.appendChild(this.createItemForEngine(
+				aEngine,
+				aEngine.label || template.replace(/\%s/i, (aEngine.name || ''))
+			));
 		}, this);
 
 		range.insertNode(fragment);
@@ -426,8 +394,8 @@ SecondSearchBrowser.prototype = {
  
 	get popupHeight() 
 	{
-		return (this.popupType == 0) ? (this.getCharPref('secondsearch.recentengines.uri') || '').split('|').length :
-				(this.engines.length + this.keywords.length) ;
+		return (this.popupType == 0) ? (this.getCharPref('secondsearch.recentengines.list') || '').split('|').length :
+				(this.searchEngines.length + this.keywords.length) ;
 	},
  
 	initEmptySearchBar : function() 
@@ -797,16 +765,16 @@ SecondSearchBrowser.prototype = {
 	
 	doSearchBy : function(aItem, aEvent) 
 	{
-		if (!aItem.getAttribute('engineName'))
-			aItem.setAttribute('engineName', encodeURIComponent(aItem.getAttribute('label')));
+		if (!aItem.getAttribute('engineId'))
+			aItem.setAttribute('engineId', 'search:'+aItem.getAttribute('label'));
 
-		var engineName = decodeURIComponent(aItem.getAttribute('engineName'));
-		if (engineName == this.kLOAD_AS_URI) { // location bar
+		var engineId = aItem.getAttribute('engineId');
+		if (engineId == this.kLOAD_AS_URI) { // location bar
 			this.loadDroppedURI();
 			return false;
 		}
 
-		var engine = this.getEngineFromName(engineName);
+		var engine = this.getEngineById(engineId);
 		this.selectedEngine = engine;
 		this.doingSearch = true;
 
@@ -823,7 +791,10 @@ SecondSearchBrowser.prototype = {
 			retVal = false;
 		}
 		else {
-			this.addEngineToRecentList(engine);
+			var current = this.getCurrentEngine();
+			if (!current || current.id != engine.id)
+				this.addEngineToRecentList(engine);
+
 			var bar = this.searchbar;
 			var isSearchBar = 'handleSearchCommand' in bar;
 			if (engine.keyword || !isSearchBar) {
@@ -1028,8 +999,13 @@ SecondSearchBrowser.prototype = {
 	kLOAD_AS_URI : 'secondsearch::loadAsURI',
   
 /* operate engines */ 
-	
+	 
 	get engines() 
+	{
+		return this.searchEngines.map(this.getEngineFromSearchEngine, this);
+	},
+ 
+	get searchEngines() 
 	{
 		return this.SearchService.getVisibleEngines({});
 	},
@@ -1055,167 +1031,113 @@ SecondSearchBrowser.prototype = {
 	},
 	_searchStringBundle : null,
   
-	isEngineAvailable : function(aName) 
+	getCurrentEngine : function() 
 	{
-		return this.engines.some(function(aEngine) {
-				return aEngine.name == aName;
-			});
+		var bar = this.searchbar;
+		return (bar.localName == 'searchbar') ?
+			this.getEngineFromSearchEngine(bar.currentEngine) :
+			null ;
 	},
  
-	getSearchEngineFromName : function(aName) 
+	getEngineById : function(aId, aNot) 
 	{
-		var engine = null;
-		this.engines.some(function(aEngine) {
-			if (aEngine.name == aName) {
-				engine = aEngine;
-				return true;
+		if (aId.indexOf('search:') == 0) {
+			if (aNot) {
+				var engine;
+				this.engines.filter(function(aEngine) {
+					if (aEngine.id == aId) return false;
+					engine = aEngine;
+					return true;
+				}, this);
+				return engine;
 			}
-			return false;
-		});
-		return engine;
-	},
- 
-	getEngineFromName : function(aName, aNot) 
-	{
-		var engine;
-
-		aName = aName.split('\n');
-		if (aName.length > 1) {
+			else {
+				return this.getEngineFromSearchEngine(
+						this.getSearchEngineFromName(aId.substring(aId.indexOf(':')+1))
+					);
+			}
+		}
+		else {
+			var engine;
 			this.keywords.some(function(aKeyword) {
 				if (aNot ?
-						aKeyword.keyword == aName[1] :
-						aKeyword.keyword != aName[1]
+						aKeyword.id == aId :
+						aKeyword.id != aId
 					)
 					return false;
 
-				engine = {
-					name    : aKeyword.name,
-					icon    : aKeyword.icon,
-					uri     : aKeyword.uri,
-					keyword : (aKeyword.keyword || ''),
-					id      : ''
-				};
+				engine = aKeyword;
 				return true;
 			});
 			return engine;
 		}
-
-		aName = aName[0];
-
-		this.engines.some(function(aEngine) {
-			if (aNot ?
-					aEngine.name == aName :
-					aEngine.name != aName
-				)
+	},
+	 
+	getSearchEngineFromName : function(aName) 
+	{
+		var engine = null;
+		this.searchEngines.some(function(aEngine) {
+			if (aEngine.name != aName)
 				return false;
-
-			engine = {
+			engine = aEngine;
+			return true;
+		});
+		return engine;
+	},
+ 
+	getEngineFromSearchEngine : function(aEngine) 
+	{
+		if (!aEngine) return null;
+		var engine = {
 				name    : aEngine.name,
 				icon    : (aEngine.iconURI ? aEngine.iconURI.spec : '' ),
 				uri     : aEngine.getSubmission('', null).uri.spec,
-				keyword : '',
-				id      : ''
+				keyword : ''
 			};
-			return true;
-		}, this);
-
+		engine.id = 'search:'+engine.name;
+		if (!engine.icon)
+			engine.icon = this.getFaviconForPage(aEngine.uri);
 		return engine;
 	},
  
-	getCurrentEngine : function() 
+	isSearchEngineAvailable : function(aName) 
 	{
-		var bar = this.searchbar;
-		if (bar.localName != 'searchbar') return null;
-		var engine = {
-				name    : bar.currentEngine.name,
-				icon    : (bar.currentEngine.iconURI ? bar.currentEngine.iconURI.spec : '' ),
-				uri     : bar.currentEngine.getSubmission('', null).uri.spec,
-				keyword : '',
-				id      : ''
-			};
-		return engine;
-	},
- 
-	getRecentEngines : function(aName) 
-	{
-		var names    = this.getArrayPref('secondsearch.recentengines.name');
-		var icons    = this.getArrayPref('secondsearch.recentengines.icon');
-		var uris     = this.getArrayPref('secondsearch.recentengines.uri');
-		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
-		var ids      = this.getArrayPref('secondsearch.recentengines.id');
-
-		var list = [];
-		var listDone = {};
-
-		var iconUpdated = false;
-		uris.forEach(function(aURI, aIndex) {
-			if (
-				keywords[aIndex] ?
-					!(aURI in this.keywordsHash) :
-					(
-						!aURI ||
-						!this.isEngineAvailable(names[aIndex])
-					)
-				)
-				return;
-
-			var favicon = icons[aIndex] || this.getFaviconForPage(aURI);
-			if (favicon != icons[aIndex]) {
-				icons[aIndex] = favicon;
-				iconUpdated = true;
-			}
-
-			list.push({
-				name    : names[aIndex],
-				icon    : favicon,
-				uri     : aURI,
-				keyword : (keywords[aIndex] ? keywords[aIndex] : '' ),
-				id      : ids[aIndex]
+		return this.searchEngines.some(function(aEngine) {
+				return aEngine.name == aName;
 			});
-			listDone[encodeURIComponent(names[aIndex])+':'+encodeURIComponent(aURI)] = true;
-		}, this);
-
-		if (iconUpdated)
-			this.setArrayPref('secondsearch.recentengines.icon', icons);
-
+	},
+ 	 
+	getRecentEngines : function() 
+	{
+		var ids = this.getArrayPref('secondsearch.recentengines.list');
+		var list = ids
+				.map(function(aId) { return this.getEngineById(aId); }, this)
+				.filter(function(aEngine) { return aEngine; });
 		if (list.length < this.historyNum) {
-			var engine = this.getCurrentEngine();
-			var engines = this.engines;
-			var source;
-			var item;
-			for (var i = 0, maxi = this.historyNum, childNum = engines.length; list.length < maxi; i++)
-			{
-				if (i == childNum) break;
-				source = engines[i];
-				if (engine && source.name == engine.name)
-					continue;
-
-				item = this.getEngineFromName(source.name);
-				if (encodeURIComponent(item.name)+':'+encodeURIComponent(item.uri) in listDone)
-					continue;
-
-				list.push(item);
-				this.addEngineToRecentList(list[list.length-1]);
-			}
+			var current = this.getCurrentEngine();
+			if (current) ids.push(current.id);
+			var engines = this.engines.concat(this.keywords);
+			engines.some(function(aEngine) {
+				if (list.length >= this.historyNum) return true;
+				if (ids.indexOf(aEngine.id) < 0) {
+					list.push(aEngine);
+					this.addEngineToRecentList(aEngine);
+				}
+				return false;
+			}, this);
 		}
-
 		return list;
 	},
  
 	updateRecentList : function(aOperation, aEngine) 
 	{
-		var names    = this.getArrayPref('secondsearch.recentengines.name');
-		var icons    = this.getArrayPref('secondsearch.recentengines.icon');
-		var uris     = this.getArrayPref('secondsearch.recentengines.uri');
-		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
-		var ids      = this.getArrayPref('secondsearch.recentengines.id');
+		var ids = this.getArrayPref('secondsearch.recentengines.list');
 
 		var retVal;
 		var engines = [];
-		uris.forEach(function(aURI, aIndex) {
-			if (!aURI && !keywords[aIndex]) return;
-
-			if (names[aIndex] == aEngine.name) {
+		ids.forEach(function(aId, aIndex) {
+			if (!aId) return;
+			if (aId == aEngine.id) {
 				switch (aOperation)
 				{
 					case 'add':
@@ -1227,43 +1149,40 @@ SecondSearchBrowser.prototype = {
 						break;
 				}
 			}
-
-			engines.push({
-				name    : names[aIndex],
-				icon    : icons[aIndex],
-				uri     : aURI,
-				keyword : keywords[aIndex],
-				id      : ids[aIndex]
-			});
-		});
+			var engine = this.getEngineById(aId);
+			if (engine)
+				engines.push(engine);
+		}, this);
 
 		if (aOperation == 'add')
-			engines.unshift(aEngine);
+			engines.push(aEngine);
 
 		var history = this.historyNum;
 		if (history > -1) {
 			while (engines.length > history)
 			{
-				engines.pop();
+				engines.shift();
 			}
 		}
 
-		this.saveRecentEnginesCache(engines);
+		this.setArrayPref('secondsearch.recentengines.list',
+			engines.map(function(aEngine) {
+				return aEngine.id;
+			})
+		);
 
 		return retVal;
 	},
-	saveRecentEnginesCache : function(aEngines)
+	removeAndAddRecentEngine : function(aRemoveId, aAddId)
 	{
-		this.setArrayPref('secondsearch.recentengines.name',
-			aEngines.map(function(aEngine) { return aEngine.name; }));
-		this.setArrayPref('secondsearch.recentengines.icon',
-			aEngines.map(function(aEngine) { return aEngine.icon; }));
-		this.setArrayPref('secondsearch.recentengines.uri',
-			aEngines.map(function(aEngine) { return aEngine.uri; }));
-		this.setArrayPref('secondsearch.recentengines.keyword',
-			aEngines.map(function(aEngine) { return aEngine.keyword; }));
-		this.setArrayPref('secondsearch.recentengines.id',
-			aEngines.map(function(aEngine) { return aEngine.id; }));
+		var ids = this.getArrayPref('secondsearch.recentengines.list');
+		if (aRemoveId) {
+			ids = ids.filter(function(aId) {
+					return aId != aRemoveId;
+				});
+		}
+		if (aAddId) ids.push(aAddId);
+		this.setArrayPref('secondsearch.recentengines.list', ids);
 	},
 	
 	addEngineToRecentList : function(aEngine) 
@@ -1327,38 +1246,46 @@ SecondSearchBrowser.prototype = {
 		this.keywordsHash = {};
 		if (!this.shouldShowKeywords) return;
 
-		var ids      = this.getArrayPref('secondsearch.keyword.cache.id');
-		var names    = this.getArrayPref('secondsearch.keyword.cache.name');
-		var icons    = this.getArrayPref('secondsearch.keyword.cache.icon');
-		var uris     = this.getArrayPref('secondsearch.keyword.cache.uri');
-		var keywords = this.getArrayPref('secondsearch.keyword.cache.keyword');
+		var cachedKeywords = this.getCharPref('secondsearch.keyword.cache');
+		if (cachedKeywords) {
+			try {
+				eval('cachedKeywords = '+cachedKeywords);
+			}
+			catch(e) {
+			}
+		}
 
-		if (!aForceUpdate &&
-			(
-				(this.placesAvailable && uris.join('|').indexOf('rdf:#') > -1) || // from Fx 2 to Fx 3
-				[names.length, icons.length, uris.length, keywords.length].some(function(aCount) {
-					return aCount != ids.length;
-				}) // from old version of Second Search to new one
-			))
+		if (
+			!aForceUpdate &&
+			( // from Fx 2 to Fx 3
+				this.placesAvailable &&
+				cachedKeywords &&
+				cachedKeywords.length &&
+				cachedKeywords.some(function(aKeyword) {
+					return aKeyword.uri.indexOf('rdf:#') > -1;
+				})
+			)
+			)
 			aForceUpdate = true;
 
 		var count = this.getIntPref('secondsearch.keyword.cache.count');
 		if (
+			cachedKeywords &&
 			!aForceUpdate &&
 			count !== null &&
 			count != -1
 			) { // load cache
-			uris.forEach(function(aURI, aIndex) {
-				if (!aURI) return;
-				this.keywordsHash[aURI] = {
-					id      : ids[aIndex],
-					name    : names[aIndex],
-					icon    : icons[aIndex],
-					uri     : aURI,
-					keyword : keywords[aIndex]
-				};
-				this.keywords.push(this.keywordsHash[aURI]);
+			var updated = false;
+			this.keywords = cachedKeywords;
+			this.keywords.forEach(function(aKeyword) {
+				if (!aKeyword.icon) {
+					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
+					if (aKwyeord.icon) updated = true;
+				}
+				this.keywordsHash[aKeyword.id] = aKeyword;
 			}, this);
+			if (updated)
+				this.saveKeywordsCache();
 		}
 		else if (this.placesAvailable) { // initialize for Firefox 3
 			var statement = this.placesDB.createStatement(
@@ -1371,7 +1298,7 @@ SecondSearchBrowser.prototype = {
 				{
 					data = this.newKeywordFromPlaces(statement.getDouble(0));
 					this.keywords.push(data);
-					this.keywordsHash[data.uri] = data;
+					this.keywordsHash[data.id] = data;
 				}
 			}
 			finally {
@@ -1414,7 +1341,7 @@ SecondSearchBrowser.prototype = {
 			this.saveKeywordsCache();
 		}
 	},
- 	
+ 
 	// Firefox 3: SQLite based bookmarks 
 	 
 	newKeywordFromPlaces : function(aId) 
@@ -1431,110 +1358,54 @@ SecondSearchBrowser.prototype = {
  
 	updateKeywordFromPlaces : function(aId, aMode) 
 	{
-		var data     = this.newKeywordFromPlaces(aId);
-		var oldData  = null;
+		var data = this.newKeywordFromPlaces(aId);
+		var removedId = null;
 
 		this.keywords.slice().some(function(aKeyword, aIndex) {
-			if (aKeyword.id != data.id &&
-				aKeyword.keyword != data.keyword)
+			if (aKeyword.id != data.id)
 				return false;
 
 			if (aMode == 'delete' ||
-				aMode == 'keyword' ||
-				aMode == 'uri') {
-				delete this.keywordsHash[aKeyword.uri];
+				aMode == 'keyword') {
+				delete this.keywordsHash[aKeyword.id];
 				this.keywords.splice(aIndex, 1);
-				oldData = {
-					id      : aKeyword.id,
-					uri     : aKeyword.uri,
-					keyword : aKeyword.keyword
-				};
+				removedId = aKeyword.id;
 			}
-			if (aMode == 'keyword' ||
-				aMode == 'uri') {
+			if (aMode == 'keyword') {
 				this.keywords.push(data);
-				this.keywordsHash[data.uri] = data;
+				this.keywordsHash[data.id] = data;
 			}
 			if (aMode != 'delete') {
-				this.keywordsHash[data.uri].id      = data.id;
-				this.keywordsHash[data.uri].name    = data.name;
-				this.keywordsHash[data.uri].icon    = data.icon;
-				this.keywordsHash[data.uri].uri     = data.uri;
-				this.keywordsHash[data.uri].keyword = data.keyword;
+				this.keywordsHash[data.id].id      = data.id;
+				this.keywordsHash[data.id].name    = data.name;
+				this.keywordsHash[data.id].icon    = data.icon;
+				this.keywordsHash[data.id].uri     = data.uri;
+				this.keywordsHash[data.id].keyword = data.keyword;
 			}
 			return true;
 		}, this);
 
-		if (!oldData) {
+		if (!removedId) {
 			if (aMode != 'delete') {
 				this.keywords.push(data);
-				this.keywordsHash[data.uri] = data;
+				this.keywordsHash[data.id] = data;
 			}
 		}
 		else {
-			this.updateRecentEnginesForKeywordModification(
-				oldData,
-				(aMode == 'delete' ? null : data )
+			this.removeAndAddRecentEngine(
+				removedId,
+				(aMode == 'delete' ? null : data.id )
 			);
 		}
 
 		this.saveKeywordsCache();
 	},
  
-	updateRecentEnginesForKeywordModification : function(aOldData, aNewData) 
-	{
-		var ids      = this.getArrayPref('secondsearch.recentengines.id');
-		var names    = this.getArrayPref('secondsearch.recentengines.name');
-		var icons    = this.getArrayPref('secondsearch.recentengines.icon');
-		var uris     = this.getArrayPref('secondsearch.recentengines.uri');
-		var keywords = this.getArrayPref('secondsearch.recentengines.keyword');
-
-		var recentEngines = [];
-		var modified = false;
-		uris.forEach(function(aURI, aIndex) {
-			if (aURI == aOldData.uri ||
-				keywords[aIndex] == aOldData.keyword ||
-				ids[aIndex] == aOldData.id) {
-				modified = true;
-				if (!aNewData) return;
-
-				recentEngines.push({
-					name    : aNewData.name,
-					icon    : aNewData.icon,
-					uri     : aNewData.uri,
-					keyword : aNewData.keyword,
-					id      : aNewData.id
-				});
-				return;
-			}
-			recentEngines.push({
-				name    : names[aIndex],
-				icon    : icons[aIndex],
-				uri     : aURI,
-				keyword : keywords[aIndex],
-				id      : ids[aIndex]
-			});
-		});
-
-		if (modified)
-			this.saveRecentEnginesCache(recentEngines);
-	},
- 
 	saveKeywordsCache : function() 
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 
-		this.setArrayPref('secondsearch.keyword.cache.id',
-			this.keywords.map(function(aEngine) { return aEngine.id || aEngine.uri; }));
-		this.setArrayPref('secondsearch.keyword.cache.name',
-			this.keywords.map(function(aEngine) { return aEngine.name; }));
-		this.setArrayPref('secondsearch.keyword.cache.icon',
-			this.keywords.map(function(aEngine) { return aEngine.icon; }));
-		this.setArrayPref('secondsearch.keyword.cache.uri',
-			this.keywords.map(function(aEngine) { return aEngine.uri; }));
-		this.setArrayPref('secondsearch.keyword.cache.keyword',
-			this.keywords.map(function(aEngine) { return aEngine.keyword; }));
-
+		this.setCharPref('secondsearch.keyword.cache', this.keywords.toSource());
 		this.setIntPref('secondsearch.keyword.cache.count', this.keywords.length);
 	},
  
@@ -1669,38 +1540,33 @@ SecondSearchBrowser.prototype = {
 
 		if (!keyword) aMode = 'delete';
 
-		var oldData = null;
+		var removedId = null;
 		this.keywords.slice().some(function(aKeyword, aIndex) {
-			if (aKeyword.uri != data.uri &&
-				aKeyword.keyword != keyword)
+			if (aKeyword.id != data.id)
 				return false;
 
 			if (aMode != 'add') {
-				oldData = {
-					id      : aKeyword.id,
-					uri     : aKeyword.uri,
-					keyword : aKeyword.keyword
-				};
-				delete this.keywordsHash[aKeyword.uri];
+				removedId = aKeyword.id;
+				delete this.keywordsHash[aKeyword.id];
 				this.keywords.splice(aIndex, 1);
 			}
-			if (aMode != 'delete' && data.uri) {
+			if (aMode != 'delete') {
 				this.keywords.push(data);
-				this.keywordsHash[data.uri] = data;
+				this.keywordsHash[data.id] = data;
 			}
 			return true;
 		}, this);
 
-		if (!oldData) {
+		if (!removedId) {
 			if (aMode != 'delete') {
 				this.keywords.push(data);
-				this.keywordsHash[data.uri] = data;
+				this.keywordsHash[data.id] = data;
 			}
 		}
 		else {
-			this.updateRecentEnginesForKeywordModification(
-				oldData,
-				(aMode == 'delete' ? null : data )
+			this.removeAndAddRecentEngine(
+				removedId,
+				(aMode == 'delete' ? null : data.id )
 			);
 		}
 

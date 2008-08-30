@@ -365,15 +365,15 @@ SecondSearchBase.prototype = {
 				.map(function(aItem) {
 					if (!aItem) return '----';
 					if ('getAttribute' in aItem) {
-						aItem.name = aItem.getAttribute('engineName');
+						aItem.engineId = aItem.getAttribute('engineId');
 						aItem.icon = aItem.getAttribute('src');
 						if (!aItem.label) aItem.label = aItem.getAttribute('label') || '';
 					}
 					return {
-						localName  : aItem.localName || '',
-						label      : aItem.label,
-						engineName : aItem.name,
-						icon       : aItem.icon
+						localName : aItem.localName || '',
+						label     : aItem.label,
+						engineId  : aItem.id,
+						icon      : aItem.icon
 					}.toSource();
 				});
 		if (aIgnoreOrder) items.sort();
@@ -1212,12 +1212,13 @@ catch(e) {
  
 	setArrayPref : function(aKey, aValues) 
 	{
-		for (var i = 0, maxi = aValues.length; i < maxi; i++)
-			aValues[i] = encodeURIComponent(aValues[i]);
+		var encoded = aValues.map(function(aValue) {
+				return encodeURIComponent(aValue);
+			});
 		var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
 				Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
 				Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-		string.data = aValues.join('|');
+		string.data = encoded.join('|');
 		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
 		return aValues;
 	},
