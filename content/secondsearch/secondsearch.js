@@ -361,7 +361,7 @@ SecondSearchBase.prototype = {
 	kLAST_STATUS   : '__secondsearch__framework__lastStatus',
 	getPopupStatus : function(aPopupOrItemsArray, aIgnoreOrder)
 	{
-		var items = Array.slice(aPopupOrItemsArray.childNodes || aPopupOrItemsArray)
+		var items = Array.slice(aPopupOrItemsArray.childNodes || aPopup)
 				.map(function(aItem) {
 					if (!aItem) return '----';
 					if ('getAttribute' in aItem) {
@@ -551,6 +551,9 @@ try{
 					current.removeAttribute('_moz-menuactive');
 					current.parentNode.hidePopup();
 					current.parentNode.shown = false;
+					window.setTimeout(function(aMenu) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+						aMenu.setAttribute('_moz-menuactive', true);
+					}, 0, current.parentNode.parentNode);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					return false;

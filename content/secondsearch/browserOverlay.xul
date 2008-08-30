@@ -17,17 +17,12 @@
 			onclick="if (event.button == 1) SecondSearch.doSearchBy(event.target, event);"
 			onpopupshowing="
 				event.target.shown = true;
-				if (event.target == this) SecondSearch.onPopupShowing(event);
-			"
+				if (event.target == this) SecondSearch.onPopupShowing(event)"
 			onpopuphiding="
 				event.target.shown = true;
 				var current = SecondSearch.getCurrentItem(event.target);
-				if (event.target == this) {
-					SecondSearch.onPopupHiding(event);
-				}
-				else if (current.parentNode != this) {
-					current.removeAttribute('_moz-menuactive');
-				}
+				if (current) current.removeAttribute('_moz-menuactive');
+				if (event.target == this) SecondSearch.onPopupHiding(event)
 			"
 			ondragenter="SecondSearch.handleEvent(event);"
 			ondragexit="SecondSearch.handleEvent(event);"
