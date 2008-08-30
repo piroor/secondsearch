@@ -233,8 +233,10 @@ SecondSearchBrowser.prototype = {
 		item.setAttribute('id', aEngine.name);
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
-		if (aEngine.iconURI)
+		if (aEngine.iconURI) {
 			item.setAttribute('src', aEngine.iconURI.spec);
+			this.addIconCache(item.getAttribute('engineName'), aEngine.iconURI.spec);
+		}
 		return item;
 	},
  
@@ -246,8 +248,10 @@ SecondSearchBrowser.prototype = {
 		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('keyword', aKeyword.keyword);
-		if (aKeyword.icon)
+		if (aKeyword.icon) {
 			item.setAttribute('src', aKeyword.icon);
+			this.addIconCache(item.getAttribute('engineName'), aKeyword.icon);
+		}
 		return item;
 	},
  
@@ -318,6 +322,23 @@ SecondSearchBrowser.prototype = {
 	},
 	_IOService : null,
     
+	addIconCache : function(aKey, aURI) 
+	{
+		/* create a dummy element, because Firefox forgets image data
+		   from the memory if no more element shows the image. */
+		var id = 'secondsearch_cached_icon_'+encodeURIComponent(aKey);
+		var oldCache = document.getElementById(id);
+		if (oldCache) {
+			if (oldCache.getAttribute('src') == aURI) return;
+			oldCache.parentNode.removeChild(oldCache);
+		}
+
+		var cache = document.createElement('image');
+		cache.setAttribute('id', id);
+		cache.setAttribute('src', aURI);
+		document.getElementById('secondsearch_cached_icons').appendChild(cache);
+	},
+ 
 	initRecentEngines : function(aPopup) 
 	{
 		var popup = aPopup || this.popup;
@@ -368,11 +389,14 @@ SecondSearchBrowser.prototype = {
 			}
 			var node = document.createElement('menuitem');
 			node.setAttribute('label', aEngine.label || template.replace(/\%s/i, (aEngine.name || '')));
-			node.setAttribute('src',   aEngine.icon || '');
 			node.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 			node.setAttribute('engineName', (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' ));
+			if (aEngine.icon) {
+				node.setAttribute('src', aEngine.icon);
+				this.addIconCache(node.getAttribute('engineName'), aEngine.icon);
+			}
 			fragment.appendChild(node);
-		});
+		}, this);
 
 		range.insertNode(fragment);
 		range.detach();

@@ -35,6 +35,7 @@
 			<menupopup ignorekeys="true"/>
 		</menu>
 	</menupopup>
+	<box collapsed="true" id="secondsearch_cached_icons"/>
 </popupset>
 
 </overlay>
