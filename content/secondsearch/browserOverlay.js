@@ -223,8 +223,8 @@ SecondSearchBrowser.prototype = {
 		item.setAttribute('engineId', aEngine.id);
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
-		if (aKeyword.keyword)
-			item.setAttribute('keyword', aKeyword.keyword);
+		if (aEngine.keyword)
+			item.setAttribute('keyword', aEngine.keyword);
 		if (aEngine.icon) {
 			item.setAttribute('src', aEngine.icon);
 			this.addIconCache(aEngine.id, aEngine.icon);
