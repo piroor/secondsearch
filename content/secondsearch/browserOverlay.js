@@ -1151,11 +1151,11 @@ SecondSearchBrowser.prototype = {
 			}
 			var engine = this.getEngineById(aId);
 			if (engine)
-				engines.unshift(engine);
+				engines.push(engine);
 		}, this);
 
 		if (aOperation == 'add')
-			engines.push(aEngine);
+			engines.unshift(aEngine);
 
 		var history = this.historyNum;
 		if (history > -1) {
