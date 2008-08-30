@@ -416,8 +416,8 @@ SecondSearchBrowser.prototype = {
 
 		if (current.name != aEngine.name) {
 			this.removeEngineFromRecentList(aEngine);
-			this.addEngineToRecentList(current);
 			bar.currentEngine = this.getSearchEngineFromName(aEngine.name);
+			this.addEngineToRecentList(current);
 		}
 		var box = this.textbox;
 		box.focus();
@@ -815,13 +815,12 @@ SecondSearchBrowser.prototype = {
 		this.hideSecondSearch(true);
 
 		if (!this.searchterm &&
-			this.switchBlankInput) {
-			if (!engine.keyword) {
-				aEvent.stopPropagation();
-				aEvent.preventDefault();
-				this.switchTo(engine);
-				retVal = false;
-			}
+			this.switchBlankInput != aEvent.ctrlKey &&
+			!engine.keyword) {
+			aEvent.stopPropagation();
+			aEvent.preventDefault();
+			this.switchTo(engine);
+			retVal = false;
 		}
 		else {
 			this.addEngineToRecentList(engine);
