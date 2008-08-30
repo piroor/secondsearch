@@ -145,10 +145,11 @@ SecondSearchBrowser.prototype = {
 
 		var engines = this.engines
 			.filter(function(aEngine) {
-				if (!parent) return true;
-				var items = parent.getElementsByAttribute('engineName', aEngine.name);
-				return (!items.length || items[0].parentNode != parent);
-			});
+				return (
+					!parent ||
+					!this.evaluateXPath('child::*[@engineName="'+encodeURIComponent(aEngine.name)+'"]', parent).snapshotLength
+				);
+			}, this);
 
 		var iconUpdated = false;
 		var keywords = this.keywords
@@ -157,9 +158,10 @@ SecondSearchBrowser.prototype = {
 					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
 					if (aKeyword.icon) iconUpdated = true;
 				}
-				if (!parent) return true;
-				var items = parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
-				return (!items.length || items[0].parentNode != parent);
+				return (
+					!parent ||
+					!this.evaluateXPath('child::*[@engineName="'+encodeURIComponent(aKeyword.name+'\n'+aKeyword.keyword)+'"]', parent).snapshotLength
+				);
 			}, this);
 		if (iconUpdated)
 			this.saveKeywordsCache();
@@ -168,7 +170,7 @@ SecondSearchBrowser.prototype = {
 		var items = engines
 			.map(function(aEngine) {
 				var item = this.createItemForSearchEngine(aEngine);
-				item.setAttribute('id', 'secondsearch-'+(item.getAttribute('id') || encodeURIComponent(aEngine.name)));
+				item.setAttribute('id', 'secondsearch-'+encodeURIComponent(aEngine.name));
 				return item;
 			}, this);
 
@@ -187,7 +189,7 @@ SecondSearchBrowser.prototype = {
 				items.unshift(document.createElement('menuseparator'));
 			var item = document.createElement('menuitem');
 			item.setAttribute('label', popup.getAttribute('labelLoadAsURI'));
-			item.setAttribute('engineName', this.kLOAD_AS_URI);
+			item.setAttribute('engineName', encodeURIComponent(this.kLOAD_AS_URI));
 			items.unshift(item);
 		}
 
@@ -229,28 +231,29 @@ SecondSearchBrowser.prototype = {
 	{
 		var item = document.createElement('menuitem');
 		item.setAttribute('label', aEngine.name);
-		item.setAttribute('engineName', aEngine.name);
+		item.setAttribute('engineName', encodeURIComponent(aEngine.name));
 		item.setAttribute('id', aEngine.name);
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('tooltiptext', this.searchStringBundle.formatStringFromName('searchtip', [aEngine.name], 1));
 		if (aEngine.iconURI) {
 			item.setAttribute('src', aEngine.iconURI.spec);
-			this.addIconCache(item.getAttribute('engineName'), aEngine.iconURI.spec);
+			this.addIconCache(aEngine.name, aEngine.iconURI.spec);
 		}
 		return item;
 	},
  
 	createItemForKeyword : function(aKeyword) 
 	{
+		var engineName = aKeyword.name+'\n'+aKeyword.keyword;
 		var item = document.createElement('menuitem');
 		item.setAttribute('label', aKeyword.name);
-		item.setAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
+		item.setAttribute('engineName', encodeURIComponent(engineName));
 		item.setAttribute('id', 'secondsearch-keyword-'+encodeURIComponent(aKeyword.name));
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
 		item.setAttribute('keyword', aKeyword.keyword);
 		if (aKeyword.icon) {
 			item.setAttribute('src', aKeyword.icon);
-			this.addIconCache(item.getAttribute('engineName'), aKeyword.icon);
+			this.addIconCache(engineName, aKeyword.icon);
 		}
 		return item;
 	},
@@ -387,13 +390,14 @@ SecondSearchBrowser.prototype = {
 				fragment.appendChild(document.createElement('menuseparator'));
 				return;
 			}
+			var engineName = (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' );
 			var node = document.createElement('menuitem');
 			node.setAttribute('label', aEngine.label || template.replace(/\%s/i, (aEngine.name || '')));
 			node.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
-			node.setAttribute('engineName', (aEngine.name || '')+(aEngine.keyword ? '\n'+aEngine.keyword : '' ));
+			node.setAttribute('engineName', encodeURIComponent(engineName));
 			if (aEngine.icon) {
 				node.setAttribute('src', aEngine.icon);
-				this.addIconCache(node.getAttribute('engineName'), aEngine.icon);
+				this.addIconCache(engineName, aEngine.icon);
 			}
 			fragment.appendChild(node);
 		}, this);
@@ -794,9 +798,9 @@ SecondSearchBrowser.prototype = {
 	doSearchBy : function(aItem, aEvent) 
 	{
 		if (!aItem.getAttribute('engineName'))
-			aItem.setAttribute('engineName', aItem.getAttribute('label'));
+			aItem.setAttribute('engineName', encodeURIComponent(aItem.getAttribute('label')));
 
-		var engineName = aItem.getAttribute('engineName');
+		var engineName = decodeURIComponent(aItem.getAttribute('engineName'));
 		if (engineName == this.kLOAD_AS_URI) { // location bar
 			this.loadDroppedURI();
 			return false;
