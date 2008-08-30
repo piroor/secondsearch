@@ -1121,10 +1121,10 @@ SecondSearchBrowser.prototype = {
 				if (list.length >= this.historyNum) return true;
 				if (ids.indexOf(aEngine.id) < 0) {
 					list.push(aEngine);
-					this.addEngineToRecentList(aEngine);
 				}
 				return false;
 			}, this);
+			this.setArrayPref('secondsearch.recentengines.list', ids);
 		}
 		return list;
 	},
@@ -1151,7 +1151,7 @@ SecondSearchBrowser.prototype = {
 			}
 			var engine = this.getEngineById(aId);
 			if (engine)
-				engines.push(engine);
+				engines.unshift(engine);
 		}, this);
 
 		if (aOperation == 'add')
@@ -1161,7 +1161,7 @@ SecondSearchBrowser.prototype = {
 		if (history > -1) {
 			while (engines.length > history)
 			{
-				engines.shift();
+				engines.pop();
 			}
 		}
 
