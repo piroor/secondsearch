@@ -21,11 +21,11 @@
 			"
 			onpopuphiding="
 				event.target.shown = true;
+				var current = SecondSearch.getCurrentItem(event.target);
 				if (event.target == this) {
 					SecondSearch.onPopupHiding(event);
 				}
-				else if (current) {
-					var current = SecondSearch.getCurrentItem(event.target);
+				else if (current.parentNode != this) {
 					current.removeAttribute('_moz-menuactive');
 				}
 			"
