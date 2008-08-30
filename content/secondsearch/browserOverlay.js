@@ -264,8 +264,8 @@ SecondSearchBrowser.prototype = {
 		var uris = [];
 		while (/^\w+:\/\/[^\/]+\//.test(uri))
 		{
-			uri = uri.replace(/[^\/]+\/?$/, '');
 			uris.push(uri);
+			uri = uri.replace(/[^\/]+\/?$/, '');
 		}
 		sql += uris.map(function(aURI, aIndex) {
 				return 'p.url GLOB ?'+(aIndex+1)
