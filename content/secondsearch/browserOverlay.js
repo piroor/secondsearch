@@ -141,6 +141,61 @@ SecondSearchBrowser.prototype = {
 		var popup  = aPopup || this.popup;
 		var parent = aParent || null;
 
+		var shouldLoadAsURI = popup.shownBy == this.SHOWN_BY_DROP && this.droppedURI;
+
+		var engines = this.engines
+			.filter(function(aEngine) {
+				if (!parent) return true;
+				var items = parent.getElementsByAttribute('engineName', aEngine.name);
+				return (!items.length || items[0].parentNode != parent);
+			});
+
+		var iconUpdated = false;
+		var keywords = this.keywords
+			.filter(function(aKeyword) {
+				if (!aKeyword.icon) {
+					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
+					if (aKeyword.icon) iconUpdated = true;
+				}
+				if (!parent) return true;
+				var items = parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword);
+				return (!items.length || items[0].parentNode != parent);
+			}, this);
+		if (iconUpdated)
+			this.saveKeywordsCache();
+
+
+		var items = engines
+			.map(function(aEngine) {
+				var item = this.createItemForSearchEngine(aEngine);
+				item.setAttribute('id', 'secondsearch-'+(item.getAttribute('id') || encodeURIComponent(aEngine.name)));
+				return item;
+			}, this);
+
+		if (keywords.length) {
+			if (items.length)
+				items.push(document.createElement('menuseparator'));
+			items = items.concat(
+				keywords.map(function(aKeyword) {
+					return this.createItemForKeyword(aKeyword);
+				}, this)
+			);
+		}
+
+		if (shouldLoadAsURI) {
+			if (items.length)
+				items.unshift(document.createElement('menuseparator'));
+			var item = document.createElement('menuitem');
+			item.setAttribute('label', popup.getAttribute('labelLoadAsURI'));
+			item.setAttribute('engineName', this.kLOAD_AS_URI);
+			items.unshift(item);
+		}
+
+		if (items.length)
+			items[0].setAttribute('_moz-menuactive', 'true');
+
+
+
 		var range = document.createRange();
 		range.selectNodeContents(popup);
 		if (popup.hasChildNodes()) {
@@ -152,56 +207,6 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 		range.deleteContents();
-
-		var items = [];
-
-		var engines = this.engines
-			.filter(function(aEngine) {
-				return !parent ||
-					!parent.getElementsByAttribute('engineName', aEngine.name).length;
-			})
-			.map(function(aEngine) {
-				var item = this.createItemForSearchEngine(aEngine);
-				item.setAttribute('id', 'secondsearch-'+(item.getAttribute('id') || encodeURIComponent(aEngine.name)));
-				return item;
-			}, this);
-
-		var iconUpdated = false;
-		var keywords = this.keywords
-			.filter(function(aKeyword) {
-				return !aKeyword.uri ||
-					!parent ||
-					!parent.getElementsByAttribute('engineName', aKeyword.name+'\n'+aKeyword.keyword).length;
-			}, this)
-			.map(function(aKeyword) {
-				if (!aKeyword.icon) {
-					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
-					if (aKeyword.icon) iconUpdated = true;
-				}
-				return this.createItemForKeyword(aKeyword);
-			}, this);
-		if (iconUpdated)
-			this.saveKeywordsCache();
-
-		items = items.concat(engines);
-		if (keywords.length) {
-			if (items.length)
-				items.push(document.createElement('menuseparator'));
-			items = items.concat(keywords);
-		}
-
-		if (popup.shownBy == this.SHOWN_BY_DROP &&
-			this.droppedURI) {
-			if (items.length)
-				items.push(document.createElement('menuseparator'));
-			var item = document.createElement('menuitem');
-			item.setAttribute('label', popup.getAttribute('labelLoadAsURI'));
-			item.setAttribute('engineName', this.kLOAD_AS_URI);
-			items.push(item);
-		}
-
-		if (items.length)
-			items[0].setAttribute('_moz-menuactive', 'true');
 
 		range.selectNodeContents(popup);
 		if (aReverse) {
@@ -312,19 +317,10 @@ SecondSearchBrowser.prototype = {
 		return this._IOService;
 	},
 	_IOService : null,
-   	 
+    
 	initRecentEngines : function(aPopup) 
 	{
 		var popup = aPopup || this.popup;
-		var range = document.createRange();
-		range.selectNodeContents(popup);
-		if (popup.firstChild.localName == 'menu') {
-			range.setStartAfter(popup.firstChild);
-		}
-		else if (popup.lastChild.localName == 'menu') {
-			range.setEndBefore(popup.lastChild);
-		}
-		range.deleteContents();
 
 		var current = this.getCurrentEngine();
 		if (current && this.isEngineInRecentList(current))
@@ -343,6 +339,16 @@ SecondSearchBrowser.prototype = {
 				});
 			}
 		}
+
+		var range = document.createRange();
+		range.selectNodeContents(popup);
+		if (popup.firstChild.localName == 'menu') {
+			range.setStartAfter(popup.firstChild);
+		}
+		else if (popup.lastChild.localName == 'menu') {
+			range.setEndBefore(popup.lastChild);
+		}
+		range.deleteContents();
 
 		range.selectNodeContents(popup);
 		if (this.popupPosition == 0) { // above
@@ -416,6 +422,7 @@ SecondSearchBrowser.prototype = {
 			this.allMenuItem.setAttribute('hidden', true);
 		}
 	},
+	lastPopupType : -1,
  
 	destroyPopup : function() 
 	{
@@ -1251,7 +1258,7 @@ SecondSearchBrowser.prototype = {
 	},
    
 /* keywords */ 
-	
+	 
 	keywords : [], 
 	keywordsHash : {},
  
@@ -1380,7 +1387,7 @@ SecondSearchBrowser.prototype = {
 			this.saveKeywordsCache();
 		}
 	},
- 
+ 	
 	// Firefox 3: SQLite based bookmarks 
 	 
 	newKeywordFromPlaces : function(aId) 
@@ -1616,7 +1623,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 	// Firefox 2: RDF based bookmarks 
-	
+	 
 	updateKeywordFromRDF : function(aSource, aMode) 
 	{
 		var res = this.RDF.GetResource(aSource);

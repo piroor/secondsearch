@@ -260,56 +260,64 @@ SecondSearchBase.prototype = {
 			document.popupNode = bar;
 
 			var position = pos == 0 ? 'before_start' : 'after_start' ;
-			var delta = 10;
+			var delta = 8;
 
 			var anchorNode = self.canFitPopupToSearchField ? bar : this.engineButton ;
 			var anchorBox = anchorNode.boxObject;
 			var rootBox = document.documentElement.boxObject;
 			var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup);
 			if (
-				popup.lastX !== void(0) &&
-				popup.lastY !== void(0) &&
-				popup.lastStatus == popupStatus &&
-				popup.lastAnchorX == anchorBox.screenX &&
-				popup.lastAnchorY == anchorBox.screenY
+				popup[this.kLAST_STATUS] == popupStatus &&
+				popup[this.kLAST_X] !== void(0) &&
+				popup[this.kLAST_Y] !== void(0) &&
+				popup[this.kLAST_ANCHOR_X] == anchorBox.screenX &&
+				popup[this.kLAST_ANCHOR_Y] == anchorBox.screenY
 				) {
-				popup.openPopupAtScreen(popup.lastX, popup.lastY, true);
+				popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], true);
 			}
 			else {
-				popup.lastStatus = popupStatus;
-				popup.lastAnchorX = anchorBox.screenX;
-				popup.lastAnchorY = anchorBox.screenY;
+				popup[this.kLAST_STATUS] = popupStatus;
+				popup[this.kLAST_ANCHOR_X] = anchorBox.screenX;
+				popup[this.kLAST_ANCHOR_Y] = anchorBox.screenY;
 
 				popup.removeAttribute('left');
 				popup.removeAttribute('top');
 
 				popup.openPopup(anchorNode, position, 0, 0, true, true);
+
 				popup.addEventListener('popupshown', function() {
 					popup.removeEventListener('popupshown', arguments.callee, false);
+
 					var popupBox = popup.boxObject;
-					popup.lastX = popupBox.screenX;
-					popup.lastY = popupBox.screenY;
+					popup[self.kLAST_X] = popupBox.screenX;
+					popup[self.kLAST_Y] = popupBox.screenY;
 					if (
-						(pos == 0 && anchorBox.screenY + delta < popupBox.screenY + popupBox.height) ||
-						(pos == 1 && anchorBox.screenY + anchorBox.height - delta > popupBox.screenY)
-						) {
-						self.correctingPopupPosition = true;
-						popup.hidePopup();
-						popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
-						popup.addEventListener('popupshown', function() {
-							popup.removeEventListener('popupshown', arguments.callee, false);
-							popupBox = popup.boxObject;
-							popup.lastX = popupBox.screenX;
-							popup.lastY = popupBox.screenY;
-							if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
-								popup.hidePopup();
-								popup.lastX = anchorBox.screenX + anchorBox.width;
-								popup.lastY = anchorBox.screenY;
-								popup.openPopupAtScreen(popup.lastX, popup.lastY, true);
-							}
-							self.correctingPopupPosition = false;
-						}, false);
-					}
+						(pos == 0 && anchorBox.screenY + delta >= popupBox.screenY + popupBox.height) ||
+						(pos == 1 && anchorBox.screenY + anchorBox.height - delta <= popupBox.screenY)
+						)
+						return;
+
+					self.correctingPopupPosition = true;
+
+					popup.hidePopup();
+					popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
+
+					popup.addEventListener('popupshown', function() {
+						popup.removeEventListener('popupshown', arguments.callee, false);
+
+						popupBox = popup.boxObject;
+						popup[self.kLAST_X] = popupBox.screenX;
+						popup[self.kLAST_Y] = popupBox.screenY;
+						if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
+							popup.hidePopup();
+							popup[self.kLAST_X] = anchorBox.screenX + anchorBox.width;
+							popup[self.kLAST_Y] = anchorBox.screenY;
+							popup.openPopupAtScreen(popup[self.kLAST_X], popup[self.kLAST_Y], true);
+						}
+						self.correctingPopupPosition = false;
+
+					}, false);
+
 				}, false);
 			}
 		}
@@ -346,11 +354,27 @@ SecondSearchBase.prototype = {
 		var current = this.getCurrentItem(popup);
 		if (current) current.removeAttribute('_moz-menuactive');
 	},
+	kLAST_X        : '__secondsearch__framework__lastX',
+	kLAST_Y        : '__secondsearch__framework__lastY',
+	kLAST_ANCHOR_X : '__secondsearch__framework__lastAnchorX',
+	kLAST_ANCHOR_Y : '__secondsearch__framework__lastAnchorY',
+	kLAST_STATUS   : '__secondsearch__framework__lastStatus',
 	getPopupStatus : function(aPopup, aIgnoreOrder)
 	{
-		var items = Array.slice(aPopup.childNodes)
+		var items = Array.slice(aPopup.childNodes || aPopup)
 				.map(function(aItem) {
-					return aItem.localName+':'+(aItem.getAttribute('label') || '');
+					if (!aItem) return '----';
+					if ('getAttribute' in aItem) {
+						aItem.name = aItem.getAttribute('engineName');
+						aItem.icon = aItem.getAttribute('src');
+						aItem.label = aItem.getAttribute('label') || '';
+					}
+					return {
+						localName  : aItem.localName || '',
+						label      : aItem.label,
+						engineName : aItem.name,
+						icon       : aItem.icon
+					}.toSource();
 				});
 		if (aIgnoreOrder) items.sort();
 
@@ -527,9 +551,9 @@ try{
 					current.removeAttribute('_moz-menuactive');
 					current.parentNode.hidePopup();
 					current.parentNode.shown = false;
-					window.setTimeout(function(aMenu) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
-						aMenu.setAttribute('_moz-menuactive', true);
-					}, 0, current.parentNode.parentNode);
+//					window.setTimeout(function(aMenu) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+//						aMenu.setAttribute('_moz-menuactive', true);
+//					}, 0, current.parentNode.parentNode);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					return false;
