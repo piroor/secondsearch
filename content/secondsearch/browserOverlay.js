@@ -1280,7 +1280,7 @@ SecondSearchBrowser.prototype = {
 			this.keywords.forEach(function(aKeyword) {
 				if (!aKeyword.icon) {
 					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
-					if (aKwyeord.icon) updated = true;
+					if (aKeyword.icon) updated = true;
 				}
 				this.keywordsHash[aKeyword.id] = aKeyword;
 			}, this);
