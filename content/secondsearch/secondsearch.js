@@ -359,15 +359,15 @@ SecondSearchBase.prototype = {
 	kLAST_ANCHOR_X : '__secondsearch__framework__lastAnchorX',
 	kLAST_ANCHOR_Y : '__secondsearch__framework__lastAnchorY',
 	kLAST_STATUS   : '__secondsearch__framework__lastStatus',
-	getPopupStatus : function(aPopup, aIgnoreOrder)
+	getPopupStatus : function(aPopupOrItemsArray, aIgnoreOrder)
 	{
-		var items = Array.slice(aPopup.childNodes || aPopup)
+		var items = Array.slice(aPopupOrItemsArray.childNodes || aPopupOrItemsArray)
 				.map(function(aItem) {
 					if (!aItem) return '----';
 					if ('getAttribute' in aItem) {
 						aItem.name = aItem.getAttribute('engineName');
 						aItem.icon = aItem.getAttribute('src');
-						aItem.label = aItem.getAttribute('label') || '';
+						if (!aItem.label) aItem.label = aItem.getAttribute('label') || '';
 					}
 					return {
 						localName  : aItem.localName || '',
@@ -551,9 +551,6 @@ try{
 					current.removeAttribute('_moz-menuactive');
 					current.parentNode.hidePopup();
 					current.parentNode.shown = false;
-//					window.setTimeout(function(aMenu) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
-//						aMenu.setAttribute('_moz-menuactive', true);
-//					}, 0, current.parentNode.parentNode);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					return false;
