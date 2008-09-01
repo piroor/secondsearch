@@ -1126,9 +1126,16 @@ SecondSearchBrowser.prototype = {
 			this.clearPref('secondsearch.recentengines.uri');
 		}
 
+		var done = {};
 		var list = ids
-				.map(function(aId) { return this.getEngineById(aId); }, this)
-				.filter(function(aEngine) { return aEngine; });
+				.map(function(aId) {
+					return this.getEngineById(aId);
+				}, this)
+				.filter(function(aEngine) {
+					if (!aEngine || aEngine.id in done) return false;
+					done[aEngine.id] = true;
+					return true;
+				});
 		if (list.length < this.historyNum) {
 			var current = this.getCurrentEngine();
 			if (current) ids.push(current.id);
@@ -1137,6 +1144,7 @@ SecondSearchBrowser.prototype = {
 				if (list.length >= this.historyNum) return true;
 				if (ids.indexOf(aEngine.id) < 0) {
 					list.push(aEngine);
+					ids.push(aEngine.id);
 				}
 				return false;
 			}, this);
