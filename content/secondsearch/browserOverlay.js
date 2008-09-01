@@ -14,10 +14,10 @@ SecondSearchBrowser.prototype = {
 	
 	get historyNum() 
 	{
-		var val = this.getIntPref('secondsearch.recentengines.num');
+		var val = this.getPref('secondsearch.recentengines.num');
 		if (val === null) {
 			val = this.defaultHistoryNum;
-			this.setIntPref('secondsearch.recentengines.num', val);
+			this.setPref('secondsearch.recentengines.num', val);
 		}
 		return val;
 	},
@@ -25,10 +25,10 @@ SecondSearchBrowser.prototype = {
  
 	get shouldShowKeywords() 
 	{
-		var val = this.getBoolPref('secondsearch.keyword.show');
+		var val = this.getPref('secondsearch.keyword.show');
 		if (val === null) {
 			val = this.defaultShouldShowKeywords;
-			this.setBoolPref('secondsearch.keyword.show', val);
+			this.setPref('secondsearch.keyword.show', val);
 		}
 		return val;
 	},
@@ -36,10 +36,10 @@ SecondSearchBrowser.prototype = {
  
 	get switchBlankInput() 
 	{
-		var val = this.getBoolPref('secondsearch.switch.blank_input');
+		var val = this.getPref('secondsearch.switch.blank_input');
 		if (val === null) {
 			val = this.defaultSwitch;
-			this.setBoolPref('secondsearch.switch.blank_input', val);
+			this.setPref('secondsearch.switch.blank_input', val);
 		}
 		return val;
 	},
@@ -47,10 +47,10 @@ SecondSearchBrowser.prototype = {
  
 	get openintab() 
 	{
-		var val = this.getBoolPref('browser.search.openintab');
+		var val = this.getPref('browser.search.openintab');
 		if (val === null) {
 			val = this.defaultOpenintab;
-			this.setBoolPref('browser.search.openintab', val);
+			this.setPref('browser.search.openintab', val);
 		}
 		return val;
 	},
@@ -58,20 +58,20 @@ SecondSearchBrowser.prototype = {
  
 	get loadInBackground() 
 	{
-		var val = this.getBoolPref('secondsearch.loadInBackground');
+		var val = this.getPref('secondsearch.loadInBackground');
 		if (val === null) {
-			val = this.getBoolPref('browser.tabs.loadInBackground');
-			this.setBoolPref('secondsearch.loadInBackground', val);
+			val = this.getPref('browser.tabs.loadInBackground');
+			this.setPref('secondsearch.loadInBackground', val);
 		}
 		return val;
 	},
  
 	get reuseBlankTab() 
 	{
-		var val = this.getBoolPref('secondsearch.reuse_blank_tab');
+		var val = this.getPref('secondsearch.reuse_blank_tab');
 		if (val === null) {
 			val = this.defaultReuseBlankTab;
-			this.setBoolPref('secondsearch.reuse_blank_tab', val);
+			this.setPref('secondsearch.reuse_blank_tab', val);
 		}
 		return val;
 	},
@@ -79,10 +79,10 @@ SecondSearchBrowser.prototype = {
  
 	get overrideLocationBar() 
 	{
-		var val = this.getBoolPref('secondsearch.override.locationBar');
+		var val = this.getPref('secondsearch.override.locationBar');
 		if (val === null) {
 			val = this.defaultOverrideLocationBar;
-			this.setBoolPref('secondsearch.override.locationBar', val);
+			this.setPref('secondsearch.override.locationBar', val);
 		}
 		return val;
 	},
@@ -394,8 +394,9 @@ SecondSearchBrowser.prototype = {
  
 	get popupHeight() 
 	{
-		return (this.popupType == 0) ? (this.getCharPref('secondsearch.recentengines.list') || '').split('|').length :
-				(this.searchEngines.length + this.keywords.length) ;
+		return (this.popupType == 0) ?
+			(this.getPref('secondsearch.recentengines.list') || '').split('|').length :
+			(this.searchEngines.length + this.keywords.length) ;
 	},
  
 	initEmptySearchBar : function() 
@@ -844,9 +845,9 @@ SecondSearchBrowser.prototype = {
 
 		var inBackground = false;
 		if ('TM_init' in window) { // Tab Mix Plus
-			newTab = this.getBoolPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
+			newTab = this.getPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
 			if (newTab) isManual = false;
-			inBackground = this.getBoolPref('extensions.tabmix.loadSearchInBackground');
+			inBackground = this.getPref('extensions.tabmix.loadSearchInBackground');
 		}
 		else { // Firefox 2
 			newTab = this.openintab ? !newTab : newTab ;
@@ -1110,6 +1111,21 @@ SecondSearchBrowser.prototype = {
 	getRecentEngines : function() 
 	{
 		var ids = this.getArrayPref('secondsearch.recentengines.list');
+
+		// clear old cache for Second Search 0.4.x
+		if (!ids.length &&
+			this.getPref('secondsearch.recentengines.uri')) {
+			var names = this.getArrayPref('secondsearch.recentengines.name');
+			ids = names.map(function(aName) {
+				return 'search:'+aName;
+			});
+			this.clearPref('secondsearch.recentengines.icon');
+			this.clearPref('secondsearch.recentengines.id');
+			this.clearPref('secondsearch.recentengines.keyword');
+			this.clearPref('secondsearch.recentengines.name');
+			this.clearPref('secondsearch.recentengines.uri');
+		}
+
 		var list = ids
 				.map(function(aId) { return this.getEngineById(aId); }, this)
 				.filter(function(aEngine) { return aEngine; });
@@ -1246,13 +1262,23 @@ SecondSearchBrowser.prototype = {
 		this.keywordsHash = {};
 		if (!this.shouldShowKeywords) return;
 
-		var cachedKeywords = this.getCharPref('secondsearch.keyword.cache');
+		var cachedKeywords = this.getPref('secondsearch.keyword.cache');
 		if (cachedKeywords) {
 			try {
 				eval('cachedKeywords = '+cachedKeywords);
 			}
 			catch(e) {
 			}
+		}
+
+		// clear old cache for Second Search 0.4.x
+		if (cachedKeywords === null &&
+			this.getPref('secondsearch.keyword.cache.uri')) {
+			this.clearPref('secondsearch.keyword.cache.icon');
+			this.clearPref('secondsearch.keyword.cache.id');
+			this.clearPref('secondsearch.keyword.cache.keyword');
+			this.clearPref('secondsearch.keyword.cache.name');
+			this.clearPref('secondsearch.keyword.cache.uri');
 		}
 
 		if (
@@ -1268,7 +1294,7 @@ SecondSearchBrowser.prototype = {
 			)
 			aForceUpdate = true;
 
-		var count = this.getIntPref('secondsearch.keyword.cache.count');
+		var count = this.getPref('secondsearch.keyword.cache.count');
 		if (
 			cachedKeywords &&
 			!aForceUpdate &&
@@ -1405,8 +1431,8 @@ SecondSearchBrowser.prototype = {
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 
-		this.setCharPref('secondsearch.keyword.cache', this.keywords.toSource());
-		this.setIntPref('secondsearch.keyword.cache.count', this.keywords.length);
+		this.setPref('secondsearch.keyword.cache', this.keywords.toSource());
+		this.setPref('secondsearch.keyword.cache.count', this.keywords.length);
 	},
  
 	get placesAvailable() 
@@ -1688,12 +1714,12 @@ SecondSearchBrowser.prototype = {
 				return;
 
 			case 'secondsearch.keyword.cache.count':
-				if (this.getIntPref(aPrefName) == -1 &&
-					!this.getBoolPref('secondsearch.keyword.updating')) {
-					this.setBoolPref('secondsearch.keyword.updating', true);
+				if (this.getPref(aPrefName) == -1 &&
+					!this.getPref('secondsearch.keyword.updating')) {
+					this.setPref('secondsearch.keyword.updating', true);
 					this.initKeywords(true);
 					window.setTimeout(function(aSelf) {
-						aSelf.setBoolPref('secondsearch.keyword.updating', false);
+						aSelf.setPref('secondsearch.keyword.updating', false);
 					}, 100, this);
 				}
 				return;

@@ -33,10 +33,10 @@ SecondSearchBase.prototype = {
 	
 	get delay() 
 	{
-		var val = this.getIntPref('secondsearch.popup.auto_show.delay');
+		var val = this.getPref('secondsearch.popup.auto_show.delay');
 		if (val === null) {
 			val = this.defaultDelay;
-			this.setIntPref('secondsearch.popup.auto_show.delay', val);
+			this.setPref('secondsearch.popup.auto_show.delay', val);
 		}
 		return Math.max(0, val);
 	},
@@ -44,10 +44,10 @@ SecondSearchBase.prototype = {
  
 	get clearDelay() 
 	{
-		var val = this.getIntPref('secondsearch.clear_after_search.delay');
+		var val = this.getPref('secondsearch.clear_after_search.delay');
 		if (val === null) {
 			val = this.defaultClearDelay;
-			this.setIntPref('secondsearch.clear_after_search.delay', val);
+			this.setPref('secondsearch.clear_after_search.delay', val);
 		}
 		return Math.max(0, val);
 	},
@@ -55,10 +55,10 @@ SecondSearchBase.prototype = {
  
 	get timeout() 
 	{
-		var val = this.getIntPref('secondsearch.timeout');
+		var val = this.getPref('secondsearch.timeout');
 		if (val === null) {
 			val = this.defaultTimeout;
-			this.setIntPref('secondsearch.timeout', val);
+			this.setPref('secondsearch.timeout', val);
 		}
 		return Math.max(0, val);
 	},
@@ -76,10 +76,10 @@ SecondSearchBase.prototype = {
 	
 	get popupTypeNormal() 
 	{
-		var val = this.getIntPref('secondsearch.popup.type');
+		var val = this.getPref('secondsearch.popup.type');
 		if (val === null) {
 			val = this.defaultPopupTypeNormal;
-			this.setIntPref('secondsearch.popup.type', val);
+			this.setPref('secondsearch.popup.type', val);
 		}
 		return val;
 	},
@@ -87,10 +87,10 @@ SecondSearchBase.prototype = {
  
 	get popupTypeDragdrop() 
 	{
-		var val = this.getIntPref('secondsearch.popup.type.dragdrop');
+		var val = this.getPref('secondsearch.popup.type.dragdrop');
 		if (val === null) {
 			val = this.defaultPopupTypeDragdrop;
-			this.setIntPref('secondsearch.popup.type.dragdrop', val);
+			this.setPref('secondsearch.popup.type.dragdrop', val);
 		}
 		if (val < 0) val = this.popupTypeNormal;
 		return val;
@@ -99,10 +99,10 @@ SecondSearchBase.prototype = {
  
 	get popupTypeContext() 
 	{
-		var val = this.getIntPref('secondsearch.popup.type.context');
+		var val = this.getPref('secondsearch.popup.type.context');
 		if (val === null) {
 			val = this.defaultPopupTypeContext;
-			this.setIntPref('secondsearch.popup.type.context', val);
+			this.setPref('secondsearch.popup.type.context', val);
 		}
 		if (val < 0) val = this.popupTypeNormal;
 		return val;
@@ -111,10 +111,10 @@ SecondSearchBase.prototype = {
   
 	get popupPosition() 
 	{
-		var val = this.getIntPref('secondsearch.popup.position');
+		var val = this.getPref('secondsearch.popup.position');
 		if (val === null) {
 			val = this.defaultPopupPosition;
-			this.setIntPref('secondsearch.popup.position', val);
+			this.setPref('secondsearch.popup.position', val);
 		}
 		return val;
 	},
@@ -122,10 +122,10 @@ SecondSearchBase.prototype = {
  
 	get shouldShowAutomatically() 
 	{
-		var val = this.getBoolPref('secondsearch.popup.auto_show');
+		var val = this.getPref('secondsearch.popup.auto_show');
 		if (val === null) {
 			val = this.defaultShouldShowAutomatically;
-			this.setBoolPref('secondsearch.popup.auto_show', val);
+			this.setPref('secondsearch.popup.auto_show', val);
 		}
 		return val;
 	},
@@ -133,10 +133,10 @@ SecondSearchBase.prototype = {
  
 	get autoShowDragdropMode() 
 	{
-		var val = this.getIntPref('secondsearch.popup.auto_show.dragdrop.mode');
+		var val = this.getPref('secondsearch.popup.auto_show.dragdrop.mode');
 		if (val === null) {
 			val = this.defaultAutoShowDragdropMode;
-			this.setIntPref('secondsearch.popup.auto_show.dragdrop.mode', val);
+			this.setPref('secondsearch.popup.auto_show.dragdrop.mode', val);
 		}
 		return val;
 	},
@@ -144,10 +144,10 @@ SecondSearchBase.prototype = {
  
 	get autoShowDragdropDelay() 
 	{
-		var val = this.getIntPref('secondsearch.popup.auto_show.dragdrop.delay');
+		var val = this.getPref('secondsearch.popup.auto_show.dragdrop.delay');
 		if (val === null) {
 			val = this.defaultAutoShowDragdropDelay;
-			this.setIntPref('secondsearch.popup.auto_show.dragdrop.delay', val);
+			this.setPref('secondsearch.popup.auto_show.dragdrop.delay', val);
 		}
 		return Math.max(0, val);
 	},
@@ -155,10 +155,10 @@ SecondSearchBase.prototype = {
  
 	get handleDragdropOnlyOnButton() 
 	{
-		var val = this.getBoolPref('secondsearch.handle_dragdrop_only_on_button');
+		var val = this.getPref('secondsearch.handle_dragdrop_only_on_button');
 		if (val === null) {
 			val = this.defaultHandleDragdropOnlyOnButton;
-			this.setBoolPref('secondsearch.handle_dragdrop_only_on_button', val);
+			this.setPref('secondsearch.handle_dragdrop_only_on_button', val);
 		}
 		return val;
 	},
@@ -632,7 +632,7 @@ catch(e) {
 	clearAfterSearch : function() 
 	{
 		if (!this.canClearAfterSearch ||
-			!this.getBoolPref('secondsearch.clear_after_search'))
+			!this.getPref('secondsearch.clear_after_search'))
 			return;
 
 		this.stopClearAfterSearch();
@@ -1122,92 +1122,73 @@ catch(e) {
 	get Prefs() 
 	{
 		if (!this.mPrefs)
-			this.mPrefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefService).getBranch(null);
+			this.mPrefs = Components
+					.classes['@mozilla.org/preferences-service;1']
+					.getService(Components.interfaces.nsIPrefService)
+					.getBranch(null);
 		return this.mPrefs;
 	},
 	mPrefs : null,
-	knsISupportsString : ('nsISupportsWString' in Components.interfaces) ? Components.interfaces.nsISupportsWString : Components.interfaces.nsISupportsString,
  
-	getBoolPref : function(aKey) 
-	{
-		var value;
-		try {
-			value = this.Prefs.getBoolPref(aKey);
-		}
-		catch(e) {
-			value = null;
-		}
-		return value;
-	},
- 
-	setBoolPref : function(aKey, aValue) 
+	getPref : function(aKey) 
 	{
 		try {
-			this.Prefs.setBoolPref(aKey, aValue);
+			switch (this.Prefs.getPrefType(aKey))
+			{
+				case this.Prefs.PREF_STRING:
+					return decodeURIComponent(escape(this.Prefs.getCharPref(aKey)));
+					break;
+				case this.Prefs.PREF_INT:
+					return this.Prefs.getIntPref(aKey);
+					break;
+				default:
+					return this.Prefs.getBoolPref(aKey);
+					break;
+			}
 		}
 		catch(e) {
 		}
+		return null;
 	},
  
-	getIntPref : function(aKey) 
+	setPref : function(aKey, aNewValue) 
 	{
-		var value;
+		var pref = this.Prefs ;
+		var type;
 		try {
-			value = this.Prefs.getIntPref(aKey);
+			type = typeof aNewValue;
 		}
 		catch(e) {
-			value = null;
+			type = null;
 		}
-		return value;
-	},
- 
-	setIntPref : function(aKey, aValue) 
-	{
-		try {
-			this.Prefs.setIntPref(aKey, aValue);
+
+		switch (type)
+		{
+			case 'object':
+				aNewValue = uneval(aNewValue);
+			case 'string':
+				pref.setCharPref(aKey, unescape(encodeURIComponent(aNewValue)));
+				break;
+			case 'number':
+				pref.setIntPref(aKey, parseInt(aNewValue));
+				break;
+			default:
+				pref.setBoolPref(aKey, aNewValue);
+				break;
 		}
-		catch(e) {
-		}
-	},
- 
-	getCharPref : function(aKey) 
-	{
-		var value;
-		try {
-			value = this.Prefs.getComplexValue(aKey, this.knsISupportsString).data;
-		}
-		catch(e) {
-			value = null;
-		}
-		return value;
-	},
- 
-	setCharPref : function(aKey, aValue) 
-	{
-		var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
-				Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
-				Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-		string.data = aValue;
-		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
-		return aValue;
+		return true;
 	},
  
 	getArrayPref : function(aKey) 
 	{
-		var value;
-		try {
-			value = this.Prefs.getComplexValue(aKey, this.knsISupportsString).data;
-		}
-		catch(e) {
-			value = null;
-		}
+		var value = this.getPref(aKey);
 		var array = (value || '').split('|');
 		if (array.length == 1 && !array[0]) {
 			array = [];
 		}
-		for (var i = 0, maxi = array.length; i < maxi; i++)
-			array[i] = decodeURIComponent(array[i]);
-		return array;
+		return array.map(function(aItem) {
+				return decodeURIComponent(aItem);
+			});
 	},
  
 	setArrayPref : function(aKey, aValues) 
@@ -1215,12 +1196,18 @@ catch(e) {
 		var encoded = aValues.map(function(aValue) {
 				return encodeURIComponent(aValue);
 			});
-		var string = ('@mozilla.org/supports-wstring;1' in Components.classes) ?
-				Components.classes['@mozilla.org/supports-wstring;1'].createInstance(this.knsISupportsString) :
-				Components.classes['@mozilla.org/supports-string;1'].createInstance(this.knsISupportsString) ;
-		string.data = encoded.join('|');
-		this.Prefs.setComplexValue(aKey, this.knsISupportsString, string);
+		this.setPref(aKey, encoded.join('|'));
 		return aValues;
+	},
+ 
+	clearPref : function(aKey) 
+	{
+		try {
+			this.Prefs.clearUserPref(aKey);
+		}
+		catch(e) {
+		}
+		return;
 	},
  
 	addPrefListener : function(aObserver) 
@@ -1263,7 +1250,7 @@ catch(e) {
 
 		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER &&
 			this.searchDNDObserver.isPlatformNotSupported)
-			this.setIntPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
+			this.setPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
 	},
   
 	destroy : function() 
