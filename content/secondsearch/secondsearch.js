@@ -265,7 +265,7 @@ SecondSearchBase.prototype = {
 			var anchorNode = self.canFitPopupToSearchField ? bar : this.engineButton ;
 			var anchorBox = anchorNode.boxObject;
 			var rootBox = document.documentElement.boxObject;
-			var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup);
+			var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup, true);
 			if (
 				popup[this.kLAST_STATUS] == popupStatus &&
 				popup[this.kLAST_X] !== void(0) &&
