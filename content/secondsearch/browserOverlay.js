@@ -235,31 +235,26 @@ SecondSearchBrowser.prototype = {
 	getFaviconForPage : function(aURI) 
 	{
 		if (!this.placesAvailable) return '';
+		var uri = this.makeURIFromSpec(aURI);
+		var revHost;
+		try {
+			revHost = uri.host.split('').reverse().join('');
+		}
+		catch(e) {
+		}
+		if (!revHost) return this.FavIconService.defaultFavicon.spec;
 
 		var sql = <![CDATA[
 				SELECT f.url
-				  FROM moz_places p
-				       LEFT JOIN moz_favicons f ON p.favicon_id = f.id
-				 WHERE f.url NOT NULL AND (]]>.toString();
-		var uri = aURI;
-		var uris = [];
-		while (/^\w+:\/\/[^\/]+\//.test(uri))
-		{
-			uris.push(uri);
-			uri = uri.replace(/[^\/]+\/?$/, '');
-		}
-		sql += uris.map(function(aURI, aIndex) {
-				return 'p.url GLOB ?'+(aIndex+1)
-			}).join(' OR ') +
-			') '+
-			'ORDER BY LENGTH(p.url) DESC';
-
+				  FROM moz_favicons f
+				       JOIN moz_places p ON p.favicon_id = f.id
+				 WHERE p.rev_host = ?1
+				 ORDER BY p.frecency
+			]]>.toString();
 		var statement = this.placesDB.createStatement(sql);
 		var result;
 		try {
-			uris.forEach(function(aURI, aIndex) {
-				statement.bindStringParameter(aIndex, aURI+'*');
-			});
+			statement.bindStringParameter(0, revHost+'.');
 			while (statement.executeStep())
 			{
 				result = statement.getString(0);
