@@ -22,7 +22,7 @@
 <!ENTITY secondsearch.popup.position.1 "Keresősáv alatt (Lefelé billentyű)">
 <!ENTITY secondsearch.popup.position.note "* Automatikus befejezés letiltva, ha az előbukkanó ablak a keresősáv alatt jelenik meg.">
 
-<!ENTITY secondsearch.override.locationBar  "Enable Web search from the Location Bar if the Search Bar doesn't exist on the toolbar.">
+<!ENTITY secondsearch.override.locationBar  "Keresés engedélyezése a címmezőből, ha a keresőmező nincs az eszköztáron">
 
 <!ENTITY secondsearch.recentengines.num.before "Legutóbb használt">
 <!ENTITY secondsearch.recentengines.num.after  "keresőszolgáltatás megjelenítése">
