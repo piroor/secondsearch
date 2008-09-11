@@ -19,7 +19,7 @@
 				event.target.shown = true;
 				if (event.target == this) SecondSearch.onPopupShowing(event)"
 			onpopuphiding="
-				event.target.shown = true;
+				event.target.shown = false;
 				var current = SecondSearch.getCurrentItem(event.target);
 				if (current) current.removeAttribute('_moz-menuactive');
 				if (event.target == this) SecondSearch.onPopupHiding(event)
