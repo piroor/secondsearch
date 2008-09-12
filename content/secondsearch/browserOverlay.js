@@ -464,7 +464,7 @@ SecondSearchBrowser.prototype = {
 									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 									(
 										ss.handleDragdropOnlyOnButton &&
-										!ss.evaluateXPath('ancestor::*[local-name()="button"]', aEvent.originalTarget, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue
+										!ss.evaluateXPath('ancestor-or-self::*[local-name()="button"]', aEvent.originalTarget, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue
 									)
 									) {
 									return;
@@ -486,6 +486,7 @@ SecondSearchBrowser.prototype = {
 								) &&
 								("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )
 								) {
+								flavourSet.appendFlavour('moz-unknown/unknown');
 								return flavourSet;
 							};
 							flavourSet.appendFlavour]]>.toString()
