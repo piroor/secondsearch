@@ -8,13 +8,7 @@
 <toolbaritem id="search-container">
 	<menupopup id="secondsearch_popup"
 			ignorekeys="true"
-			oncommand="SecondSearch.doSearchBy(event.target, event);"
-			onpopupshowing="SecondSearch.onPopupShowing(event)"
-			onpopuphiding="SecondSearch.onPopupHiding(event)"
-			ondragenter="SecondSearch.handleEvent(event);"
-			ondragexit="SecondSearch.handleEvent(event);"
-			ondragover="SecondSearch.handleEvent(event);"
-			ondragdrop="SecondSearch.handleEvent(event);"/>
+			oncommand="SecondSearch.doSearchBy(event.target, event);"/>
 </toolbaritem>
 
 </overlay>

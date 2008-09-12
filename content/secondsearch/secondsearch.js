@@ -795,6 +795,13 @@ catch(e) {
 				this.textBoxFocused = true;
 				break;
 
+			case 'popupshowing':
+				this.onPopupShowing(aEvent);
+				break;
+
+			case 'popuphiding':
+				this.onPopupHiding(aEvent);
+				break;
 		}
 	},
 	textBoxFocused : false,
@@ -847,6 +854,9 @@ catch(e) {
  
 	onPopupShowing : function(aEvent) 
 	{
+		aEvent.target.shown = true;
+		if (aEvent.target != this.popup) return;
+
 		if (this.correctingPopupPosition) return;
 		var popup = this.popup;
 		popup.shown = true;
@@ -860,6 +870,12 @@ catch(e) {
   
 	onPopupHiding : function(aEvent) 
 	{
+		aEvent.target.shown = false;
+		var current = this.getCurrentItem(aEvent.target);
+		if (current) current.removeAttribute('_moz-menuactive');
+		if (aEvent.target != this.popup)
+			return;
+
 		if (this.correctingPopupPosition) return;
 		var popup = this.popup;
 		popup.shown = false;
@@ -973,6 +989,10 @@ catch(e) {
 
 			if (this.isPlatformNotSupported) return;
 			if (this.isTimerSupported || !aDragSession.sourceNode) {
+				if (popup.hideTimer) {
+					window.clearTimeout(popup.hideTimer);
+					popup.hideTimer = null;
+				}
 				window.clearTimeout(popup.showTimer);
 				if (aEvent.target == aDragSession.sourceNode) return;
 				popup.showTimer = window.setTimeout(function(aOwner) {
@@ -1248,6 +1268,14 @@ catch(e) {
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 
+		var popup = this.popup;
+		popup.addEventListener('dragenter', this, false);
+		popup.addEventListener('dragexit', this, false);
+		popup.addEventListener('dragover', this, false);
+		popup.addEventListener('dragdrop', this, false);
+		popup.addEventListener('popupshowing', this, false);
+		popup.addEventListener('popuphiding', this, false);
+
 		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER &&
 			this.searchDNDObserver.isPlatformNotSupported)
 			this.setPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
@@ -1262,6 +1290,14 @@ catch(e) {
 	{
 		this.destroyBar();
 		window.removeEventListener('unload', this, false);
+
+		var popup = this.popup;
+		popup.removeEventListener('dragenter', this, false);
+		popup.removeEventListener('dragexit', this, false);
+		popup.removeEventListener('dragover', this, false);
+		popup.removeEventListener('dragdrop', this, false);
+		popup.removeEventListener('popupshowing', this, false);
+		popup.removeEventListener('popuphiding', this, false);
 
 		this.searchDNDObserver.destroy();
 		this.searchDNDObserver = null;

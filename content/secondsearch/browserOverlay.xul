@@ -15,19 +15,6 @@
 			ignorekeys="true"
 			oncommand="SecondSearch.doSearchBy(event.target, event);"
 			onclick="if (event.button == 1) SecondSearch.doSearchBy(event.target, event);"
-			onpopupshowing="
-				event.target.shown = true;
-				if (event.target == this) SecondSearch.onPopupShowing(event)"
-			onpopuphiding="
-				event.target.shown = false;
-				var current = SecondSearch.getCurrentItem(event.target);
-				if (current) current.removeAttribute('_moz-menuactive');
-				if (event.target == this) SecondSearch.onPopupHiding(event)
-			"
-			ondragenter="SecondSearch.handleEvent(event);"
-			ondragexit="SecondSearch.handleEvent(event);"
-			ondragover="SecondSearch.handleEvent(event);"
-			ondragdrop="SecondSearch.handleEvent(event);"
 			labelTemplate="&secondsearch.searchBy;"
 			labelLoadAsURI="&secondsearch.loadAsURI;">
 		<menu label="&secondsearch.searchByMore;"
