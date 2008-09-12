@@ -452,20 +452,25 @@ SecondSearchBrowser.prototype = {
 			if (!textbox.searchbarDNDObserver.__secondsearch__updated) {
 				eval('textbox.searchbarDNDObserver.onDrop = '+
 					textbox.searchbarDNDObserver.onDrop.toSource().replace(
-						'this.mOuter.onTextEntered',
+						/(this.mOuter.value = data|this.mOuter.onTextEntered)/,
 						<![CDATA[
 							var ss = window.getSecondSearch();
-							if (ss.searchbar == this.mOuter) {
+							if (ss.searchbar == this.mOuter || ss.textbox == this.mOuter) {
 								if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
 									ss.showSecondSearch(ss.SHOWN_BY_DROP);
 									return;
 								}
-								else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-										ss.handleDragdropOnlyOnButton) {
+								else if (
+									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
+									(
+										ss.handleDragdropOnlyOnButton &&
+										!ss.evaluateXPath('ancestor::*[local-name()="button"]', aEvent.originalTarget, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue
+									)
+									) {
 									return;
 								}
 							}
-							this.mOuter.onTextEntered]]>.toString()
+							$1]]>.toString()
 					)
 				);
 				eval('textbox.searchbarDNDObserver.getSupportedFlavours = '+
@@ -474,7 +479,7 @@ SecondSearchBrowser.prototype = {
 						<![CDATA[
 							var ss = window.getSecondSearch();
 							if (
-								ss.searchbar == this.mOuter &&
+								(ss.searchbar == this.mOuter || ss.textbox == this.mOuter) &&
 								(
 									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 									ss.handleDragdropOnlyOnButton
