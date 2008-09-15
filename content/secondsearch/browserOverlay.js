@@ -723,12 +723,21 @@ SecondSearchBrowser.prototype = {
 	
 	onSearchTermDrop : function(aEvent) 
 	{
-		if (aEvent.target == this.searchbar) {
+		if (aEvent.target == this.searchbar ||
+			this.getSearchDropTarget(aEvent)) {
 			this.textbox.onTextEntered(aEvent);
 		}
 		else if (aEvent.target.localName == 'menuitem') {
 			this.doSearchBy(aEvent.target, aEvent);
 		}
+	},
+	getSearchDropTarget : function(aEvent)
+	{
+		return this.evaluateXPath(
+				'ancestor-or-self::*[local-name()="button" or @class="search-go-container"]',
+				aEvent.originalTarget,
+				XPathResult.FIRST_ORDERED_NODE_TYPE
+			).singleNodeValue;
 	},
  
 	onCommand : function(aEvent) 

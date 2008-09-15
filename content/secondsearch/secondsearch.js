@@ -676,6 +676,10 @@ catch(e) {
 		search.addEventListener('dragover',  this, false);
 		search.addEventListener('dragexit',  this, false);
 		search.addEventListener('dragdrop',  this, false);
+		if (this.isGecko19) {
+			textbox.addEventListener('dragover',  this, false);
+			textbox.addEventListener('dragdrop',  this, false);
+		}
 
 		window.addEventListener('focus', this.focusEventListener, true);
 		window.addEventListener('blur',  this.focusEventListener, true);
@@ -708,6 +712,10 @@ catch(e) {
 		search.removeEventListener('dragover',  this, false);
 		search.removeEventListener('dragexit',  this, false);
 		search.removeEventListener('dragdrop',  this, false);
+		if (this.isGecko19) {
+			textbox.removeEventListener('dragover',  this, false);
+			textbox.removeEventListener('dragdrop',  this, false);
+		}
 
 		window.removeEventListener('focus', this.focusEventListener, true);
 		window.removeEventListener('blur',  this.focusEventListener, true);
@@ -1063,6 +1071,7 @@ catch(e) {
 		{
 			if (this.isPlatformNotSupported) return;
 			if (this.isTimerSupported || !aDragSession.sourceNode) return;
+			if (aEvent.target != this.owner.searchbar) return;
 
 			var now   = (new Date()).getTime();
 			var delay = this.owner.autoShowDragdropDelay;
