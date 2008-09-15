@@ -452,25 +452,26 @@ SecondSearchBrowser.prototype = {
 			if (!textbox.searchbarDNDObserver.__secondsearch__updated) {
 				eval('textbox.searchbarDNDObserver.onDrop = '+
 					textbox.searchbarDNDObserver.onDrop.toSource().replace(
-						/(this.mOuter.value = data|this.mOuter.onTextEntered)/,
+						'this.mOuter.value = data',
 						<![CDATA[
 							var ss = window.getSecondSearch();
 							if (ss.searchbar == this.mOuter || ss.textbox == this.mOuter) {
-								if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-									ss.showSecondSearch(ss.SHOWN_BY_DROP);
-									return;
-								}
-								else if (
+								if (
 									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 									(
 										ss.handleDragdropOnlyOnButton &&
-										!ss.evaluateXPath('ancestor-or-self::*[local-name()="button"]', aEvent.originalTarget, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue
+										!ss.getSearchDropTarget(aEvent)
 									)
 									) {
 									return;
 								}
+								else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
+									ss.textbox.value = data;
+									ss.showSecondSearch(ss.SHOWN_BY_DROP);
+									return;
+								}
 							}
-							$1]]>.toString()
+							$&]]>.toString()
 					)
 				);
 				eval('textbox.searchbarDNDObserver.getSupportedFlavours = '+
