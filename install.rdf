@@ -59,13 +59,5 @@
 	                   em:minVersion="2.0"
 	                   em:maxVersion="2.0.0.*" />
     </em:targetApplication>
-	<em:file>
-		<RDF:Description RDF:about="urn:mozilla:extension:file:secondsearch.jar">
-			<em:package>content/secondsearch/</em:package>
-			<em:locale>locale/en-US/secondsearch/</em:locale>
-			<em:locale>locale/ja-JP/secondsearch/</em:locale>
-			<em:locale>locale/hu-HU/secondsearch/</em:locale>
-		</RDF:Description>
-	</em:file>
   </RDF:Description>
 </RDF:RDF>
