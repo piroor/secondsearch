@@ -597,14 +597,14 @@ SecondSearchBrowser.prototype = {
 								ss.showSecondSearch(ss.SHOWN_BY_DROP);
 						$&]]>.toString()
 					).replace(
-						'handleURLBarCommand();',
+						/((handleURLBarCommand|this\.handleCommand)\(\);)',
 						<![CDATA[
 							if (showSecondSearch) {
 								ss.droppedURI = this.value;
 								ss.showSecondSearch(ss.SHOWN_BY_DROP);
 							}
 							else {
-								$&;
+								$1;
 							}
 						]]>.toString()
 					)
@@ -1001,7 +1001,12 @@ SecondSearchBrowser.prototype = {
  
 	loadDroppedURI : function() 
 	{
-		if ('handleURLBarCommand' in window) {
+		if ('handleCommand' in this.textbox) { // Firefox 3.1
+			this.textbox.value = this.droppedURI;
+			this.textbox.handleCommand();
+			this.droppedURI = null;
+		}
+		else if ('handleURLBarCommand' in window) { // Firefox 2 or 3.0.x
 			this.textbox.value = this.droppedURI;
 			handleURLBarCommand();
 			this.droppedURI = null;
