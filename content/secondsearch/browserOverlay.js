@@ -597,7 +597,7 @@ SecondSearchBrowser.prototype = {
 								ss.showSecondSearch(ss.SHOWN_BY_DROP);
 						$&]]>.toString()
 					).replace(
-						/((handleURLBarCommand|this\.handleCommand)\(\);)',
+						/((handleURLBarCommand|this\.handleCommand)\(\);)/,
 						<![CDATA[
 							if (showSecondSearch) {
 								ss.droppedURI = this.value;
