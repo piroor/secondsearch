@@ -1135,6 +1135,7 @@ catch(e) {
 		{
 			var flavourSet = new FlavourSet();
 			flavourSet.appendFlavour('text/unicode');
+			flavourSet.appendFlavour('text/plain');
 			return flavourSet;
 		},
  
