@@ -15,6 +15,10 @@ SecondSearchBase.prototype = {
 	DRAGDROP_MODE_DEFAULT  : 0,
 	DRAGDROP_MODE_DRAGOVER : 1,
 	DRAGDROP_MODE_DROP     : 2,
+
+	INPUT_MODE_ANY          : 0,
+	INPUT_MODE_UPDOWN       : 1,
+	INPUT_MODE_SHIFT_UPDOWN : 2,
  
 	get isBrowser() 
 	{
@@ -30,39 +34,24 @@ SecondSearchBase.prototype = {
 	},
  
 /* preference values */ 
-	
+	 
 	get delay() 
 	{
 		var val = this.getPref('secondsearch.popup.auto_show.delay');
-		if (val === null) {
-			val = this.defaultDelay;
-			this.setPref('secondsearch.popup.auto_show.delay', val);
-		}
 		return Math.max(0, val);
 	},
-	defaultDelay : 0,
  
 	get clearDelay() 
 	{
 		var val = this.getPref('secondsearch.clear_after_search.delay');
-		if (val === null) {
-			val = this.defaultClearDelay;
-			this.setPref('secondsearch.clear_after_search.delay', val);
-		}
 		return Math.max(0, val);
 	},
-	defaultClearDelay : 100,
  
 	get timeout() 
 	{
 		var val = this.getPref('secondsearch.timeout');
-		if (val === null) {
-			val = this.defaultTimeout;
-			this.setPref('secondsearch.timeout', val);
-		}
 		return Math.max(0, val);
 	},
-	defaultTimeout : 5000,
  
 	get popupType() 
 	{
@@ -76,93 +65,44 @@ SecondSearchBase.prototype = {
 	
 	get popupTypeNormal() 
 	{
-		var val = this.getPref('secondsearch.popup.type');
-		if (val === null) {
-			val = this.defaultPopupTypeNormal;
-			this.setPref('secondsearch.popup.type', val);
-		}
-		return val;
+		return this.getPref('secondsearch.popup.type');
 	},
-	defaultPopupTypeNormal : 0,
  
 	get popupTypeDragdrop() 
 	{
-		var val = this.getPref('secondsearch.popup.type.dragdrop');
-		if (val === null) {
-			val = this.defaultPopupTypeDragdrop;
-			this.setPref('secondsearch.popup.type.dragdrop', val);
-		}
-		if (val < 0) val = this.popupTypeNormal;
-		return val;
+		return this.getPref('secondsearch.popup.type.dragdrop');
 	},
-	defaultPopupTypeDragdrop : -1,
  
 	get popupTypeContext() 
 	{
-		var val = this.getPref('secondsearch.popup.type.context');
-		if (val === null) {
-			val = this.defaultPopupTypeContext;
-			this.setPref('secondsearch.popup.type.context', val);
-		}
-		if (val < 0) val = this.popupTypeNormal;
-		return val;
+		return this.getPref('secondsearch.popup.type.context');
 	},
-	defaultPopupTypeContext : -1,
   
 	get popupPosition() 
 	{
-		var val = this.getPref('secondsearch.popup.position');
-		if (val === null) {
-			val = this.defaultPopupPosition;
-			this.setPref('secondsearch.popup.position', val);
-		}
-		return val;
+		return this.getPref('secondsearch.popup.position');
 	},
-	defaultPopupPosition : 0,
  
-	get shouldShowAutomatically() 
+	get autoShowInput() 
 	{
-		var val = this.getPref('secondsearch.popup.auto_show');
-		if (val === null) {
-			val = this.defaultShouldShowAutomatically;
-			this.setPref('secondsearch.popup.auto_show', val);
-		}
-		return val;
+		return this.getPref('secondsearch.popup.auto_show');
 	},
-	defaultShouldShowAutomatically : true,
  
 	get autoShowDragdropMode() 
 	{
-		var val = this.getPref('secondsearch.popup.auto_show.dragdrop.mode');
-		if (val === null) {
-			val = this.defaultAutoShowDragdropMode;
-			this.setPref('secondsearch.popup.auto_show.dragdrop.mode', val);
-		}
-		return val;
+		return this.getPref('secondsearch.popup.auto_show.dragdrop.mode');
 	},
-	defaultAutoShowDragdropMode : 1,
  
 	get autoShowDragdropDelay() 
 	{
 		var val = this.getPref('secondsearch.popup.auto_show.dragdrop.delay');
-		if (val === null) {
-			val = this.defaultAutoShowDragdropDelay;
-			this.setPref('secondsearch.popup.auto_show.dragdrop.delay', val);
-		}
 		return Math.max(0, val);
 	},
-	defaultAutoShowDragdropDelay : 350,
  
 	get handleDragdropOnlyOnButton() 
 	{
-		var val = this.getPref('secondsearch.handle_dragdrop_only_on_button');
-		if (val === null) {
-			val = this.defaultHandleDragdropOnlyOnButton;
-			this.setPref('secondsearch.handle_dragdrop_only_on_button', val);
-		}
-		return val;
+		return this.getPref('secondsearch.handle_dragdrop_only_on_button');
 	},
-	defaultHandleDragdropOnlyOnButton : false,
   
 /* elements */ 
 	
@@ -410,11 +350,13 @@ try{
 		if (!this.onOperationPre(aEvent))
 			return true;
 
+		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+
 		if (
 			popup.shown &&
 			(
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_ENTER ||
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RETURN
 			)
 			) {
 			var bar = this.searchbar;
@@ -441,7 +383,6 @@ try{
 
 		if (
 			aEvent.ctrlKey ||
-			aEvent.shiftKey ||
 			aEvent.altKey ||
 			aEvent.metaKey
 			)
@@ -450,8 +391,8 @@ try{
 		var isUpKey = false;
 		switch(aEvent.keyCode)
 		{
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_DELETE:
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
+			case nsIDOMKeyEvent.DOM_VK_DELETE:
+			case nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
 				if (popup.shown) {
 					if (!this.searchterm) {
 						this.hideSecondSearch();
@@ -469,21 +410,23 @@ try{
 				return true;
 
 
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP:
+			case nsIDOMKeyEvent.DOM_VK_UP:
 				isUpKey = true;
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN:
+			case nsIDOMKeyEvent.DOM_VK_DOWN:
 				if (!popup.shown) {
 					if (
-						isUpKey ?
+						!aEvent.shiftKey &&
+						(isUpKey ?
 							this.popupPosition != 0 :
 							this.popupPosition != 1
+						)
 						) {
 						return true;
 					}
 
 					this.showSecondSearch(this.SHOWN_BY_MANUAL_OPERATION);
 
-					var current = (this.popupPosition == 0) ? this.getLastItem(popup) : this.getFirstItem(popup) ;
+					var current = isUpKey ? this.getLastItem(popup) : this.getFirstItem(popup) ;
 					if (current) {
 						current.setAttribute('_moz-menuactive', true);
 					}
@@ -526,7 +469,7 @@ try{
 				return false;
 
 
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT:
+			case nsIDOMKeyEvent.DOM_VK_RIGHT:
 				if (!popup.shown) return true;
 
 				var current = this.getCurrentItem(popup, true);
@@ -543,7 +486,7 @@ try{
 				}
 				return true;
 
-			case Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT:
+			case nsIDOMKeyEvent.DOM_VK_LEFT:
 				if (!popup.shown) return true;
 
 				var current = this.getCurrentItem(popup, true);
@@ -728,7 +671,7 @@ catch(e) {
 	},
    
 /* event handlers */ 
-	
+	 
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -833,7 +776,7 @@ catch(e) {
 		}
 
 		if (this.searchterm &&
-			this.shouldShowAutomatically) {
+			this.autoShowInputMode == this.INPUT_MODE_ANY) {
 			var delay = this.delay;
 			if (delay) {
 				if (this.autoShowTimer) window.clearTimeout(this.autoShowTimer);

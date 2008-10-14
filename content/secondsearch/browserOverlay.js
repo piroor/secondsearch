@@ -637,11 +637,12 @@ SecondSearchBrowser.prototype = {
  
 	operateSuggesList : function(aEvent) 
 	{
+		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		if (
 			this.secondSearch.getCurrentItem() ||
 			(
 				!this.getCurrentItem() &&
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP &&
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP &&
 				!aEvent.ctrlKey &&
 				!aEvent.shiftKey &&
 				!aEvent.altKey &&
@@ -651,8 +652,8 @@ SecondSearchBrowser.prototype = {
 			return false;
 		}
 		else {
-			if (aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ENTER ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN)
+			if (aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_ENTER ||
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RETURN)
 				this.secondSearch.hideSecondSearch();
 
 			return this.__secondsearch__operateSuggesList(aEvent);
@@ -675,26 +676,36 @@ SecondSearchBrowser.prototype = {
 	onTextboxKeyPress : function(aEvent) 
 	{
 		var ss = window.getSecondSearch();
+		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		if (
 			(
 				(
-					!ss.shouldShowAutomatically ||
+					!ss.autoShowInput ||
 					ss.popup.shown
 				) &&
 				this.popup.selectedIndex < 0 &&
 				(
-					(ss.popupPosition == 0) ?
-						(aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP) :
-						(aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN)
+					(
+						aEvent.shiftKey &&
+						(
+							aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
+							aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN
+						)
+					) ||
+					(
+						(ss.popupPosition == 0) ?
+							(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP) :
+							(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN)
+					)
 				)
 			) ||
 			(
 				ss.getCurrentItem() &&
 				(
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_DOWN ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_UP ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RIGHT ||
-				aEvent.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_LEFT
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN ||
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RIGHT ||
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_LEFT
 				)
 			)
 			)
@@ -752,12 +763,18 @@ SecondSearchBrowser.prototype = {
  
 	onOperationPre : function(aEvent) 
 	{
+		var textbox = this.textbox;
+		if (aEvent.shiftKey) {
+			textbox.controller.stopSearch();
+			textbox.closePopup();
+			textbox.value = textbox.controller.searchString;
+		}
 		if (
 			(
 				'GSuggest' in window &&
 				GSuggest.getCurrentItem()
 			) ||
-			this.textbox.popup.selectedIndex > -1
+			textbox.popup.selectedIndex > -1
 			)
 			return false;
 		return true;

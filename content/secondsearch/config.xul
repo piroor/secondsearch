@@ -9,11 +9,11 @@
 
 <prefwindow id="secondsearch-config"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-	title="&secondsearch.config.title;"
-	disabledmessage="&secondsearch.config.disabled;"
+	title="&config.title;"
+	disabledmessage="&config.disabled;"
 	onload="init()">
 
-<prefpane id="prefpane-general" label="&secondsearch.tab.general;">
+<prefpane id="prefpane-general" label="&config.tab.general;">
 	<preferences>
 		<preference id="secondsearch.popup.type"
 			name="secondsearch.popup.type"
@@ -32,49 +32,49 @@
 	</preferences>
 
 	<groupbox>
-		<caption label="&secondsearch.caption.type;"/>
+		<caption label="&config.caption.type;"/>
 		<radiogroup orient="vertical"
 			id="secondsearch.popup.type-radiogroup"
 			preference="secondsearch.popup.type">
-			<radio label="&secondsearch.popup.type.0;"
+			<radio label="&config.popup.type.0;"
 				value="0"/>
 			<hbox align="center">
 				<spacer style="width:1em;"/>
-				<label value="&secondsearch.recentengines.num.before;"
+				<label value="&config.recentengines.num.before;"
 					control="secondsearch.recentengines.num-textbox"/>
 				<textbox id="secondsearch.recentengines.num-textbox"
 					preference="secondsearch.recentengines.num"
 					style="width: 5em;"
 					type="number" min="-1" increment="1"/>
-				<label value="&secondsearch.recentengines.num.after;"
+				<label value="&config.recentengines.num.after;"
 					control="secondsearch.recentengines.num-textbox"/>
 			</hbox>
-			<radio label="&secondsearch.popup.type.1;"
+			<radio label="&config.popup.type.1;"
 				value="1"/>
-			<radio label="&secondsearch.popup.type.2;"
+			<radio label="&config.popup.type.2;"
 				value="2"/>
 		</radiogroup>
 	</groupbox>
 
 	<groupbox>
-		<caption label="&secondsearch.caption.position;"/>
+		<caption label="&config.caption.position;"/>
 		<radiogroup orient="vertical"
 			id="secondsearch.popup.position-radiogroup"
 			preference="secondsearch.popup.position">
-			<radio label="&secondsearch.popup.position.0;"
+			<radio label="&config.popup.position.0;"
 				value="0"/>
-			<radio label="&secondsearch.popup.position.1;"
+			<radio label="&config.popup.position.1;"
 				value="1"/>
 		</radiogroup>
-		<description value="&secondsearch.popup.position.note;"/>
+		<description value="&config.popup.position.note;"/>
 	</groupbox>
 
 	<checkbox id="secondsearch.override.locationBar-check"
-		label="&secondsearch.override.locationBar;"
+		label="&config.override.locationBar;"
 		preference="secondsearch.override.locationBar"/>
 </prefpane>
 
-<prefpane id="prefpane-auto_show" label="&secondsearch.tab.auto_show;"
+<prefpane id="prefpane-auto_show" label="&config.tab.auto_show;"
 	onpaneload ="
 		var radio = document.getElementById('secondsearch.popup.auto_show.dragdrop.mode-dragover-item');
 		if (navigator.platform.indexOf('Mac') == -1) {
@@ -96,25 +96,25 @@
 	</preferences>
 
 	<checkbox id="secondsearch.popup.auto_show-check"
-		label="&secondsearch.popup.auto_show;"
+		label="&config.popup.auto_show;"
 		preference="secondsearch.popup.auto_show"/>
 	<groupbox>
-		<caption label="&secondsearch.caption.auto_show.dragdrop;"/>
+		<caption label="&config.caption.auto_show.dragdrop;"/>
 		<radiogroup orient="vertical"
 			id="secondsearch.popup.auto_show.dragdrop.mode-radiogroup"
 			preference="secondsearch.popup.auto_show.dragdrop.mode">
-			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.0;"
+			<radio label="&config.popup.auto_show.dragdrop.mode.0;"
 				value="0"/>
-			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.1;"
+			<radio label="&config.popup.auto_show.dragdrop.mode.1;"
 				value="1"
 				id="secondsearch.popup.auto_show.dragdrop.mode-dragover-item"/>
-			<radio label="&secondsearch.popup.auto_show.dragdrop.mode.2;"
+			<radio label="&config.popup.auto_show.dragdrop.mode.2;"
 				value="2"/>
 		</radiogroup>
 	</groupbox>
 </prefpane>
 
-<prefpane id="prefpane-tab" label="&secondsearch.tab.tab;"
+<prefpane id="prefpane-tab" label="&config.tab.tab;"
 	onpaneload="updateTabRadio();">
 	<preferences>
 		<preference id="browser.search.openintab"
@@ -131,25 +131,25 @@
 	</preferences>
 
 	<groupbox>
-		<caption label="&secondsearch.tab.caption;"/>
+		<caption label="&config.tab.caption;"/>
 		<radiogroup orient="vertical"
 			id="secondsearch.tab-radiogroup"
 			oncommand="onUpdateTabRadio();">
-			<radio label="&secondsearch.tab.current;"
+			<radio label="&config.tab.current;"
 				value="0"/>
-			<radio label="&secondsearch.tab.newtab;"
+			<radio label="&config.tab.newtab;"
 				value="1"/>
-			<radio label="&secondsearch.tab.newtab_background;"
+			<radio label="&config.tab.newtab_background;"
 				value="2"/>
 		</radiogroup>
 	</groupbox>
 	<checkbox id="secondsearch.reuse_blank_tab-check"
-		label="&secondsearch.reuse_blank_tab;"
+		label="&config.reuse_blank_tab;"
 		preference="secondsearch.reuse_blank_tab"/>
 
 </prefpane>
 
-<prefpane id="prefpane-advanced" label="&secondsearch.tab.advanced;">
+<prefpane id="prefpane-advanced" label="&config.tab.advanced;">
 	<preferences>
 		<preference id="secondsearch.keyword.show"
 			name="secondsearch.keyword.show"
@@ -184,67 +184,67 @@
 	</preferences>
 
 	<checkbox id="secondsearch.keyword.show-check"
-		label="&secondsearch.keyword.show;"
+		label="&config.keyword.show;"
 		preference="secondsearch.keyword.show"/>
 	<checkbox id="secondsearch.switch.blank_input-check"
-		label="&secondsearch.switch.blank_input;"
+		label="&config.switch.blank_input;"
 		preference="secondsearch.switch.blank_input"/>
 	<hbox align="center">
 		<checkbox id="secondsearch.clear_after_search-check"
-			label="&secondsearch.clear_after_search;"
+			label="&config.clear_after_search;"
 			preference="secondsearch.clear_after_search"/>
-		<label value="&secondsearch.clear_after_search.delay.before;"
+		<label value="&config.clear_after_search.delay.before;"
 			control="secondsearch.clear_after_search.delay-textbox"/>
 		<textbox id="secondsearch.clear_after_search.delay-textbox"
 			preference="secondsearch.clear_after_search.delay"
 			style="width: 5em;"
 			type="number" min="0" increment="1"/>
-		<label value="&secondsearch.clear_after_search.delay.after;"
+		<label value="&config.clear_after_search.delay.after;"
 			control="secondsearch.clear_after_search.delay-textbox"/>
 	</hbox>
 	<checkbox id="secondsearch.handle_dragdrop_only_on_button-check"
-		label="&secondsearch.handle_dragdrop_only_on_button;"
+		label="&config.handle_dragdrop_only_on_button;"
 		preference="secondsearch.handle_dragdrop_only_on_button"/>
 	<description flex="1">
-		&secondsearch.handle_dragdrop_only_on_button.description;
+		&config.handle_dragdrop_only_on_button.description;
 	</description>
 
 
 	<groupbox>
-		<caption label="&secondsearch.caption.type.dragdrop;"/>
+		<caption label="&config.caption.type.dragdrop;"/>
 		<radiogroup orient="horizontal"
 			id="secondsearch.popup.type.dragdrop-radiogroup"
 			preference="secondsearch.popup.type.dragdrop">
-			<radio label="&secondsearch.popup.type.dragdrop.-1;"
+			<radio label="&config.popup.type.dragdrop.-1;"
 				value="-1"/>
-			<radio label="&secondsearch.popup.type.dragdrop.0;"
+			<radio label="&config.popup.type.dragdrop.0;"
 				value="0"/>
-			<radio label="&secondsearch.popup.type.dragdrop.1;"
+			<radio label="&config.popup.type.dragdrop.1;"
 				value="1"/>
-			<radio label="&secondsearch.popup.type.dragdrop.2;"
+			<radio label="&config.popup.type.dragdrop.2;"
 				value="2"/>
 		</radiogroup>
 	</groupbox>
 
 	<groupbox>
-		<caption label="&secondsearch.caption.type.context;"/>
+		<caption label="&config.caption.type.context;"/>
 		<radiogroup orient="horizontal"
 			id="secondsearch.popup.type.context-radiogroup"
 			preference="secondsearch.popup.type.context">
-			<radio label="&secondsearch.popup.type.context.-1;"
+			<radio label="&config.popup.type.context.-1;"
 				value="-1"/>
-			<radio label="&secondsearch.popup.type.context.0;"
+			<radio label="&config.popup.type.context.0;"
 				value="0"/>
-			<radio label="&secondsearch.popup.type.context.1;"
+			<radio label="&config.popup.type.context.1;"
 				value="1"/>
-			<radio label="&secondsearch.popup.type.context.2;"
+			<radio label="&config.popup.type.context.2;"
 				value="2"/>
 		</radiogroup>
 	</groupbox>
 
 
 
-	<button label="&secondsearch.initialize.keywords;"
+	<button label="&config.initialize.keywords;"
 		oncommand="
 			setTextValue('secondsearch.keyword.cache-textbox', '');
 			setTextValue('secondsearch.keyword.cache.count-textbox', -1);

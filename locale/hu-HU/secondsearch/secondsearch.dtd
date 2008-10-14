@@ -2,74 +2,74 @@
 <!ENTITY secondsearch.searchByMore "Keresés">
 <!ENTITY secondsearch.loadAsURI    "Megnyitás mint webcím">
 
-<!ENTITY secondsearch.config.title     "Second Search beállítások">
-<!ENTITY secondsearch.config.disabled  "Second Search beállítások nem működik a Firefox 1.0 változatával. Nyissa meg az &quot;about:config&quot; oldalt és keresse meg a &quot;secondsearch.&quot; mezőket.">
 
-<!ENTITY secondsearch.tab.general   "Általános">
-<!ENTITY secondsearch.tab.auto_show "Automatikus megjelenítés">
-<!ENTITY secondsearch.tab.tab       "Keresés eredménye">
-<!ENTITY secondsearch.tab.advanced  "Haladó">
+<!ENTITY config.title     "Second Search beállítások">
+<!ENTITY config.disabled  "Second Search beállítások nem működik a Firefox 1.0 változatával. Nyissa meg az &quot;about:config&quot; oldalt és keresse meg a &quot;secondsearch.&quot; mezőket.">
 
-<!ENTITY secondsearch.caption.type "Az előbukkanó ablak tartalma">
+<!ENTITY config.tab.general   "Általános">
+<!ENTITY config.tab.auto_show "Automatikus megjelenítés">
+<!ENTITY config.tab.tab       "Keresés eredménye">
+<!ENTITY config.tab.advanced  "Haladó">
 
-<!ENTITY secondsearch.popup.type.0 "Legutóbb használt keresőszolgáltatások">
-<!ENTITY secondsearch.popup.type.1 "Összes keresőszolgáltatás (normális sorrend)">
-<!ENTITY secondsearch.popup.type.2 "Összes keresőszolgáltatás (fordított sorrend)">
+<!ENTITY config.caption.type "Az előbukkanó ablak tartalma">
 
-<!ENTITY secondsearch.caption.position "Az előbukkanó ablak pozíciója">
+<!ENTITY config.popup.type.0 "Legutóbb használt keresőszolgáltatások">
+<!ENTITY config.popup.type.1 "Összes keresőszolgáltatás (normális sorrend)">
+<!ENTITY config.popup.type.2 "Összes keresőszolgáltatás (fordított sorrend)">
 
-<!ENTITY secondsearch.popup.position.0 "Keresősáv felett (Felfelé billentyű)">
-<!ENTITY secondsearch.popup.position.1 "Keresősáv alatt (Lefelé billentyű)">
-<!ENTITY secondsearch.popup.position.note "* Automatikus befejezés letiltva, ha az előbukkanó ablak a keresősáv alatt jelenik meg.">
+<!ENTITY config.caption.position "Az előbukkanó ablak pozíciója">
 
-<!ENTITY secondsearch.override.locationBar  "Keresés engedélyezése a címmezőből, ha a keresőmező nincs az eszköztáron">
+<!ENTITY config.popup.position.0 "Keresősáv felett (Felfelé billentyű)">
+<!ENTITY config.popup.position.1 "Keresősáv alatt (Lefelé billentyű)">
+<!ENTITY config.popup.position.note "* Automatikus befejezés letiltva, ha az előbukkanó ablak a keresősáv alatt jelenik meg.">
 
-<!ENTITY secondsearch.recentengines.num.before "Legutóbb használt">
-<!ENTITY secondsearch.recentengines.num.after  "keresőszolgáltatás megjelenítése">
+<!ENTITY config.override.locationBar  "Keresés engedélyezése a címmezőből, ha a keresőmező nincs az eszköztáron">
 
-<!ENTITY secondsearch.openintab         "Keresés eredményének megjelenítése új lapon">
-<!ENTITY secondsearch.loadInBackground  "Ha a keresés eredménye új lapon jelenik meg, azonnal váltson át arra a lapra">
+<!ENTITY config.recentengines.num.before "Legutóbb használt">
+<!ENTITY config.recentengines.num.after  "keresőszolgáltatás megjelenítése">
 
-
-<!ENTITY secondsearch.caption.behavior  "Viselkedés">
-
-<!ENTITY secondsearch.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
-<!ENTITY secondsearch.switch.blank_input  "Alapértelmezett szolgáltatás visszaállítása, ha a keresősáv üres">
-<!ENTITY secondsearch.clear_after_search  "A keresősáv tartalmának törlése a keresés után">
-<!ENTITY secondsearch.clear_after_search.delay.before  "">
-<!ENTITY secondsearch.clear_after_search.delay.after   "ezredmásodperccel">
-<!ENTITY secondsearch.handle_dragdrop_only_on_button "Keresősáv 'Fogd és vidd' opciójának engedélyezése">
-<!ENTITY secondsearch.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'Fogd és vidd' segítségével.">
-
-<!ENTITY secondsearch.popup.auto_show     "Az előbukkanó ablak automatikus megjelenítése, ha a keresősáv tartalma kulcsszó">
-<!ENTITY secondsearch.popup.auto_show.dragdrop "Keresősáv 'Fogd és vidd' opciója">
-
-<!ENTITY secondsearch.caption.auto_show.dragdrop "Keresősáv 'Fogd és vidd' opciója">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.-1 "nincs művelet">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "Keresés a Firefox alapértelmezett keresőszolgáltatásával">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' közben">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' után">
+<!ENTITY config.openintab         "Keresés eredményének megjelenítése új lapon">
+<!ENTITY config.loadInBackground  "Ha a keresés eredménye új lapon jelenik meg, azonnal váltson át arra a lapra">
 
 
-<!ENTITY secondsearch.tab.caption           "Keresés eredményének megjelenítése:">
-<!ENTITY secondsearch.tab.current           "Jelenlegi lapon">
-<!ENTITY secondsearch.tab.newtab            "Új lapon (váltás az új lapra)">
-<!ENTITY secondsearch.tab.newtab_background "Új lapon (háttérben)">
-<!ENTITY secondsearch.reuse_blank_tab  "Ne nyisson új lapot, ha a jelenlegi lap üres">
+<!ENTITY config.caption.behavior  "Viselkedés">
+
+<!ENTITY config.keyword.show        "Intelligens kulcsszavak hozzáadása a keresőszolgáltatások listájához">
+<!ENTITY config.switch.blank_input  "Alapértelmezett szolgáltatás visszaállítása, ha a keresősáv üres">
+<!ENTITY config.clear_after_search  "A keresősáv tartalmának törlése a keresés után">
+<!ENTITY config.clear_after_search.delay.before  "">
+<!ENTITY config.clear_after_search.delay.after   "ezredmásodperccel">
+<!ENTITY config.handle_dragdrop_only_on_button "Keresősáv 'Fogd és vidd' opciójának engedélyezése">
+<!ENTITY config.handle_dragdrop_only_on_button.description "*Közvetlen keresés a 'Fogd és vidd' segítségével.">
+
+<!ENTITY config.popup.auto_show     "Az előbukkanó ablak automatikus megjelenítése, ha a keresősáv tartalma kulcsszó">
+
+<!ENTITY config.caption.auto_show.dragdrop "Keresősáv 'Fogd és vidd' opciója">
+<!ENTITY config.popup.auto_show.dragdrop.mode.-1 "nincs művelet">
+<!ENTITY config.popup.auto_show.dragdrop.mode.0 "Keresés a Firefox alapértelmezett keresőszolgáltatásával">
+<!ENTITY config.popup.auto_show.dragdrop.mode.1 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' közben">
+<!ENTITY config.popup.auto_show.dragdrop.mode.2 "Keresőszolgáltatás választása az előbukkanó ablakból a 'Fogd és vidd' után">
+
+
+<!ENTITY config.tab.caption           "Keresés eredményének megjelenítése:">
+<!ENTITY config.tab.current           "Jelenlegi lapon">
+<!ENTITY config.tab.newtab            "Új lapon (váltás az új lapra)">
+<!ENTITY config.tab.newtab_background "Új lapon (háttérben)">
+<!ENTITY config.reuse_blank_tab  "Ne nyisson új lapot, ha a jelenlegi lap üres">
 
 
 
-<!ENTITY secondsearch.caption.type.dragdrop "Előbukkanó ablak típusa a 'Fogd és vidd' műveletnél">
-<!ENTITY secondsearch.popup.type.dragdrop.-1 "Normális">
-<!ENTITY secondsearch.popup.type.dragdrop.0  "Legutóbb használt">
-<!ENTITY secondsearch.popup.type.dragdrop.1  "Mindegyik">
-<!ENTITY secondsearch.popup.type.dragdrop.2  "Mindegyik (fordított sorrend)">
+<!ENTITY config.caption.type.dragdrop "Előbukkanó ablak típusa a 'Fogd és vidd' műveletnél">
+<!ENTITY config.popup.type.dragdrop.-1 "Normális">
+<!ENTITY config.popup.type.dragdrop.0  "Legutóbb használt">
+<!ENTITY config.popup.type.dragdrop.1  "Mindegyik">
+<!ENTITY config.popup.type.dragdrop.2  "Mindegyik (fordított sorrend)">
 
-<!ENTITY secondsearch.caption.type.context "Helyi menü típusa a keresőszolgáltatás gombon">
-<!ENTITY secondsearch.popup.type.context.-1 "Normális">
-<!ENTITY secondsearch.popup.type.context.0  "Legutóbb használt">
-<!ENTITY secondsearch.popup.type.context.1  "Mindegyik">
-<!ENTITY secondsearch.popup.type.context.2  "Mindegyik (fordított sorrend)">
+<!ENTITY config.caption.type.context "Helyi menü típusa a keresőszolgáltatás gombon">
+<!ENTITY config.popup.type.context.-1 "Normális">
+<!ENTITY config.popup.type.context.0  "Legutóbb használt">
+<!ENTITY config.popup.type.context.1  "Mindegyik">
+<!ENTITY config.popup.type.context.2  "Mindegyik (fordított sorrend)">
 
 
-<!ENTITY secondsearch.initialize.keywords  "Intelligens kulcsszavak listájának kialakítása újra">
+<!ENTITY config.initialize.keywords  "Intelligens kulcsszavak listájának kialakítása újra">

@@ -4,72 +4,72 @@
 
 
 
-<!ENTITY secondsearch.config.title     "Second Searchの設定">
-<!ENTITY secondsearch.config.disabled  "Second Searchの設定ダイアログはFirefox 1.0に対応していません。設定を変更するには about:config において &quot;secondsearch.&quot; をキーとして検索してください。">
+<!ENTITY config.title     "Second Searchの設定">
+<!ENTITY config.disabled  "Second Searchの設定ダイアログはFirefox 1.0に対応していません。設定を変更するには about:config において &quot;secondsearch.&quot; をキーとして検索してください。">
 
-<!ENTITY secondsearch.tab.general   "全般">
-<!ENTITY secondsearch.tab.auto_show "自動ポップアップ">
-<!ENTITY secondsearch.tab.tab       "タブ">
-<!ENTITY secondsearch.tab.advanced  "詳細">
+<!ENTITY config.tab.general   "全般">
+<!ENTITY config.tab.auto_show "自動ポップアップ">
+<!ENTITY config.tab.tab       "タブ">
+<!ENTITY config.tab.advanced  "詳細">
 
-<!ENTITY secondsearch.caption.type "ポップアップの内容">
+<!ENTITY config.caption.type "ポップアップの内容">
 
-<!ENTITY secondsearch.popup.type.0 "最近使った検索エンジンを表示">
-<!ENTITY secondsearch.popup.type.1 "すべての検索エンジンを表示">
-<!ENTITY secondsearch.popup.type.2 "すべての検索エンジンを表示（逆順）">
+<!ENTITY config.popup.type.0 "最近使った検索エンジンを表示">
+<!ENTITY config.popup.type.1 "すべての検索エンジンを表示">
+<!ENTITY config.popup.type.2 "すべての検索エンジンを表示（逆順）">
 
-<!ENTITY secondsearch.caption.position "ポップアップの表示位置">
+<!ENTITY config.caption.position "ポップアップの表示位置">
 
-<!ENTITY secondsearch.popup.position.0 "検索バーの上（↑キーで表示）">
-<!ENTITY secondsearch.popup.position.1 "検索バーの下（↓キーで表示）">
-<!ENTITY secondsearch.popup.position.note "※ポップアップを検索バーの下に表示する場合、自動補完は無効になります。">
+<!ENTITY config.popup.position.0 "検索バーの上（↑キーで表示）">
+<!ENTITY config.popup.position.1 "検索バーの下（↓キーで表示）">
+<!ENTITY config.popup.position.note "※ポップアップを検索バーの下に表示する場合、自動補完は無効になります。">
 
-<!ENTITY secondsearch.override.locationBar  "ツールバー上にWeb検索バーが無い時はロケーションバーからWeb検索できるようにする">
+<!ENTITY config.override.locationBar  "ツールバー上にWeb検索バーが無い時はロケーションバーからWeb検索できるようにする">
 
-<!ENTITY secondsearch.recentengines.num.before "最近使った検索エンジンを">
-<!ENTITY secondsearch.recentengines.num.after  "件まで記憶する">
-
-
-
-<!ENTITY secondsearch.caption.behavior  "挙動">
-
-<!ENTITY secondsearch.keyword.show        "スマートキーワードをエンジン一覧に加える">
-<!ENTITY secondsearch.switch.blank_input  "検索語句が空のときは標準の検索エンジンを切り替える">
-<!ENTITY secondsearch.clear_after_search  "検索した後に検索バーの内容を空にする">
-<!ENTITY secondsearch.clear_after_search.delay.before  "">
-<!ENTITY secondsearch.clear_after_search.delay.after   "ミリ秒後に消す">
-<!ENTITY secondsearch.handle_dragdrop_only_on_button  "入力欄内での文字のドラッグ＆ドロップを許可する">
-<!ENTITY secondsearch.handle_dragdrop_only_on_button.description "※ドラッグ＆ドロップで検索を直接実行するには、ボタン部分にドロップしてください">
-
-<!ENTITY secondsearch.popup.auto_show     "文字を入力した時に自動的にポップアップを表示する">
-
-<!ENTITY secondsearch.caption.auto_show.dragdrop "文字列をドラッグ＆ドロップした時の動作">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.-1 "何もしない">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.0 "現在のエンジンで検索（Firefox標準）">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.1 "ドラッグ中に、検索するエンジンをポップアップから選択">
-<!ENTITY secondsearch.popup.auto_show.dragdrop.mode.2 "ドロップ後に、検索するエンジンをポップアップから選択">
+<!ENTITY config.recentengines.num.before "最近使った検索エンジンを">
+<!ENTITY config.recentengines.num.after  "件まで記憶する">
 
 
 
-<!ENTITY secondsearch.tab.caption           "検索結果の表示先">
-<!ENTITY secondsearch.tab.current           "現在のタブに読み込む">
-<!ENTITY secondsearch.tab.newtab            "新しいタブに読み込み、すぐにそのタブに切り替える">
-<!ENTITY secondsearch.tab.newtab_background "新しいタブに読み込む">
-<!ENTITY secondsearch.reuse_blank_tab  "現在のタブが空の時は新しいタブを開かない">
+<!ENTITY config.caption.behavior  "挙動">
+
+<!ENTITY config.keyword.show        "スマートキーワードをエンジン一覧に加える">
+<!ENTITY config.switch.blank_input  "検索語句が空のときは標準の検索エンジンを切り替える">
+<!ENTITY config.clear_after_search  "検索した後に検索バーの内容を空にする">
+<!ENTITY config.clear_after_search.delay.before  "">
+<!ENTITY config.clear_after_search.delay.after   "ミリ秒後に消す">
+<!ENTITY config.handle_dragdrop_only_on_button  "入力欄内での文字のドラッグ＆ドロップを許可する">
+<!ENTITY config.handle_dragdrop_only_on_button.description "※ドラッグ＆ドロップで検索を直接実行するには、ボタン部分にドロップしてください">
+
+<!ENTITY config.popup.auto_show     "文字を入力した時に自動的にポップアップを表示する">
+
+<!ENTITY config.caption.auto_show.dragdrop "文字列をドラッグ＆ドロップした時の動作">
+<!ENTITY config.popup.auto_show.dragdrop.mode.-1 "何もしない">
+<!ENTITY config.popup.auto_show.dragdrop.mode.0 "現在のエンジンで検索（Firefox標準）">
+<!ENTITY config.popup.auto_show.dragdrop.mode.1 "ドラッグ中に、検索するエンジンをポップアップから選択">
+<!ENTITY config.popup.auto_show.dragdrop.mode.2 "ドロップ後に、検索するエンジンをポップアップから選択">
 
 
 
-<!ENTITY secondsearch.caption.type.dragdrop "ドラッグ＆ドロップ時のポップアップの内容">
-<!ENTITY secondsearch.popup.type.dragdrop.-1 "通常と同じ">
-<!ENTITY secondsearch.popup.type.dragdrop.0  "最近使った検索エンジン">
-<!ENTITY secondsearch.popup.type.dragdrop.1  "すべて">
-<!ENTITY secondsearch.popup.type.dragdrop.2  "すべて（逆順）">
-
-<!ENTITY secondsearch.caption.type.context "エンジン切り替えボタン上でのコンテキストメニューの内容">
-<!ENTITY secondsearch.popup.type.context.-1 "通常と同じ">
-<!ENTITY secondsearch.popup.type.context.0  "最近使った検索エンジン">
-<!ENTITY secondsearch.popup.type.context.1  "すべて">
-<!ENTITY secondsearch.popup.type.context.2  "すべて（逆順）">
+<!ENTITY config.tab.caption           "検索結果の表示先">
+<!ENTITY config.tab.current           "現在のタブに読み込む">
+<!ENTITY config.tab.newtab            "新しいタブに読み込み、すぐにそのタブに切り替える">
+<!ENTITY config.tab.newtab_background "新しいタブに読み込む">
+<!ENTITY config.reuse_blank_tab  "現在のタブが空の時は新しいタブを開かない">
 
 
-<!ENTITY secondsearch.initialize.keywords  "スマートキーワードの一覧を取得しなおす">
+
+<!ENTITY config.caption.type.dragdrop "ドラッグ＆ドロップ時のポップアップの内容">
+<!ENTITY config.popup.type.dragdrop.-1 "通常と同じ">
+<!ENTITY config.popup.type.dragdrop.0  "最近使った検索エンジン">
+<!ENTITY config.popup.type.dragdrop.1  "すべて">
+<!ENTITY config.popup.type.dragdrop.2  "すべて（逆順）">
+
+<!ENTITY config.caption.type.context "エンジン切り替えボタン上でのコンテキストメニューの内容">
+<!ENTITY config.popup.type.context.-1 "通常と同じ">
+<!ENTITY config.popup.type.context.0  "最近使った検索エンジン">
+<!ENTITY config.popup.type.context.1  "すべて">
+<!ENTITY config.popup.type.context.2  "すべて（逆順）">
+
+
+<!ENTITY config.initialize.keywords  "スマートキーワードの一覧を取得しなおす">
