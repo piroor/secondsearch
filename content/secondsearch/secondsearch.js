@@ -15,10 +15,6 @@ SecondSearchBase.prototype = {
 	DRAGDROP_MODE_DEFAULT  : 0,
 	DRAGDROP_MODE_DRAGOVER : 1,
 	DRAGDROP_MODE_DROP     : 2,
-
-	INPUT_MODE_ANY          : 0,
-	INPUT_MODE_UPDOWN       : 1,
-	INPUT_MODE_SHIFT_UPDOWN : 2,
  
 	get isBrowser() 
 	{
