@@ -914,7 +914,7 @@ SecondSearchBrowser.prototype = {
 		}
 
 		if (aOverride) {
-			var engine = ss.getRecentEngines()[0];
+			var engine = ss.selectedEngine || ss.getRecentEngines()[0];
 			engine = ss.getSearchEngineFromName(engine.name);
 			if (!engine) return;
 
