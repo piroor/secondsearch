@@ -15,6 +15,9 @@ SecondSearchBase.prototype = {
 	DRAGDROP_MODE_DEFAULT  : 0,
 	DRAGDROP_MODE_DRAGOVER : 1,
 	DRAGDROP_MODE_DROP     : 2,
+
+	ARROWKEYS_NORMAL  : 1,
+	ARROWKEYS_SHIFTED : 2,
  
 	get isBrowser() 
 	{
@@ -82,6 +85,11 @@ SecondSearchBase.prototype = {
 	get autoShowInput() 
 	{
 		return this.getPref('secondsearch.popup.auto_show');
+	},
+ 
+	get manualShowArrowKeys() 
+	{
+		return this.getPref('secondsearch.popup.manual_show.arrowKeys');
 	},
  
 	get autoShowDragdropMode() 
@@ -389,6 +397,7 @@ try{
 		{
 			case nsIDOMKeyEvent.DOM_VK_DELETE:
 			case nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
+			case nsIDOMKeyEvent.DOM_VK_ESCAPE:
 				if (popup.shown) {
 					if (!this.searchterm) {
 						this.hideSecondSearch();
@@ -410,6 +419,12 @@ try{
 				isUpKey = true;
 			case nsIDOMKeyEvent.DOM_VK_DOWN:
 				if (!popup.shown) {
+					if (aEvent.shiftKey ?
+							!(this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED) :
+							!(this.manualShowArrowKeys & this.ARROWKEYS_NORMAL)
+						) {
+						return true;
+					}
 					if (
 						!aEvent.shiftKey &&
 						(isUpKey ?
@@ -442,9 +457,10 @@ try{
 					current = this.getNextOrPrevItem(current, (isUpKey ? -1 : 1 ), current.parentNode != popup);
 				}
 				else {
+					var shifted = aEvent.shiftKey && (this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED);
 					current = isUpKey ?
 						 this.getLastItem(popup) :
-						 ((this.popupPosition == 1) ? this.getFirstItem(popup) : null );
+						 ((shifted || this.popupPosition == 1) ? this.getFirstItem(popup) : null );
 				}
 				if (current) {
 					current.setAttribute('_moz-menuactive', true);

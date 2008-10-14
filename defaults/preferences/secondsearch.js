@@ -1,4 +1,6 @@
-pref("secondsearch.popup.auto_show",       true);
+pref("secondsearch.popup.auto_show", true);
+// 1 = up/down, 2 = Shift-up/down
+pref("secondsearch.popup.manual_show.arrowKeys", 3);
 pref("secondsearch.popup.auto_show.delay", 200);
 // 0 = nothing, 1 = on dragover, 2 = on drop (old)
 pref("secondsearch.popup.auto_show.dragdrop.mode", 1);

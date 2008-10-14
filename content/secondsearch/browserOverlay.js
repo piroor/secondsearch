@@ -552,13 +552,6 @@ SecondSearchBrowser.prototype = {
 				window.__secondsearch__SearchLoadURLUpdated = true;
 			}
 
-			// GSuggest
-			if ('GSuggest' in window && !GSuggest.__secondsearch__operateSuggesList) {
-				GSuggest.__secondsearch__operateSuggesList = GSuggest.operateSuggesList;
-				GSuggest.operateSuggesList = this.operateSuggesList;
-				GSuggest.secondSearch = this;
-			}
-
 			// Tab Mix Plus, only Firefox 2?
 			if ('handleSearchCommand' in search &&
 				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
@@ -635,31 +628,6 @@ SecondSearchBrowser.prototype = {
 		}, 10, this);
 	},
  
-	operateSuggesList : function(aEvent) 
-	{
-		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
-		if (
-			this.secondSearch.getCurrentItem() ||
-			(
-				!this.getCurrentItem() &&
-				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP &&
-				!aEvent.ctrlKey &&
-				!aEvent.shiftKey &&
-				!aEvent.altKey &&
-				!aEvent.metaKey
-			)
-			) {
-			return false;
-		}
-		else {
-			if (aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_ENTER ||
-				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RETURN)
-				this.secondSearch.hideSecondSearch();
-
-			return this.__secondsearch__operateSuggesList(aEvent);
-		}
-	},
- 
 	onTextEntered : function(aEvent) 
 	{
 		var ss = window.getSecondSearch();
@@ -675,37 +643,48 @@ SecondSearchBrowser.prototype = {
  
 	onTextboxKeyPress : function(aEvent) 
 	{
-		var ss = window.getSecondSearch();
 		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+
+		var ss = window.getSecondSearch();
+
+		var normalOpenKeys = (
+				(ss.manualShowArrowKeys & ss.ARROWKEYS_NORMAL) &&
+				(
+					(ss.popupPosition == 0) ?
+						(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP) :
+						(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN)
+				)
+			);
+		var shiftedOpenKeys = (
+				(ss.manualShowArrowKeys & ss.ARROWKEYS_SHIFTED) &&
+				aEvent.shiftKey &&
+				(
+					aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
+					aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN
+				)
+			);
+		var current = ss.getCurrentItem(ss.popup, true);
+
 		if (
 			(
+				(ss.autoShowInput ? ss.popup.shown : true ) &&
 				(
-					!ss.autoShowInput ||
-					ss.popup.shown
-				) &&
-				this.popup.selectedIndex < 0 &&
-				(
-					(
-						aEvent.shiftKey &&
-						(
-							aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
-							aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN
-						)
-					) ||
-					(
-						(ss.popupPosition == 0) ?
-							(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP) :
-							(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN)
-					)
+					(this.popup.selectedIndex < 0 && normalOpenKeys) ||
+					shiftedOpenKeys
 				)
 			) ||
 			(
-				ss.getCurrentItem() &&
+				current &&
 				(
 				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN ||
 				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
-				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RIGHT ||
-				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_LEFT
+				(
+					current.parentNode.parentNode.localName == 'menu' &&
+					(
+						aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RIGHT ||
+						aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_LEFT
+					)
+				)
 				)
 			)
 			)
@@ -763,15 +742,26 @@ SecondSearchBrowser.prototype = {
  
 	onOperationPre : function(aEvent) 
 	{
+		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		var textbox = this.textbox;
-		if (aEvent.shiftKey) {
+		if (
+			(this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED) &&
+			aEvent.shiftKey &&
+			(
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
+				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN
+			)
+			) {
 			try {
 				textbox.controller.stopSearch();
 				textbox.closePopup();
 				textbox.value = textbox.controller.searchString;
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
 			}
 			catch(e) {
 			}
+			return true;
 		}
 		if (
 			(
