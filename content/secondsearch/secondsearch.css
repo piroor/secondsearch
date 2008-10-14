@@ -3,10 +3,10 @@
 }
 
 .secondsearch-popup.dummy,
-.secondsearch-popup.dummy * {
+.secondsearch-popup.dummy *:not([hidden="true"]):not([collapsed="true"]) {
 	background: transparent !important;
 	border-color: transparent !important;
-	color: transparent !important;
+	color: red !important;
 	opacity: 0 !important;
 	visibility: hidden !important;
 }
