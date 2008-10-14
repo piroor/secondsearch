@@ -1,6 +1,9 @@
+.secondsearch-popup.dummy {
+	-moz-appearance: none !important;
+}
+
 .secondsearch-popup.dummy,
 .secondsearch-popup.dummy * {
-/*	-moz-appearance: none !important; */
 	background: transparent !important;
 	border-color: transparent !important;
 	color: transparent !important;
