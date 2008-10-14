@@ -648,7 +648,10 @@ SecondSearchBrowser.prototype = {
 		var ss = window.getSecondSearch();
 
 		var normalOpenKeys = (
-				(ss.manualShowArrowKeys & ss.ARROWKEYS_NORMAL) &&
+				(
+					(ss.autoShowInput && ss.popup.shown) ||
+					(ss.manualShowArrowKeys & ss.ARROWKEYS_NORMAL)
+				) &&
 				(
 					(ss.popupPosition == 0) ?
 						(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP) :
@@ -667,11 +670,8 @@ SecondSearchBrowser.prototype = {
 
 		if (
 			(
-				(ss.autoShowInput ? ss.popup.shown : true ) &&
-				(
-					(this.popup.selectedIndex < 0 && normalOpenKeys) ||
-					shiftedOpenKeys
-				)
+				(this.popup.selectedIndex < 0 && normalOpenKeys) ||
+				shiftedOpenKeys
 			) ||
 			(
 				current &&

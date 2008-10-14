@@ -397,7 +397,6 @@ try{
 		{
 			case nsIDOMKeyEvent.DOM_VK_DELETE:
 			case nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
-			case nsIDOMKeyEvent.DOM_VK_ESCAPE:
 				if (popup.shown) {
 					if (!this.searchterm) {
 						this.hideSecondSearch();
@@ -413,6 +412,16 @@ try{
 					popups[i].hidePopup();
 				}
 				return true;
+
+			case nsIDOMKeyEvent.DOM_VK_ESCAPE:
+				this.hideSecondSearch();
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
+				if (this.autoShowTimer) {
+					window.clearTimeout(this.autoShowTimer);
+					this.autoShowTimer = null;
+				}
+				return false;
 
 
 			case nsIDOMKeyEvent.DOM_VK_UP:
