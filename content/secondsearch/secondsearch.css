@@ -2,8 +2,8 @@
 .secondsearch-popup.dummy * {
 /*	-moz-appearance: none !important; */
 	background: transparent !important;
-	color: transparent !important;
 	border-color: transparent !important;
+	color: transparent !important;
 	opacity: 0 !important;
 	visibility: hidden !important;
 }
