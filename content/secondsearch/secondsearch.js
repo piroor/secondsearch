@@ -227,8 +227,6 @@ SecondSearchBase.prototype = {
 				popup.removeAttribute('left');
 				popup.removeAttribute('top');
 
-				popup.openPopup(anchorNode, position, 0, 0, true, true);
-
 				popup.addEventListener('popupshown', function() {
 					popup.removeEventListener('popupshown', arguments.callee, false);
 
@@ -244,7 +242,6 @@ SecondSearchBase.prototype = {
 					self.correctingPopupPosition = true;
 
 					popup.hidePopup();
-					popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
 
 					popup.addEventListener('popupshown', function() {
 						popup.removeEventListener('popupshown', arguments.callee, false);
@@ -262,7 +259,10 @@ SecondSearchBase.prototype = {
 
 					}, false);
 
+					popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
 				}, false);
+
+				popup.openPopup(anchorNode, position, 0, 0, true, true);
 			}
 		}
 		else {
