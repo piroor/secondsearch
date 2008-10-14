@@ -776,7 +776,7 @@ catch(e) {
 		}
 
 		if (this.searchterm &&
-			this.autoShowInputMode == this.INPUT_MODE_ANY) {
+			this.autoShowInput) {
 			var delay = this.delay;
 			if (delay) {
 				if (this.autoShowTimer) window.clearTimeout(this.autoShowTimer);

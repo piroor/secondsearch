@@ -765,9 +765,13 @@ SecondSearchBrowser.prototype = {
 	{
 		var textbox = this.textbox;
 		if (aEvent.shiftKey) {
-			textbox.controller.stopSearch();
-			textbox.closePopup();
-			textbox.value = textbox.controller.searchString;
+			try {
+				textbox.controller.stopSearch();
+				textbox.closePopup();
+				textbox.value = textbox.controller.searchString;
+			}
+			catch(e) {
+			}
 		}
 		if (
 			(
