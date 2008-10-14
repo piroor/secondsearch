@@ -767,10 +767,10 @@ catch(e) {
 				var bar = this.searchbar;
 				if (this.handleDragdropOnlyOnButton && aEvent.target == bar) {
 					var target = aEvent.originalTarget;
-					var textbox = this.textbox;
-					while (target != bar && target != textbox)
+					var input = this.textbox.inputField || this.textbox;
+					while (target != bar && target != input)
 						target = target.parentNode;
-					if (target == textbox) return;
+					if (target == input) return;
 				}
 				switch (aEvent.type)
 				{
