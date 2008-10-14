@@ -43,6 +43,11 @@
 
 <!ENTITY config.popup.auto_show     "文字を入力した時に自動的にポップアップを表示する">
 
+<!ENTITY config.caption.manual_show.arrowKeys "以下のキー操作でポップアップを開く">
+<!ENTITY config.popup.manual_show.arrowKeys.3 "↑/↓ または Shift-↑/↓">
+<!ENTITY config.popup.manual_show.arrowKeys.1 "↑/↓（Shift-↑/↓ は無視）">
+<!ENTITY config.popup.manual_show.arrowKeys.2 "Shift-↑/↓（↑/↓はオートコンプリートに使用）">
+
 <!ENTITY config.caption.auto_show.dragdrop "文字列をドラッグ＆ドロップした時の動作">
 <!ENTITY config.popup.auto_show.dragdrop.mode.-1 "何もしない">
 <!ENTITY config.popup.auto_show.dragdrop.mode.0 "現在のエンジンで検索（Firefox標準）">

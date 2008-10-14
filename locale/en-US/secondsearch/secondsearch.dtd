@@ -46,6 +46,11 @@
 
 <!ENTITY config.popup.auto_show     "Show popup automatically for Key-types in the search bar">
 
+<!ENTITY config.caption.manual_show.arrowKeys "Open popup manually by">
+<!ENTITY config.popup.manual_show.arrowKeys.3 "Up/Down or Shift-Up/Down">
+<!ENTITY config.popup.manual_show.arrowKeys.1 "Up/Down (ignore Shift-Up/Down)">
+<!ENTITY config.popup.manual_show.arrowKeys.2 "Shift-Up/Down (use Up/Down for autocomplete)">
+
 <!ENTITY config.caption.auto_show.dragdrop "Drag-and-drop into the search bar">
 <!ENTITY config.popup.auto_show.dragdrop.mode.-1 "Do nothing">
 <!ENTITY config.popup.auto_show.dragdrop.mode.0 "Search by the current engine (Firefox default)">

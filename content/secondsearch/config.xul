@@ -90,6 +90,9 @@
 		<preference id="secondsearch.popup.auto_show"
 			name="secondsearch.popup.auto_show"
 			type="bool"/>
+		<preference id="secondsearch.popup.manual_show.arrowKeys"
+			name="secondsearch.popup.manual_show.arrowKeys"
+			type="int"/>
 		<preference id="secondsearch.popup.auto_show.dragdrop.mode"
 			name="secondsearch.popup.auto_show.dragdrop.mode"
 			type="int"/>
@@ -98,6 +101,19 @@
 	<checkbox id="secondsearch.popup.auto_show-check"
 		label="&config.popup.auto_show;"
 		preference="secondsearch.popup.auto_show"/>
+	<groupbox>
+		<caption label="&config.caption.manual_show.arrowKeys;"/>
+		<radiogroup orient="vertical"
+			id="secondsearch.popup.manual_show.arrowKeys-radiogroup"
+			preference="secondsearch.popup.manual_show.arrowKeys">
+			<radio label="&config.popup.manual_show.arrowKeys.3;"
+				value="3"/>
+			<radio label="&config.popup.manual_show.arrowKeys.1;"
+				value="1"/>
+			<radio label="&config.popup.manual_show.arrowKeys.2;"
+				value="2"/>
+		</radiogroup>
+	</groupbox>
 	<groupbox>
 		<caption label="&config.caption.auto_show.dragdrop;"/>
 		<radiogroup orient="vertical"
