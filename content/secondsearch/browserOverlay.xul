@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<?xml-stylesheet type="text/css" href="chrome://secondsearch/content/secondsearch.css"?>
 <!DOCTYPE overlay SYSTEM "chrome://secondsearch/locale/secondsearch.dtd">
 <overlay id="secondsearch-overlay"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -19,6 +20,9 @@
 			<menupopup ignorekeys="true"/>
 		</menu>
 	</menupopup>
+	<menupopup id="secondsearch_popup_dummy"
+			class="secondsearch-popup dummy"
+			ignorekeys="true"/>
 	<box collapsed="true" id="secondsearch_cached_icons"/>
 </popupset>
 

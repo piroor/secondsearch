@@ -142,6 +142,11 @@ SecondSearchBase.prototype = {
 		return document.getElementById('secondsearch_popup');
 	},
  
+	get popupDummy() 
+	{
+		return document.getElementById('secondsearch_popup_dummy');
+	},
+ 
 	evaluateXPath : function(aExpression, aContextNode, aType) 
 	{
 		aExpression  = aExpression || '';
@@ -224,44 +229,60 @@ SecondSearchBase.prototype = {
 				popup[this.kLAST_ANCHOR_X] = anchorBox.screenX;
 				popup[this.kLAST_ANCHOR_Y] = anchorBox.screenY;
 
+				var dummy = self.popupDummy;
+
 				popup.removeAttribute('left');
 				popup.removeAttribute('top');
+				popup.addEventListener('popupshowing', function(aEvent) {
+					popup.removeEventListener('popupshowing', arguments.callee, false);
+					aEvent.stopPropagation();
+					aEvent.preventDefault();
 
-				popup.addEventListener('popupshown', function() {
-					popup.removeEventListener('popupshown', arguments.callee, false);
-
-					var popupBox = popup.boxObject;
-					popup[self.kLAST_X] = popupBox.screenX;
-					popup[self.kLAST_Y] = popupBox.screenY;
-					if (
-						(pos == 0 && anchorBox.screenY + delta >= popupBox.screenY + popupBox.height) ||
-						(pos == 1 && anchorBox.screenY + anchorBox.height - delta <= popupBox.screenY)
-						)
-						return;
+					var range = document.createRange();
+					range.selectNodeContents(popup);
+					dummy.appendChild(range.cloneContents());
+					range.detach();
 
 					self.correctingPopupPosition = true;
 
-					popup.hidePopup();
+					dummy.removeAttribute('left');
+					dummy.removeAttribute('top');
+					dummy.addEventListener('popupshown', function() {
+						dummy.removeEventListener('popupshown', arguments.callee, false);
 
-					popup.addEventListener('popupshown', function() {
-						popup.removeEventListener('popupshown', arguments.callee, false);
-
-						popupBox = popup.boxObject;
+						var popupBox = dummy.boxObject;
 						popup[self.kLAST_X] = popupBox.screenX;
 						popup[self.kLAST_Y] = popupBox.screenY;
-						if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
-							popup.hidePopup();
-							popup[self.kLAST_X] = anchorBox.screenX + anchorBox.width;
-							popup[self.kLAST_Y] = anchorBox.screenY;
+						if (
+							(pos == 0 && anchorBox.screenY + delta >= popupBox.screenY + popupBox.height) ||
+							(pos == 1 && anchorBox.screenY + anchorBox.height - delta <= popupBox.screenY)
+							) {
+							self.destroyDummy();
 							popup.openPopupAtScreen(popup[self.kLAST_X], popup[self.kLAST_Y], true);
+							self.correctingPopupPosition = false;
+							return;
 						}
-						self.correctingPopupPosition = false;
 
+						dummy.hidePopup();
+						dummy.addEventListener('popupshown', function() {
+							dummy.removeEventListener('popupshown', arguments.callee, false);
+
+							popupBox = dummy.boxObject;
+							popup[self.kLAST_X] = popupBox.screenX;
+							popup[self.kLAST_Y] = popupBox.screenY;
+							if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
+								popup[self.kLAST_X] = anchorBox.screenX + anchorBox.width;
+								popup[self.kLAST_Y] = anchorBox.screenY;
+							}
+							self.destroyDummy();
+							popup.openPopupAtScreen(popup[self.kLAST_X], popup[self.kLAST_Y], true);
+							self.correctingPopupPosition = false;
+						}, false);
+						dummy.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
 					}, false);
+					dummy.openPopup(anchorNode, position, 0, 0, true, true);
 
-					popup.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
 				}, false);
-
 				popup.openPopup(anchorNode, position, 0, 0, true, true);
 			}
 		}
@@ -326,6 +347,15 @@ SecondSearchBase.prototype = {
 	},
 	canFitPopupToSearchField : true,
 	correctingPopupPosition : false,
+	destroyDummy : function()
+	{
+		var popup = this.popupDummy;
+		popup.hidePopup();
+		var range = document.createRange();
+		range.selectNodeContents(popup);
+		range.deleteContents();
+		range.detach();
+	},
 	
 	get popupHeight() 
 	{

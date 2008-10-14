@@ -9,6 +9,9 @@
 	<menupopup id="secondsearch_popup"
 			ignorekeys="true"
 			oncommand="SecondSearch.doSearchBy(event.target, event);"/>
+	<menupopup id="secondsearch_popup_dummy"
+			class="secondsearch-popup dummy"
+			ignorekeys="true"/>
 </toolbaritem>
 
 </overlay>
