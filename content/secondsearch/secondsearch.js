@@ -190,7 +190,6 @@ SecondSearchBase.prototype = {
 		this.initPopup();
 
 		var bar = this.searchbar;
-		var self = this;
 		if (aReason == this.SHOWN_BY_CONTEXT) {
 			document.popupNode = this.engineButton;
 			if ('openPopupAtScreen' in popup)
@@ -206,120 +205,261 @@ SecondSearchBase.prototype = {
 				);
 		}
 		else if (this.isGecko19) {
-			document.popupNode = bar;
-
-			var position = pos == 0 ? 'before_start' : 'after_start' ;
-			var delta = 8;
-
-			var anchorNode = self.canFitPopupToSearchField ? bar : this.engineButton ;
-			var anchorBox = anchorNode.boxObject;
-			var rootBox = document.documentElement.boxObject;
-			var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup, true);
-			if (
-				popup[this.kLAST_STATUS] == popupStatus &&
-				popup[this.kLAST_X] !== void(0) &&
-				popup[this.kLAST_Y] !== void(0) &&
-				popup[this.kLAST_ANCHOR_X] == anchorBox.screenX &&
-				popup[this.kLAST_ANCHOR_Y] == anchorBox.screenY
-				) {
-				popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], true);
-			}
-			else {
-				popup[this.kLAST_STATUS] = popupStatus;
-				popup[this.kLAST_ANCHOR_X] = anchorBox.screenX;
-				popup[this.kLAST_ANCHOR_Y] = anchorBox.screenY;
-
-				var dummy = self.popupDummy;
-
-				popup.removeAttribute('left');
-				popup.removeAttribute('top');
-				popup.addEventListener('popupshowing', function(aEvent) {
-					popup.removeEventListener('popupshowing', arguments.callee, false);
-					aEvent.stopPropagation();
-					aEvent.preventDefault();
-
-					var range = document.createRange();
-					range.selectNodeContents(popup);
-					dummy.appendChild(range.cloneContents());
-					range.detach();
-
-					self.correctingPopupPosition = true;
-
-					dummy.removeAttribute('left');
-					dummy.removeAttribute('top');
-					dummy.addEventListener('popupshown', function() {
-						dummy.removeEventListener('popupshown', arguments.callee, false);
-
-						var popupBox = dummy.boxObject;
-						popup[self.kLAST_X] = popupBox.screenX;
-						popup[self.kLAST_Y] = popupBox.screenY;
-						if (
-							(pos == 0 && anchorBox.screenY + delta >= popupBox.screenY + popupBox.height) ||
-							(pos == 1 && anchorBox.screenY + anchorBox.height - delta <= popupBox.screenY)
-							) {
-							self.destroyDummy();
-							popup.openPopupAtScreen(popup[self.kLAST_X], popup[self.kLAST_Y], true);
-							self.correctingPopupPosition = false;
-							return;
-						}
-
-						dummy.hidePopup();
-						dummy.addEventListener('popupshown', function() {
-							dummy.removeEventListener('popupshown', arguments.callee, false);
-
-							popupBox = dummy.boxObject;
-							popup[self.kLAST_X] = popupBox.screenX;
-							popup[self.kLAST_Y] = popupBox.screenY;
-							if (anchorBox.screenX + delta < popupBox.screenX + popupBox.width) {
-								popup[self.kLAST_X] = anchorBox.screenX + anchorBox.width;
-								popup[self.kLAST_Y] = anchorBox.screenY;
-							}
-							self.destroyDummy();
-							popup.openPopupAtScreen(popup[self.kLAST_X], popup[self.kLAST_Y], true);
-							self.correctingPopupPosition = false;
-						}, false);
-						dummy.openPopupAtScreen(anchorBox.screenX - popupBox.width, anchorBox.screenY, true);
-					}, false);
-					dummy.openPopup(anchorNode, position, 0, 0, true, true);
-
-				}, false);
-				popup.openPopup(anchorNode, position, 0, 0, true, true);
-			}
+			this.showSecondSearchInternal();
 		}
 		else {
-			var num = this.popupHeight;
-			var anchor, align;
-			var anchorNode = this.canFitPopupToSearchField ? bar : bar.parentNode ;
-			var anchorBox = anchorNode.boxObject;
-			var rootBox = document.documentElement.boxObject;
-			var popupBox = popup.boxObject;
-			if (pos == 0 &&
-				anchorBox.screenY >= rootBox.screenY + (anchorBox.height * (num+1) * 0.8)) { // above
-				anchor = 'topleft';
-				align  = 'bottomleft';
-			}
-			else if (pos == 1 &&
-				anchorBox.screenY + anchorBox.height + this.textbox.popup.boxObject.height <= rootBox.screenY + rootBox.height - (anchorBox.height * (num+1) * 0.8)) { // below
-				anchor = 'bottomleft';
-				align  = 'topleft';
-			}
-			else if (anchorBox.screenX < rootBox.screenY + anchorBox.width) { // right
-				anchor = 'bottomright';
-				align  = 'bottomleft';
-			}
-			else { // left
-				anchor = 'bottomleft';
-				align  = 'bottomright';
-			}
-
-			document.popupNode = bar;
-			popup.showPopup(anchorNode, -1, -1, 'menupopup', anchor, align);
+			this.showSecondSearchInternalObsolete();
 		}
 
 		var current = this.getCurrentItem(popup);
 		if (current) current.removeAttribute('_moz-menuactive');
 	},
-	kLAST_X        : '__secondsearch__framework__lastX',
+	canFitPopupToSearchField : true,
+	correctingPopupPosition : false,
+	correctingPopupPositionTimer : null,
+	 
+	showSecondSearchInternal : function() 
+	{
+		if (this.repositionController) {
+			this.repositionController.cancel();
+		}
+
+		var popup = this.popup;
+		var pos = this.popupPosition;
+		var bar = this.searchbar;
+		var self = this;
+
+		document.popupNode = bar;
+
+		var anchorNode = this.canFitPopupToSearchField ? bar : this.engineButton ;
+		var anchorBox = anchorNode.boxObject;
+		var rootBox = document.documentElement.boxObject;
+		var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup, true);
+		if (
+			popup[this.kLAST_STATUS] == popupStatus &&
+			popup[this.kLAST_X] !== void(0) &&
+			popup[this.kLAST_Y] !== void(0) &&
+			popup[this.kLAST_ANCHOR_X] == anchorBox.screenX &&
+			popup[this.kLAST_ANCHOR_Y] == anchorBox.screenY
+			) {
+			popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], true);
+			return;
+		}
+
+		popup[this.kLAST_STATUS] = popupStatus;
+		popup[this.kLAST_ANCHOR_X] = anchorBox.screenX;
+		popup[this.kLAST_ANCHOR_Y] = anchorBox.screenY;
+
+		this.repositionController = this.createRepositionController();
+		this.repositionController.next();
+	},
+	repositionController : null,
+	 
+	createRepositionController : function() 
+	{
+		var pos = this.popupPosition;
+		var position = pos == 0 ? 'before_start' : 'after_start';
+		var anchorNode = this.canFitPopupToSearchField ? this.searchbar : this.engineButton ;
+		var popup = this.popup;
+		var dummy = this.popupDummy;
+
+		var delta = 8;
+		var anchorBox = anchorNode.boxObject;
+		var rootBox = document.documentElement.boxObject;
+
+		var controller = {
+			owner : this,
+
+			pos : pos,
+			position : position,
+			anchorNode : anchorNode,
+			popup : popup,
+			dummy : dummy,
+			delta : delta,
+			anchorBox : anchorBox,
+			rootBox : rootBox,
+
+			handleEvent : function(aEvent)
+			{
+				this.next(aEvent);
+			},
+			step : 0,
+			next : function(aEvent)
+			{
+				if (this.step < this.owner.repositionTasks.length) {
+					this.owner.repositionTasks[this.step++].processor.call(this, aEvent);
+				}
+				else {
+					this.owner.repositionController = null;
+				}
+			},
+			cancel : function()
+			{
+				if (this.step < this.owner.repositionTasks.length) {
+					this.owner.repositionTasks[this.step].canceller.call(this);
+				}
+				this.owner.destroyDummy();
+				this.owner.repositionController = null;
+				this.owner.correctingPopupPosition = false;
+				delete this.pos;
+				delete this.position;
+				delete this.anchorNode;
+				delete this.popup;
+				delete this.dummy;
+				delete this.delta;
+				delete this.anchorBox;
+				delete this.rootBox;
+			},
+			show : function()
+			{
+				this.owner.destroyDummy();
+				this.popup.openPopupAtScreen(
+					this.popup[this.owner.kLAST_X],
+					this.popup[this.owner.kLAST_Y],
+					true
+				);
+				this.correctingPopupPosition = false;
+			}
+		};
+		return controller;
+	},
+ 
+	repositionTasks : [ 
+		{ // step 0: create menu contents
+			processor : function()
+			{
+				this.popup.removeAttribute('left');
+				this.popup.removeAttribute('top');
+				this.popup.addEventListener('popupshowing', this, false);
+				this.popup.openPopup(this.anchorNode, this.position, 0, 0, true, true);
+			},
+			canceller : function()
+			{
+			}
+		},
+		{ // step 1: show hidden menu (it's a dummy)
+			processor : function(aEvent)
+			{
+				this.popup.removeEventListener('popupshowing', this, false);
+				aEvent.stopPropagation();
+				aEvent.preventDefault();
+
+				var range = document.createRange();
+				range.selectNodeContents(this.popup);
+				this.dummy.appendChild(range.cloneContents());
+				range.detach();
+
+				this.owner.correctingPopupPosition = true;
+
+				this.dummy.removeAttribute('left');
+				this.dummy.removeAttribute('top');
+				this.dummy.addEventListener('popupshown', this, false);
+				this.dummy.openPopup(this.anchorNode, this.position, 0, 0, true, true);
+			},
+			canceller : function()
+			{
+				this.popup.removeEventListener('popupshowing', this, false);
+				if (this.popup.popupBoxObject.popupState == 'showing') {
+					this.popup.hidePopup();
+				}
+				else {
+					this.popup.addEventListener('popupshowing', function(aEvent) {
+						aEvent.currentTarget.removeEventListener('popupshowing', arguments.callee, false);
+						aEvent.stopPropagation();
+						aEvent.preventDefault();
+					}, false);
+				}
+				this.popup.removeEventListener('popupshown', this, false);
+			}
+		},
+		{ // step 2: check position and try again if the popup will hide the text box.
+			processor : function()
+			{
+				this.dummy.removeEventListener('popupshown', this, false);
+
+				var popupBox = this.dummy.boxObject;
+				this.popup[this.owner.kLAST_X] = popupBox.screenX;
+				this.popup[this.owner.kLAST_Y] = popupBox.screenY;
+				if (
+					((this.pos == 0) &&
+					(this.anchorBox.screenY + this.delta >= popupBox.screenY + popupBox.height)) ||
+					((this.pos == 1) &&
+					(this.anchorBox.screenY + this.anchorBox.height - this.delta <= popupBox.screenY))
+					) {
+					this.show();
+					return;
+				}
+
+				this.dummy.hidePopup();
+				this.dummy.addEventListener('popupshown', this, false);
+				this.dummy.openPopupAtScreen(
+					this.anchorBox.screenX - popupBox.width,
+					this.anchorBox.screenY,
+					true
+				);
+			},
+			canceller : function()
+			{
+				this.dummy.removeEventListener('popupshown', this, false);
+			}
+		},
+		{ // step 3: finish
+			processor : function()
+			{
+				this.dummy.removeEventListener('popupshown', this, false);
+
+				var popupBox = this.dummy.boxObject;
+				this.popup[this.owner.kLAST_X] = popupBox.screenX;
+				this.popup[this.owner.kLAST_Y] = popupBox.screenY;
+				if (this.anchorBox.screenX + this.delta < popupBox.screenX + popupBox.width) {
+					this.popup[this.owner.kLAST_X] = this.anchorBox.screenX + this.anchorBox.width;
+					this.popup[this.owner.kLAST_Y] = this.anchorBox.screenY;
+				}
+				this.show();
+			},
+			canceller : function()
+			{
+				this.dummy.removeEventListener('popupshown', this, false);
+			}
+		}
+	],
+  
+	showSecondSearchInternalObsolete : function() 
+	{
+		var popup = this.popup;
+		var pos = this.popupPosition;
+		var bar = this.searchbar;
+
+		var num = this.popupHeight;
+		var anchor, align;
+		var anchorNode = this.canFitPopupToSearchField ? bar : bar.parentNode ;
+		var anchorBox = anchorNode.boxObject;
+		var rootBox = document.documentElement.boxObject;
+		var popupBox = popup.boxObject;
+		if (pos == 0 &&
+			anchorBox.screenY >= rootBox.screenY + (anchorBox.height * (num+1) * 0.8)) { // above
+			anchor = 'topleft';
+			align  = 'bottomleft';
+		}
+		else if (pos == 1 &&
+			anchorBox.screenY + anchorBox.height + this.textbox.popup.boxObject.height <= rootBox.screenY + rootBox.height - (anchorBox.height * (num+1) * 0.8)) { // below
+			anchor = 'bottomleft';
+			align  = 'topleft';
+		}
+		else if (anchorBox.screenX < rootBox.screenY + anchorBox.width) { // right
+			anchor = 'bottomright';
+			align  = 'bottomleft';
+		}
+		else { // left
+			anchor = 'bottomleft';
+			align  = 'bottomright';
+		}
+
+		document.popupNode = bar;
+		popup.showPopup(anchorNode, -1, -1, 'menupopup', anchor, align);
+	},
+ 
+	kLAST_X        : '__secondsearch__framework__lastX', 
 	kLAST_Y        : '__secondsearch__framework__lastY',
 	kLAST_ANCHOR_X : '__secondsearch__framework__lastAnchorX',
 	kLAST_ANCHOR_Y : '__secondsearch__framework__lastAnchorY',
@@ -345,9 +485,8 @@ SecondSearchBase.prototype = {
 
 		return items.join('\n');
 	},
-	canFitPopupToSearchField : true,
-	correctingPopupPosition : false,
-	destroyDummy : function()
+ 
+	destroyDummy : function() 
 	{
 		var popup = this.popupDummy;
 		popup.hidePopup();
@@ -356,7 +495,7 @@ SecondSearchBase.prototype = {
 		range.deleteContents();
 		range.detach();
 	},
-	
+ 
 	get popupHeight() 
 	{
 		return this.popup.childNodes.length;
@@ -373,10 +512,13 @@ SecondSearchBase.prototype = {
 		var popup = this.popup;
 		if (!popup.shown) return;
 
+		if (this.repositionController)
+			this.repositionController.cancel();
+
 		this.destroyPopup();
 		popup.hidePopup();
 	},
- 
+ 	
 	operateSecondSearch : function(aEvent) 
 	{
 try{
@@ -559,7 +701,7 @@ catch(e) {
 	dump(e+'\n');
 }
 	},
-	 
+	
 	onOperationPre : function(aEvent) 
 	{
 		return true;
@@ -606,7 +748,7 @@ catch(e) {
 	{
 		return this.getNextOrPrevItem(aPopup.firstChild, -1, true);
 	},
-  	
+  
 	clearTextBox : function() 
 	{
 		if (
@@ -722,7 +864,7 @@ catch(e) {
 	},
    
 /* event handlers */ 
-	 
+	
 	handleEvent : function(aEvent) 
 	{
 		switch (aEvent.type)
@@ -899,6 +1041,9 @@ catch(e) {
 		}, 0, this);
 
 		this.destroyPopup();
+
+		if (this.repositionController)
+			this.repositionController.cancel();
 	},
 	
 	destroyPopup : function() 
