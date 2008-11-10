@@ -1,4 +1,4 @@
-<!ENTITY secondsearch.searchBy     "&#37;sで検索">
+<!ENTITY secondsearch.searchBy     "&#37;s">
 <!ENTITY secondsearch.searchByMore "他の検索エンジン">
 <!ENTITY secondsearch.loadAsURI    "URIとして開く">
 

@@ -1,4 +1,4 @@
-<!ENTITY secondsearch.searchBy     "mint &#37;s">
+<!ENTITY secondsearch.searchBy     "&#37;s">
 <!ENTITY secondsearch.searchByMore "Keresés">
 <!ENTITY secondsearch.loadAsURI    "Megnyitás mint webcím">
 
