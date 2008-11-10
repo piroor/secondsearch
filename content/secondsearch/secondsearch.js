@@ -301,6 +301,7 @@ SecondSearchBase.prototype = {
 				this.owner.destroyDummy();
 				this.owner.repositionController = null;
 				this.owner.correctingPopupPosition = false;
+				this.owner.popup.shown = false;
 				delete this.pos;
 				delete this.position;
 				delete this.anchorNode;
