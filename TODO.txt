@@ -1,0 +1,4 @@
+B.B.S/2182 "セカンドサーチ 0.5について" - outsider reflex
+http://piro.sakura.ne.jp/cgi-bin/bbs.cgi?2182
+Organize Search Enginesをインストールしている場合にポップアップメニューが死んでしまう問題
+
