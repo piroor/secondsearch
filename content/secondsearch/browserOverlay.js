@@ -244,14 +244,7 @@ SecondSearchBrowser.prototype = {
 		}
 		if (!revHost) return this.FavIconService.defaultFavicon.spec;
 
-		var sql = <![CDATA[
-				SELECT f.url
-				  FROM moz_favicons f
-				       JOIN moz_places p ON p.favicon_id = f.id
-				 WHERE p.rev_host = ?1
-				 ORDER BY p.frecency
-			]]>.toString();
-		var statement = this.placesDB.createStatement(sql);
+		var statement = this.getFaviconForPageStatement;
 		var result;
 		try {
 			statement.bindStringParameter(0, revHost+'.');
@@ -267,6 +260,20 @@ SecondSearchBrowser.prototype = {
 		}
 		return result ? 'moz-anno:favicon:'+result : '' ;
 	},
+	get getFaviconForPageStatement()
+	{
+		if (!this._getFaviconForPageStatement) {
+			this._getFaviconForPageStatement = this.placesDB.createStatement(<![CDATA[
+					SELECT f.url
+					  FROM moz_favicons f
+					       JOIN moz_places p ON p.favicon_id = f.id
+					 WHERE p.rev_host = ?1
+					 ORDER BY p.frecency
+				]]>.toString());
+		}
+		return this._getFaviconForPageStatement;
+	},
+	_getFaviconForPageStatement : null,
 	
 	makeURIFromSpec : function(aURI) 
 	{
@@ -1349,10 +1356,7 @@ SecondSearchBrowser.prototype = {
 				this.saveKeywordsCache();
 		}
 		else if (this.placesAvailable) { // initialize for Firefox 3
-			var statement = this.placesDB.createStatement(
-						'SELECT b.id FROM moz_bookmarks b'+
-						' JOIN moz_keywords k ON k.id = b.keyword_id'
-					);
+			var statement = this.initKeywordsStatement;
 			try {
 				var data;
 				while (statement.executeStep())
@@ -1402,6 +1406,17 @@ SecondSearchBrowser.prototype = {
 			this.saveKeywordsCache();
 		}
 	},
+	get initKeywordsStatement()
+	{
+		if (!this._initKeywordsStatement) {
+			this._initKeywordsStatement = this.placesDB.createStatement(
+					'SELECT b.id FROM moz_bookmarks b'+
+					' JOIN moz_keywords k ON k.id = b.keyword_id'
+				);
+		}
+		return this._initKeywordsStatement;
+	},
+	_initKeywordsStatement : null,
  
 	// Firefox 3: SQLite based bookmarks 
 	 
@@ -1826,6 +1841,11 @@ SecondSearchBrowser.prototype = {
 	{
 		this.destroyBase();
 		this.endObserveKeyword();
+
+		if (this.placesAvailable) {
+			this.getFaviconForPageStatement.finalize();
+			this.initKeywordsStatement.finalize();
+		}
 	}
   
 }; 
