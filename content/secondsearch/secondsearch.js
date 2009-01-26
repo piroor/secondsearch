@@ -718,18 +718,15 @@ catch(e) {
  
 	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
 	{
-		var xpathResult;
 		var node;
 		try {
-			if (aDir > 0) {
-				xpathResult = this.evaluateXPath('following-sibling::*[(local-name() = "menu" or local-name() = "menuitem") and (not(@collapsed) or not(@collapsed="true")) and (not(@hidden) or not(@hidden="true"))]', aCurrent, XPathResult.FIRST_ORDERED_NODE_TYPE);
-				node = xpathResult.singleNodeValue;
-			}
-			else {
-				xpathResult = this.evaluateXPath('preceding-sibling::*[(local-name() = "menu" or local-name() = "menuitem") and (not(@collapsed) or not(@collapsed="true")) and (not(@hidden) or not(@hidden="true"))]', aCurrent);
-				if (xpathResult && xpathResult.snapshotLength)
-					 node = xpathResult.snapshotItem(xpathResult.snapshotLength-1);
-			}
+			var condition = '(local-name() = "menu" or local-name() = "menuitem") and (not(@collapsed) or not(@collapsed="true")) and (not(@hidden) or not(@hidden="true"))';
+			var axis = (aDir > 0) ? 'following-sibling' : 'preceding-sibling' ;
+			node = this.evaluateXPath(
+				axis+'::*['+condition+'][1]',
+				aCurrent,
+				XPathResult.FIRST_ORDERED_NODE_TYPE
+			).singleNodeValue;
 		}
 		catch(e) {
 		}
