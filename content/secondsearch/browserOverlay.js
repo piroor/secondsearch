@@ -873,7 +873,7 @@ SecondSearchBrowser.prototype = {
 			if (newTab) isManual = false;
 			inBackground = this.getPref('extensions.tabmix.loadSearchInBackground');
 		}
-		else { // Firefox 2
+		else { // Firefox 2 or later
 			newTab = this.openintab ? !newTab : newTab ;
 			if (newTab) isManual = false;
 			inBackground = this.loadInBackground;
@@ -886,7 +886,8 @@ SecondSearchBrowser.prototype = {
 				isManual ||
 				!this.reuseBlankTab ||
 				this.currentURI != 'about:blank'
-			)
+			) &&
+			aURI.indexOf('javascript:') != 0
 			) {
 			this.browser.contentWindow.focus();
 
@@ -902,8 +903,9 @@ SecondSearchBrowser.prototype = {
 			if (gURLBar)
 				gURLBar.value = aURI;
 		}
-		else
+		else {
 			this.browser.webNavigation.loadURI(aURI, Components.interfaces.LOAD_FLAGS_NONE, null, aPostData, null);
+		}
 
 		this.browser.contentWindow.focus();
 	},
@@ -939,8 +941,10 @@ SecondSearchBrowser.prototype = {
 				postData = submission.postData;
 			}
 			var loadInBackground = ss.loadInBackground;
-			if (aWhere.indexOf('tab') > -1) {
-
+			if (
+				aWhere.indexOf('tab') > -1 &&
+				url.indexOf('javascript:') != 0
+				) {
 				// for location bar
 				if (ss.browser.userTypedValue == ss.searchterm)
 					ss.browser.userTypedValue = null;
@@ -950,8 +954,9 @@ SecondSearchBrowser.prototype = {
 				if (gURLBar && !loadInBackground)
 					gURLBar.value = url;
 			}
-			else
+			else {
 				ss.browser.webNavigation.loadURI(url, Components.interfaces.LOAD_FLAGS_NONE, null, postData, null);
+			}
 
 			ss.browser.contentWindow.focus();
 			return;
@@ -966,6 +971,11 @@ SecondSearchBrowser.prototype = {
 	checkToDoSearch : function(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
 	{
 		if (!this.doingSearch) return false;
+
+		if (aWhere.indexOf('tab') == 0 &&
+			aURI.indexOf('javascript:') == 0) {
+			aWhere = 'current';
+		}
 
 		var b = this.browser;
 		var loadInBackground = this.loadInBackground;
