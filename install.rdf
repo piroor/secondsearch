@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}"
                    em:name="Second Search"
-                   em:version="0.5.2008111401"
+                   em:version="0.5.2009050801"
                    em:creator="SHIMODA Hiroshi"
                    em:description="Shows tiny popup for the search bar, to allow you to search by another engine quickly."
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en"
