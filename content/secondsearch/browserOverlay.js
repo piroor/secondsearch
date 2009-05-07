@@ -12,7 +12,7 @@ SecondSearchBrowser.prototype = {
  
 	canOpenNewTab : function(aURI, aWhere, aEvent) 
 	{
-		if (this.browser.localName != 'tabbrowser) return false;
+		if (this.browser.localName != 'tabbrowser') return false;
 
 		var newTabPref = this.openintab;
 		// Tab Mix Plus
@@ -258,7 +258,7 @@ SecondSearchBrowser.prototype = {
 	getFaviconForPage : function(aURI) 
 	{
 		if (!this.placesAvailable) return '';
-		var uri = this.makeURIFromSpec(aURI);
+		var uri = this.makeURIFromSpec(aURI || 'about:blank');
 		var revHost;
 		try {
 			revHost = uri.host.split('').reverse().join('');
