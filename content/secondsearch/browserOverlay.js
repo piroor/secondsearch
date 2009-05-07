@@ -10,17 +10,27 @@ SecondSearchBrowser.prototype = {
 		return (uri && uri.spec) ? uri.spec : 'about:blank' ;
 	},
  
-	canOpenNewTab : function(aURI, aWhere) 
+	canOpenNewTab : function(aURI, aWhere, aEvent) 
 	{
+		if (this.browser.localName != 'tabbrowser) return false;
+
+		var newTabPref = this.openintab;
+		// Tab Mix Plus
+		if ('TM_init' in window) newTabPref = this.getPref('extensions.tabmix.opentabfor.search');
+
+		var newTabAction = !aEvent ?
+				false :
+				(
+					(aEvent.type.indexOf('key') == 0 && aEvent.altKey) ||
+					(aEvent.type == 'click' && aEvent.button == 1)
+				);
+		var shouldRecycle = this.reuseBlankTab && this.currentURI == 'about:blank';
+
 		return (
+				(newTabAction ? !newTabPref : (newTabPref && !shouldRecycle) ) &&
 				(!aWhere || aWhere.indexOf('tab') == 0) &&
 				(!aURI || aURI.indexOf('javascript:') != 0)
 			);
-	},
- 
-	get shouldReuseCurrentTab() 
-	{
-		return this.reuseBlankTab && this.currentURI == 'about:blank';
 	},
  
 /* preference values */ 
@@ -876,31 +886,15 @@ SecondSearchBrowser.prototype = {
 	
 	loadForSearch : function(aURI, aPostData, aEvent) 
 	{
-		var newTab = (aEvent && aEvent.altKey) ||
-					(aEvent.type == 'click' && aEvent.button == 1);
-		var isManual = newTab;
-
 		var inBackground = false;
 		if ('TM_init' in window) { // Tab Mix Plus
-			newTab = this.getPref('extensions.tabmix.opentabfor.search') ? !newTab : newTab ;
-			if (newTab) isManual = false;
 			inBackground = this.getPref('extensions.tabmix.loadSearchInBackground');
 		}
 		else { // Firefox 2 or later
-			newTab = this.openintab ? !newTab : newTab ;
-			if (newTab) isManual = false;
 			inBackground = this.loadInBackground;
 		}
 
-		if (
-			this.browser.localName == 'tabbrowser' &&
-			newTab &&
-			(
-				isManual ||
-				!this.shouldReuseCurrentTab
-			) &&
-			this.canOpenNewTab(aURI)
-			) {
+		if (this.canOpenNewTab(aURI, null, aEvent)) {
 			this.browser.contentWindow.focus();
 
 			// for location bar
@@ -931,12 +925,6 @@ SecondSearchBrowser.prototype = {
 		var simpleFlag = !ss.placesAvailable;
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
-		}
-
-		if (aWhere &&
-			ss.openintab &&
-			ss.shouldReuseCurrentTab) {
-			aWhere = 'current';
 		}
 
 		if (aOverride) {
@@ -980,9 +968,7 @@ SecondSearchBrowser.prototype = {
 	{
 		if (!this.doingSearch) return false;
 
-		if (!this.canOpenNewTab(aURI, aWhere)) {
-			aWhere = 'current';
-		}
+		if (!this.canOpenNewTab(aURI, aWhere)) aWhere = 'current';
 
 		var b = this.browser;
 		var loadInBackground = this.loadInBackground;
