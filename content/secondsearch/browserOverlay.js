@@ -258,7 +258,7 @@ SecondSearchBrowser.prototype = {
 	getFaviconForPage : function(aURI) 
 	{
 		if (!this.placesAvailable) return '';
-		var uri = this.makeURIFromSpec(aURI || 'about:blank');
+		var uri = this.makeURIFromSpec(aURI);
 		var revHost;
 		try {
 			revHost = uri.host.split('').reverse().join('');
@@ -304,7 +304,7 @@ SecondSearchBrowser.prototype = {
 			newURI = this.IOService.newFileURI(tempLocalFile);
 		}
 		else {
-			newURI = this.IOService.newURI(aURI, null, null);
+			newURI = this.IOService.newURI(aURI || 'about:blank', null, null);
 		}
 		return newURI;
 	},
