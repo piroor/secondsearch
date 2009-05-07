@@ -2,12 +2,25 @@ function SecondSearchBrowser()
 {
 }
 SecondSearchBrowser.prototype = {
-	 
+	
 	get currentURI() 
 	{
 		var b = this.browser;
 		var uri = b.currentURI;
 		return (uri && uri.spec) ? uri.spec : 'about:blank' ;
+	},
+ 
+	canOpenNewTab : function(aURI, aWhere) 
+	{
+		return (
+				(!aWhere || aWhere.indexOf('tab') == 0) &&
+				(!aURI || aURI.indexOf('javascript:') != 0)
+			);
+	},
+ 
+	get shouldReuseCurrentTab() 
+	{
+		return this.reuseBlankTab && this.currentURI == 'about:blank';
 	},
  
 /* preference values */ 
@@ -215,7 +228,7 @@ SecondSearchBrowser.prototype = {
 		range.insertNode(fragment);
 		range.detach();
 	},
-	 
+	
 	createItemForEngine : function(aEngine, aLabel) 
 	{
 		var item = document.createElement('menuitem');
@@ -860,7 +873,7 @@ SecondSearchBrowser.prototype = {
 
 		return retVal;
 	},
-	 
+	
 	loadForSearch : function(aURI, aPostData, aEvent) 
 	{
 		var newTab = (aEvent && aEvent.altKey) ||
@@ -884,10 +897,9 @@ SecondSearchBrowser.prototype = {
 			newTab &&
 			(
 				isManual ||
-				!this.reuseBlankTab ||
-				this.currentURI != 'about:blank'
+				!this.shouldReuseCurrentTab
 			) &&
-			aURI.indexOf('javascript:') != 0
+			this.canOpenNewTab(aURI)
 			) {
 			this.browser.contentWindow.focus();
 
@@ -923,8 +935,7 @@ SecondSearchBrowser.prototype = {
 
 		if (aWhere &&
 			ss.openintab &&
-			ss.reuseBlankTab &&
-			ss.currentURI == 'about:blank') {
+			ss.shouldReuseCurrentTab) {
 			aWhere = 'current';
 		}
 
@@ -941,10 +952,7 @@ SecondSearchBrowser.prototype = {
 				postData = submission.postData;
 			}
 			var loadInBackground = ss.loadInBackground;
-			if (
-				aWhere.indexOf('tab') > -1 &&
-				url.indexOf('javascript:') != 0
-				) {
+			if (ss.canOpenNewTab(url, aWhere)) {
 				// for location bar
 				if (ss.browser.userTypedValue == ss.searchterm)
 					ss.browser.userTypedValue = null;
@@ -972,8 +980,7 @@ SecondSearchBrowser.prototype = {
 	{
 		if (!this.doingSearch) return false;
 
-		if (aWhere.indexOf('tab') == 0 &&
-			aURI.indexOf('javascript:') == 0) {
+		if (!this.canOpenNewTab(aURI, aWhere)) {
 			aWhere = 'current';
 		}
 
@@ -1039,7 +1046,7 @@ SecondSearchBrowser.prototype = {
 	kLOAD_AS_URI : 'secondsearch::loadAsURI',
   
 /* operate engines */ 
-	 
+	
 	get engines() 
 	{
 		return this.searchEngines.map(this.getEngineFromSearchEngine, this);
@@ -1112,7 +1119,7 @@ SecondSearchBrowser.prototype = {
 			return engine;
 		}
 	},
-	 
+	
 	getSearchEngineFromName : function(aName) 
 	{
 		var engine = null;
@@ -1146,7 +1153,7 @@ SecondSearchBrowser.prototype = {
 				return aEngine.name == aName;
 			});
 	},
- 	 
+  
 	getRecentEngines : function() 
 	{
 		var ids = this.getArrayPref('secondsearch.recentengines.list');
@@ -1267,7 +1274,7 @@ SecondSearchBrowser.prototype = {
 	},
    
 /* keywords */ 
-	 
+	
 	keywords : [], 
 	keywordsHash : {},
  
@@ -1417,7 +1424,7 @@ SecondSearchBrowser.prototype = {
 	},
  
 	// Firefox 3: SQLite based bookmarks 
-	 
+	
 	newKeywordFromPlaces : function(aId) 
 	{
 		var uri = this.NavBMService.getBookmarkURI(aId);
@@ -1614,7 +1621,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 	// Firefox 2: RDF based bookmarks 
-	 
+	
 	updateKeywordFromRDF : function(aSource, aMode) 
 	{
 		var res = this.RDF.GetResource(aSource);
@@ -1757,7 +1764,7 @@ SecondSearchBrowser.prototype = {
 	},
    
 /* prefs */ 
-	 
+	
 	domain  : 'secondsearch', 
  
 	observe : function(aSubject, aTopic, aPrefName) 
@@ -1794,7 +1801,7 @@ SecondSearchBrowser.prototype = {
 	},
   
 /* initializing */ 
-	 
+	
 	init : function() 
 	{
 		this.initBase();
@@ -1837,7 +1844,7 @@ SecondSearchBrowser.prototype = {
 			aSelf.delayedInit();
 		}, 100, this);
 	},
-	 
+	
 	delayedInit : function() 
 	{
 		this.initKeywords();
