@@ -136,11 +136,11 @@
 		<preference id="browser.search.openintab"
 			name="browser.search.openintab"
 			type="bool"
-			onchange="updateTabRadio()"/>
+			onchange="window.setTimeout(updateTabRadio, 100)"/>
 		<preference id="secondsearch.loadInBackground"
 			name="secondsearch.loadInBackground"
 			type="bool"
-			onchange="updateTabRadio()"/>
+			onchange="window.setTimeout(updateTabRadio, 100)"/>
 		<preference id="secondsearch.reuse_blank_tab"
 			name="secondsearch.reuse_blank_tab"
 			type="bool"/>
