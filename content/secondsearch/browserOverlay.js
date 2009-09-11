@@ -15,8 +15,11 @@ SecondSearchBrowser.prototype = {
 		if (this.browser.localName != 'tabbrowser') return false;
 
 		var newTabPref = this.openintab;
-		// Tab Mix Plus
-		if ('TM_init' in window) newTabPref = this.getPref('extensions.tabmix.opentabfor.search');
+		// old Tab Mix Plus
+		if ('TM_init' in window) {
+			var TMPPref = this.getPref('extensions.tabmix.opentabfor.search');
+			if (TMPPref !== null) newTabPref = TMPPref;
+		}
 
 		var newTabAction = !aEvent ?
 				false :
@@ -577,7 +580,7 @@ SecondSearchBrowser.prototype = {
 				window.__secondsearch__SearchLoadURLUpdated = true;
 			}
 
-			// Tab Mix Plus, only Firefox 2?
+			// old Tab Mix Plus, only Firefox 2?
 			if ('handleSearchCommand' in search &&
 				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
 				window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
@@ -1804,14 +1807,14 @@ SecondSearchBrowser.prototype = {
 			toolbox.__secondsearch__customizeDone = toolbox.customizeDone;
 			toolbox.customizeDone = function(aChanged) {
 				this.__secondsearch__customizeDone(aChanged);
-				window.getSecondSearch().initBar();
+				window.getSecondSearch().initBarWithDelay();
 			};
 		}
 		if ('BrowserToolboxCustomizeDone' in window) {
 			window.__secondsearch__BrowserToolboxCustomizeDone = window.BrowserToolboxCustomizeDone;
 			window.BrowserToolboxCustomizeDone = function(aChanged) {
 				window.__secondsearch__BrowserToolboxCustomizeDone.apply(window, arguments);
-				window.getSecondSearch().initBar();
+				window.getSecondSearch().initBarWithDelay();
 			};
 		}
 

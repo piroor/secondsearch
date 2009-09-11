@@ -821,6 +821,13 @@ catch(e) {
 
 		return true;
 	},
+	initBarWithDelay : function()
+	{
+		// initialize with delay for other addons modifying "doSearch" method (ex. Tab Mix Plus)
+		window.setTimeout(function(aSelf) {
+			aSelf.initBar();
+		}, 100, this);
+	},
   
 	destroyBar : function(aBar) 
 	{
@@ -1411,7 +1418,8 @@ catch(e) {
 			return self;
 		};
 
-		this.initBar();
+		this.initBarWithDelay();
+
 		window.removeEventListener('load', this, false);
 		window.addEventListener('unload', this, false);
 

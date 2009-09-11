@@ -88,14 +88,14 @@ SecondSearchMail.prototype = {
 			toolbox.__secondsearch__customizeDone = toolbox.customizeDone;
 			toolbox.customizeDone = function(aChanged) {
 				this.__secondsearch__customizeDone(aChanged);
-				window.getSecondSearch().initBar();
+				window.getSecondSearch().initBarWithDelay();
 			};
 		}
 		if ('MailToolboxCustomizeDone' in window) {
 			window.__secondsearch__MailToolboxCustomizeDone = window.MailToolboxCustomizeDone;
 			window.MailToolboxCustomizeDone = function(aChanged) {
 				window.__secondsearch__MailToolboxCustomizeDone.apply(window, arguments);
-				window.getSecondSearch().initBar();
+				window.getSecondSearch().initBarWithDelay();
 			};
 		}
 	}
