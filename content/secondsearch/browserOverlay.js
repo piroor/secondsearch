@@ -971,9 +971,21 @@ SecondSearchBrowser.prototype = {
 	{
 		if (!this.doingSearch) return false;
 
-		if (!this.canOpenNewTab(aURI, aWhere)) aWhere = 'current';
-
 		var b = this.browser;
+		if (!this.canOpenNewTab(aURI, aWhere)) {
+			if (
+				b.localName != 'tabbrowser' ||
+				(// Tab Mix Plus
+					'TM_init' in window &&
+					(
+						('isBlankNotBusyTab' in b && b.isBlankNotBusyTab(b.selectedTab)) ||
+						!b.selectedTab.hasAttribute('locked')
+					)
+				)
+				)
+				aWhere = 'current';
+		}
+
 		var loadInBackground = this.loadInBackground;
 		switch (aWhere)
 		{
