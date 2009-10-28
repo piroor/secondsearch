@@ -1004,6 +1004,11 @@ catch(e) {
 	onPopupShowing : function(aEvent) 
 	{
 		aEvent.target.shown = true;
+
+//		if (aEvent.target.popupBoxObject &&
+//			'setConsumeRollupEvent' in aEvent.target.popupBoxObject)
+//			aEvent.target.popupBoxObject.setConsumeRollupEvent(Components.interfaces.nsIPopupBoxObject.ROLLUP_NO_CONSUME);
+
 		if (aEvent.target != this.popup) return;
 
 		if (this.correctingPopupPosition) return;
