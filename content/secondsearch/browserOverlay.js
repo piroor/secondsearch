@@ -478,85 +478,77 @@ SecondSearchBrowser.prototype = {
 
 		if (search.localName == 'searchbar') { // search bar
 			if (!textbox.searchbarDNDObserver.__secondsearch__updated) {
-				eval('textbox.searchbarDNDObserver.onDrop = '+
-					textbox.searchbarDNDObserver.onDrop.toSource().replace(
-						'this.mOuter.value = data',
-						<![CDATA[
-							var ss = window.getSecondSearch();
-							if (ss.searchbar == this.mOuter || ss.textbox == this.mOuter) {
-								if (
-									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-									(
-										ss.handleDragdropOnlyOnButton &&
-										!ss.getSearchDropTarget(aEvent)
-									)
-									) {
-									return;
-								}
-								else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-									ss.textbox.value = data;
-									ss.showSecondSearch(ss.SHOWN_BY_DROP);
-									return;
-								}
-							}
-							$&]]>.toString()
-					)
-				);
-				eval('textbox.searchbarDNDObserver.getSupportedFlavours = '+
-					textbox.searchbarDNDObserver.getSupportedFlavours.toSource().replace(
-						'flavourSet.appendFlavour',
-						<![CDATA[
-							var ss = window.getSecondSearch();
+				eval('textbox.searchbarDNDObserver.onDrop = '+textbox.searchbarDNDObserver.onDrop.toSource().replace(
+					'this.mOuter.value = data',
+					<![CDATA[
+						var ss = window.getSecondSearch();
+						if (ss.searchbar == this.mOuter || ss.textbox == this.mOuter) {
 							if (
-								(ss.searchbar == this.mOuter || ss.textbox == this.mOuter) &&
+								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 								(
-									ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-									ss.handleDragdropOnlyOnButton
-								) &&
-								("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )
+									ss.handleDragdropOnlyOnButton &&
+									!ss.getSearchDropTarget(aEvent)
+								)
 								) {
-								flavourSet.appendFlavour('moz-unknown/unknown');
-								return flavourSet;
-							};
-							flavourSet.appendFlavour]]>.toString()
-					)
-				);
+								return;
+							}
+							else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
+								ss.textbox.value = data;
+								ss.showSecondSearch(ss.SHOWN_BY_DROP);
+								return;
+							}
+						}
+						$&]]>.toString()
+				));
+				eval('textbox.searchbarDNDObserver.getSupportedFlavours = '+textbox.searchbarDNDObserver.getSupportedFlavours.toSource().replace(
+					'flavourSet.appendFlavour',
+					<![CDATA[
+						var ss = window.getSecondSearch();
+						if (
+							(ss.searchbar == this.mOuter || ss.textbox == this.mOuter) &&
+							(
+								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
+								ss.handleDragdropOnlyOnButton
+							) &&
+							("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )
+							) {
+							flavourSet.appendFlavour('moz-unknown/unknown');
+							return flavourSet;
+						};
+						flavourSet.appendFlavour]]>.toString()
+				));
 				textbox.searchbarDNDObserver.__secondsearch__updated = true;
 			}
 
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
-				eval('search.handleSearchCommand = '+
-					search.handleSearchCommand.toSource().replace(
-						')',
-						', aOverride)'
-					).replace(
-						/doSearch\(([^\)]+)\)/,
-						'doSearch($1, aOverride)'
-					)
-				);
+				eval('search.handleSearchCommand = '+search.handleSearchCommand.toSource().replace(
+					')',
+					', aOverride)'
+				).replace(
+					/doSearch\(([^\)]+)\)/,
+					'doSearch($1, aOverride)'
+				));
 				var source = search.doSearch.toSource();
 				if (source.indexOf('openUILinkIn') > -1) { // Firefox 3
 					eval('search.doSearch = '+source.replace(
-							'{',
-							'$& window.getSecondSearch().readyToSearch();'
-						).replace(
-							/(\}\)?)$/,
-							'window.getSecondSearch().searchDone(); $1'
-						)
-					);
+						'{',
+						'$& window.getSecondSearch().readyToSearch();'
+					).replace(
+						/(\}\)?)$/,
+						'window.getSecondSearch().searchDone(); $1'
+					));
 				}
 				else { // Firefox 2
 					eval('search.doSearch = '+source.replace(
-							/([\w\d\.]+).focus\(\)/,
-							'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-						).replace(
-							/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
-							'$1 window.getSecondSearch().loadInBackground $2'
-						).replace(
-							'if (gURLBar)',
-							'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-						)
-					);
+						/([\w\d\.]+).focus\(\)/,
+						'if (!window.getSecondSearch().loadInBackground) $1.focus()'
+					).replace(
+						/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
+						'$1 window.getSecondSearch().loadInBackground $2'
+					).replace(
+						'if (gURLBar)',
+						'if (gURLBar && !window.getSecondSearch().loadInBackground)'
+					));
 				}
 				search.__secondsearch__doSearch = search.doSearch;
 				search.doSearch = this.doSearchbarSearch;
@@ -565,18 +557,16 @@ SecondSearchBrowser.prototype = {
 
 			if ('SearchLoadURL' in window &&
 				!('__secondsearch__SearchLoadURLUpdated' in window)) { // Fx 1.5?
-				eval('window.SearchLoadURL = '+
-					window.SearchLoadURL.toSource().replace(
-						/([\w\d\.]+).focus\(\)/,
-						'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-					).replace(
-						/([\w\d\.]+).selectedTab = /,
-						'if (!window.getSecondSearch().loadInBackground) $1.selectedTab = '
-					).replace(
-						'if (gURLBar)',
-						'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-					)
-				);
+				eval('window.SearchLoadURL = '+window.SearchLoadURL.toSource().replace(
+					/([\w\d\.]+).focus\(\)/,
+					'if (!window.getSecondSearch().loadInBackground) $1.focus()'
+				).replace(
+					/([\w\d\.]+).selectedTab = /,
+					'if (!window.getSecondSearch().loadInBackground) $1.selectedTab = '
+				).replace(
+					'if (gURLBar)',
+					'if (gURLBar && !window.getSecondSearch().loadInBackground)'
+				));
 				window.__secondsearch__SearchLoadURLUpdated = true;
 			}
 
@@ -584,52 +574,48 @@ SecondSearchBrowser.prototype = {
 			if ('handleSearchCommand' in search &&
 				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
 				window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
-				eval('window.TMP_SearchLoadURL = '+
-					window.TMP_SearchLoadURL.toSource().replace(
-						'var submission = searchbar.currentEngine',
-						<![CDATA[
-							var overrideEngine = null;
-							if (window.getSecondSearch().selectedEngine) {
-								overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);
-							};
-							var submission = (overrideEngine || searchbar.currentEngine)]]>.toString()
-					)
-				);
+				eval('window.TMP_SearchLoadURL = '+window.TMP_SearchLoadURL.toSource().replace(
+					'var submission = searchbar.currentEngine',
+					<![CDATA[
+						var overrideEngine = null;
+						if (window.getSecondSearch().selectedEngine) {
+							overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);
+						};
+						var submission = (overrideEngine || searchbar.currentEngine)]]>.toString()
+				));
 			}
 		}
 		else { // location bar
 			if (!textbox.__secondsearch__updated) {
-				eval('textbox.onDrop = '+
-					textbox.onDrop.toSource().replace(
-						'{',
-						<![CDATA[$&
-							var ss = window.getSecondSearch();
-							ss.droppedURI = null;
-							var showSecondSearch = false;
-							if (aXferData.flavour.contentType == 'text/unicode' &&
-								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-								showSecondSearch = (ss.searchbar == this);
-							}
-						]]>.toString()
-					).replace(
-						'return;',
-						<![CDATA[
-							if (showSecondSearch)
-								ss.showSecondSearch(ss.SHOWN_BY_DROP);
-						$&]]>.toString()
-					).replace(
-						/((handleURLBarCommand|this\.handleCommand)\(\);)/,
-						<![CDATA[
-							if (showSecondSearch) {
-								ss.droppedURI = this.value;
-								ss.showSecondSearch(ss.SHOWN_BY_DROP);
-							}
-							else {
-								$1;
-							}
-						]]>.toString()
-					)
-				);
+				eval('textbox.onDrop = '+textbox.onDrop.toSource().replace(
+					'{',
+					<![CDATA[$&
+						var ss = window.getSecondSearch();
+						ss.droppedURI = null;
+						var showSecondSearch = false;
+						if (aXferData.flavour.contentType == 'text/unicode' &&
+							ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
+							showSecondSearch = (ss.searchbar == this);
+						}
+					]]>.toString()
+				).replace(
+					'return;',
+					<![CDATA[
+						if (showSecondSearch)
+							ss.showSecondSearch(ss.SHOWN_BY_DROP);
+					$&]]>.toString()
+				).replace(
+					/((handleURLBarCommand|this\.handleCommand)\(\);)/,
+					<![CDATA[
+						if (showSecondSearch) {
+							ss.droppedURI = this.value;
+							ss.showSecondSearch(ss.SHOWN_BY_DROP);
+						}
+						else {
+							$1;
+						}
+					]]>.toString()
+				));
 				textbox.__secondsearch__updated = true;
 			}
 		}
@@ -1320,7 +1306,7 @@ SecondSearchBrowser.prototype = {
 		var cachedKeywords = this.getPref('secondsearch.keyword.cache');
 		if (cachedKeywords) {
 			try {
-				eval('cachedKeywords = '+cachedKeywords);
+				cachedKeywords = this.evalInSandbox(cachedKeywords);
 			}
 			catch(e) {
 			}
@@ -1422,6 +1408,16 @@ SecondSearchBrowser.prototype = {
 			}
 			this.saveKeywordsCache();
 		}
+	},
+	evalInSandbox : function(aCode, aOwner) 
+	{
+		try {
+			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
+			return Components.utils.evalInSandbox(aCode, sandbox);
+		}
+		catch(e) {
+		}
+		return void(0);
 	},
  
 	// Firefox 3: SQLite based bookmarks 
@@ -1831,15 +1827,13 @@ SecondSearchBrowser.prototype = {
 		}
 
 		// for Firefox 3
-		eval('window.openUILinkIn = '+
-			window.openUILinkIn.toSource().replace(
-				'{',
-				<><![CDATA[$&
-					if (SecondSearch.checkToDoSearch.apply(SecondSearch, arguments))
-						return;
-				]]></>
-			)
-		);
+		eval('window.openUILinkIn = '+window.openUILinkIn.toSource().replace(
+			'{',
+			<![CDATA[$&
+				if (SecondSearch.checkToDoSearch.apply(SecondSearch, arguments))
+					return;
+			]]>
+		));
 
 		window.setTimeout(function(aSelf) {
 			aSelf.delayedInit();
