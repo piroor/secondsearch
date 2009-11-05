@@ -1306,7 +1306,7 @@ SecondSearchBrowser.prototype = {
 		var cachedKeywords = this.getPref('secondsearch.keyword.cache');
 		if (cachedKeywords) {
 			try {
-				cachedKeywords = this.evalInSandbox(cachedKeywords);
+				cachedKeywords = this.evalInSandbox('('+cachedKeywords+')');
 			}
 			catch(e) {
 			}
