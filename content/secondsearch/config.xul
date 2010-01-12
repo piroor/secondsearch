@@ -274,6 +274,6 @@
 
 </prefpane>
 
-<script type="application/x-javascript" src="chrome://secondsearch/content/config.js"/>
+<script type="application/javascript" src="chrome://secondsearch/content/config.js"/>
 
 </prefwindow>
