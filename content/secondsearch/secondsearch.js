@@ -180,7 +180,7 @@ SecondSearchBase.prototype = {
 		}
 	},
  
-	showSecondSearch : function(aReason, aX, aY) 
+	showSecondSearch : function(aReason, aX, aY, aEvent) 
 	{
 		var popup = this.popup;
 		var pos = this.popupPosition;
@@ -193,7 +193,7 @@ SecondSearchBase.prototype = {
 		if (aReason == this.SHOWN_BY_CONTEXT) {
 			document.popupNode = this.engineButton;
 			if ('openPopupAtScreen' in popup)
-				popup.openPopupAtScreen(aX, aY, true);
+				popup.openPopupAtScreen(aX, aY, true, aEvent);
 			else
 				popup.showPopup(
 					bar,
@@ -242,7 +242,7 @@ SecondSearchBase.prototype = {
 			popup[this.kLAST_ANCHOR_X] == anchorBox.screenX &&
 			popup[this.kLAST_ANCHOR_Y] == anchorBox.screenY
 			) {
-			popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], true);
+			popup.openPopup(bar, 'after_start', popup[this.kLAST_X], popup[this.kLAST_Y], true, true);
 			return;
 		}
 
@@ -932,7 +932,7 @@ catch(e) {
 
 			case 'contextmenu':
 				window.setTimeout(function(aSelf, aX, aY) {
-					aSelf.showSecondSearch(aSelf.SHOWN_BY_CONTEXT, aX, aY);
+					aSelf.showSecondSearch(aSelf.SHOWN_BY_CONTEXT, aX, aY, aEvent);
 				}, 0, this, aEvent.screenX, aEvent.screenY);
 				aEvent.preventDefault();
 				aEvent.stopPropagation();
