@@ -473,7 +473,8 @@ SecondSearchBrowser.prototype = {
 		}
 
 		if (search.localName == 'searchbar') { // search bar
-			if (!textbox.searchbarDNDObserver.__secondsearch__updated) {
+			if (textbox.searchbarDNDObserver &&
+				!textbox.searchbarDNDObserver.__secondsearch__updated) { // for Firefox 3.6 or olders
 				eval('textbox.searchbarDNDObserver.onDrop = '+textbox.searchbarDNDObserver.onDrop.toSource().replace(
 					'this.mOuter.value = data',
 					<![CDATA[
@@ -537,7 +538,7 @@ SecondSearchBrowser.prototype = {
 			}
 
 			if ('SearchLoadURL' in window &&
-				!('__secondsearch__SearchLoadURLUpdated' in window)) { // Fx 1.5?
+				!('__secondsearch__SearchLoadURLUpdated' in window)) { // for Firefox 1.5-3.6?
 				eval('window.SearchLoadURL = '+window.SearchLoadURL.toSource().replace(
 					/([\w\d\.]+).focus\(\)/,
 					'if (!window.getSecondSearch().loadInBackground) $1.focus()'
@@ -567,7 +568,8 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 		else { // location bar
-			if (!textbox.__secondsearch__updated) {
+			if (textbox.onDrop &&
+				!textbox.__secondsearch__updated) { // for Firefox 3.6 or older
 				eval('textbox.onDrop = '+textbox.onDrop.toSource().replace(
 					'{',
 					<![CDATA[$&
