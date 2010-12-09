@@ -808,9 +808,13 @@ catch(e) {
 
 		search.addEventListener('dragenter', this, false);
 		search.addEventListener('dragover',  this, false);
+		this.popup.addEventListener('dragenter', this, false);
+		this.popup.addEventListener('dragover',  this, false);
 		if (this.isGecko19) {
 			search.addEventListener('dragleave', this, false);
 			search.addEventListener('drop',      this, false);
+			this.popup.addEventListener('dragleave', this, false);
+			this.popup.addEventListener('drop',      this, false);
 			textbox.addEventListener('dragover', this, false);
 			textbox.addEventListener('drop',     this, false);
 		}
@@ -855,9 +859,13 @@ catch(e) {
 
 		search.removeEventListener('dragenter', this, false);
 		search.removeEventListener('dragover',  this, false);
+		this.popup.removeEventListener('dragenter', this, false);
+		this.popup.removeEventListener('dragover',  this, false);
 		if (this.isGecko19) {
 			search.removeEventListener('dragleave', this, false);
 			search.removeEventListener('drop',      this, false);
+			this.popup.removeEventListener('dragleave', this, false);
+			this.popup.removeEventListener('drop',      this, false);
 			textbox.removeEventListener('dragover', this, false);
 			textbox.removeEventListener('drop',     this, false);
 		}
@@ -1148,10 +1156,8 @@ catch(e) {
 					.getCurrentSession();
 		},
  
-		onDragEnter : function(aEvent, aDragSession) 
+		canDropHere : function(aEvent, aDragSession) 
 		{
-			aDragSession = aDragSession || this.currentDragSession;
-
 			var dt = aEvent.dataTransfer;
 			if (
 				dt &&
@@ -1159,9 +1165,19 @@ catch(e) {
 				) {
 				dt.effectAllowed = dt.dropEffect = 'copy';
 				aDragSession.canDrop = true;
+				return true;
 			}
+			return false;
+		},
+ 
+		onDragEnter : function(aEvent, aDragSession) 
+		{
+			aDragSession = aDragSession || this.currentDragSession;
 
-			if (this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER)
+			if (
+				!this.canDropHere(aEvent, aDragSession) ||
+				this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER
+				)
 				return;
 
 			if (aEvent.target.localName == 'menuitem' ||
@@ -1177,21 +1193,23 @@ catch(e) {
 
 			if (this.isPlatformNotSupported) return;
 			if (this.isTimerSupported || !aDragSession.sourceNode) {
-				if (popup.hideTimer) {
-					window.clearTimeout(popup.hideTimer);
-					popup.hideTimer = null;
-				}
-				window.clearTimeout(popup.showTimer);
-				if (aEvent.target == aDragSession.sourceNode) return;
-				popup.showTimer = window.setTimeout(function(aOwner) {
-					if (popup == aOwner.popup)
-						aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
-					else {
-						popup.showPopup();
-						popup.shown = true;
+				window.setTimeout(function(aSelf) { // do after dragleave
+					if (popup.hideTimer) {
+						window.clearTimeout(popup.hideTimer);
+						popup.hideTimer = null;
 					}
-				}, this.owner.autoShowDragdropDelay, this.owner);
-				this.showTimer = now;
+					window.clearTimeout(popup.showTimer);
+					if (aEvent.target == aDragSession.sourceNode) return;
+					popup.showTimer = window.setTimeout(function(aOwner) {
+						if (popup == aOwner.popup)
+							aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
+						else {
+							popup.showPopup();
+							popup.shown = true;
+						}
+					}, aSelf.owner.autoShowDragdropDelay, aSelf.owner);
+					aSelf.showTimer = now;
+				}, 0, this);
 			}
 			else {
 				popup.showTimer  = now;
@@ -1218,7 +1236,7 @@ catch(e) {
 			if (this.isTimerSupported || !aDragSession.sourceNode) {
 				window.clearTimeout(popup.hideTimer);
 				popup.hideTimer = window.setTimeout(function(aSelf) {
-					if (aSelf.owner.searchDNDObserver.showTimer > aSelf.hideTimer) return;
+					if (aSelf.showTimer > aSelf.hideTimer) return;
 					if (popup == aSelf.owner.popup)
 						aSelf.owner.hideSecondSearch();
 					else {
@@ -1257,9 +1275,14 @@ catch(e) {
 		{
 			aDragSession = aDragSession || this.currentDragSession;
 
-			if (this.isPlatformNotSupported) return;
-			if (this.isTimerSupported || !aDragSession.sourceNode) return;
-			if (aEvent.target != this.owner.searchbar) return;
+			if (
+				!this.canDropHere(aEvent, aDragSession) ||
+				this.isPlatformNotSupported ||
+				this.isTimerSupported ||
+				!aDragSession.sourceNode ||
+				aEvent.target != this.owner.searchbar
+				)
+				return;
 
 			var now   = (new Date()).getTime();
 			var delay = this.owner.autoShowDragdropDelay;
