@@ -1161,7 +1161,11 @@ catch(e) {
 			var dt = aEvent.dataTransfer;
 			if (
 				dt &&
-				(dt.types.contains('text/unicode') || dt.types.contains('text/plain'))
+				(
+					dt.types.contains('text/unicode') ||
+					dt.types.contains('text/plain') ||
+					dt.types.contains('text/x-moz-text-internal')
+				)
 				) {
 				dt.effectAllowed = dt.dropEffect = 'copy';
 				aDragSession.canDrop = true;
@@ -1330,21 +1334,26 @@ catch(e) {
 		{
 			aDragSession = aDragSession || this.currentDragSession;
 
+			var ss = this.owner;
+
 			var string = (aXferData ?
 							aXferData.data : // for Gecko 1.8 (Thunderbird 2)
-							aEvent.dataTransfer.getData('text/unicode') // for Gecko 1.9.1 (Firefox 3.5-)
+							( // for Gecko 1.9.1 (Firefox 3.5-)
+								aEvent.dataTransfer.getData('text/unicode') ||
+								aEvent.dataTransfer.getData('text/x-moz-text-internal')
+							)
 						).replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
 
-			var bar = this.owner.searchbar;
-			bar.removeAttribute(this.owner.emptyAttribute);
+			var bar = ss.searchbar;
+			bar.removeAttribute(ss.emptyAttribute);
 
-			var textbox = this.owner.textbox;
+			var textbox = ss.textbox;
 			textbox.value = string;
-			this.owner.onSearchTermDrop(aEvent);
-			this.owner.clearAfterSearch();
-			window.setTimeout(function(aOwner) {
-				aOwner.hideSecondSearch();
-			}, 0, this.owner);
+			ss.onSearchTermDrop(aEvent);
+			ss.clearAfterSearch();
+			window.setTimeout(function() {
+				ss.hideSecondSearch();
+			}, 0);
 
 			aEvent.stopPropagation();
 		},
