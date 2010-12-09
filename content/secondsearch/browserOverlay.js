@@ -260,7 +260,6 @@ SecondSearchBrowser.prototype = {
  
 	getFaviconForPage : function(aURI) 
 	{
-		if (!this.placesAvailable) return '';
 		var uri = this.makeURIFromSpec(aURI);
 		var revHost;
 		try {
@@ -528,28 +527,13 @@ SecondSearchBrowser.prototype = {
 					/doSearch\(([^\)]+)\)/,
 					'doSearch($1, aOverride)'
 				));
-				var source = search.doSearch.toSource();
-				if (source.indexOf('openUILinkIn') > -1) { // Firefox 3
-					eval('search.doSearch = '+source.replace(
-						'{',
-						'$& window.getSecondSearch().readyToSearch();'
-					).replace(
-						/(\}\)?)$/,
-						'window.getSecondSearch().searchDone(); $1'
-					));
-				}
-				else { // Firefox 2
-					eval('search.doSearch = '+source.replace(
-						/([\w\d\.]+).focus\(\)/,
-						'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-					).replace(
-						/(loadOneTab\([^,]+,[^,]+,[^,]+,[^,]+,)[^,]+(,[^,]+\))/,
-						'$1 window.getSecondSearch().loadInBackground $2'
-					).replace(
-						'if (gURLBar)',
-						'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-					));
-				}
+				eval('search.doSearch = '+search.doSearch.toSource().replace(
+					'{',
+					'$& window.getSecondSearch().readyToSearch();'
+				).replace(
+					/(\}\)?)$/,
+					'window.getSecondSearch().searchDone(); $1'
+				));
 				search.__secondsearch__doSearch = search.doSearch;
 				search.doSearch = this.doSearchbarSearch;
 				search._popup.addEventListener('command', this, true);
@@ -620,10 +604,9 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 
-		if (this.placesAvailable)
-			window.setTimeout(function(aSelf) {
-				aSelf.testOpenPopup();
-			}, 1000, this);
+		window.setTimeout(function(aSelf) {
+			aSelf.testOpenPopup();
+		}, 1000, this);
 	},
 	
 	testOpenPopup : function() 
@@ -879,7 +862,7 @@ SecondSearchBrowser.prototype = {
 		if ('TM_init' in window) { // Tab Mix Plus
 			inBackground = this.getPref('extensions.tabmix.loadSearchInBackground');
 		}
-		else { // Firefox 2 or later
+		else { // Firefox native
 			inBackground = this.loadInBackground;
 		}
 
@@ -890,9 +873,7 @@ SecondSearchBrowser.prototype = {
 			if (this.browser.userTypedValue == this.searchterm)
 				this.browser.userTypedValue = null;
 
-			var t = 'loadOneTab' in this.browser ?
-				this.browser.loadOneTab(aURI, null, null, aPostData, false, true) :
-				this.browser.addTab(aURI, null, null, aPostData);
+			var t = this.browser.loadOneTab(aURI, null, null, aPostData, false, true);
 			if (!inBackground)
 				this.browser.selectedTab = t;
 			if (gURLBar)
@@ -911,7 +892,6 @@ SecondSearchBrowser.prototype = {
 	doSearchbarSearch : function(aData, aWhere, aOverride) 
 	{ // Firefox 2
 		var ss = window.getSecondSearch();
-		var simpleFlag = !ss.placesAvailable;
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
@@ -947,7 +927,7 @@ SecondSearchBrowser.prototype = {
 			return;
 		}
 		else {
-			var retVal = this.__secondsearch__doSearch(aData, simpleFlag ? aWhere.indexOf('tab') > -1 : aWhere );
+			var retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
 			return retVal;
 		}
@@ -1018,16 +998,9 @@ SecondSearchBrowser.prototype = {
  
 	loadDroppedURI : function() 
 	{
-		if ('handleCommand' in this.textbox) { // Firefox 3.1
-			this.textbox.value = this.droppedURI;
-			this.textbox.handleCommand();
-			this.droppedURI = null;
-		}
-		else if ('handleURLBarCommand' in window) { // Firefox 2 or 3.0.x
-			this.textbox.value = this.droppedURI;
-			handleURLBarCommand();
-			this.droppedURI = null;
-		}
+		this.textbox.value = this.droppedURI;
+		this.textbox.handleCommand();
+		this.droppedURI = null;
 	},
 	droppedURI : null,
 	kLOAD_AS_URI : 'secondsearch::loadAsURI',
@@ -1267,34 +1240,14 @@ SecondSearchBrowser.prototype = {
  
 	startObserveKeyword : function() 
 	{
-		if (this.placesAvailable) {
-			this.NavBMService.addObserver(this.placesObserver, false);
-		}
-		else {
-			try {
-				this.bookmarksDS.AddObserver(this.bookmarksRDFObserver);
-			}
-			catch(e) {
-			}
-		}
+		this.NavBMService.addObserver(this.placesObserver, false);
 	},
  
 	endObserveKeyword : function() 
 	{
-		if (this.placesAvailable) {
-			this.NavBMService.removeObserver(this.placesObserver);
-			this.placesObserver.destroy();
-			this.placesObserver = null;
-		}
-		else {
-			try {
-				this.bookmarksDS.RemoveObserver(this.bookmarksRDFObserver);
-				this.bookmarksRDFObserver.destroy();
-				this.bookmarksRDFObserver = null;
-			}
-			catch(e) {
-			}
-		}
+		this.NavBMService.removeObserver(this.placesObserver);
+		this.placesObserver.destroy();
+		this.placesObserver = null;
 	},
  
 	initKeywords : function(aForceUpdate) 
@@ -1325,7 +1278,6 @@ SecondSearchBrowser.prototype = {
 		if (
 			!aForceUpdate &&
 			( // from Fx 2 to Fx 3
-				this.placesAvailable &&
 				cachedKeywords &&
 				cachedKeywords.length &&
 				cachedKeywords.some(function(aKeyword) {
@@ -1354,7 +1306,7 @@ SecondSearchBrowser.prototype = {
 			if (updated)
 				this.saveKeywordsCache();
 		}
-		else if (this.placesAvailable) { // initialize for Firefox 3
+		else { // initialize for Firefox 3
 			var statement = this._getStatement(
 					'initKeywords',
 					'SELECT b.id FROM moz_bookmarks b'+
@@ -1374,42 +1326,8 @@ SecondSearchBrowser.prototype = {
 			}
 			this.saveKeywordsCache();
 		}
-		else { // initialize for Firefox 2
-			var resources = this.bookmarksDS.GetAllResources()
-			var res;
-			var shortcut,
-				name,
-				icon;
-			var doneKeywords = {};
-			while (resources.hasMoreElements())
-			{
-				res = resources.getNext();
-				try{
-					res = res.QueryInterface(Components.interfaces.nsIRDFResource);
-					shortcut = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
-					if (!shortcut || !shortcut.hasMoreElements()) continue;
-					shortcut = shortcut.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral);
-					if (!shortcut.Value || shortcut.Value in doneKeywords) continue;
-
-					name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
-					icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
-					this.keywordsHash[res.Value] = {
-						id      : res.Value,
-						name    : name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : shortcut.Value ,
-						icon    : icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ,
-						uri     : res.Value,
-						keyword : shortcut.Value
-					};
-					this.keywords.push(this.keywordsHash[res.Value]);
-					doneKeywords[shortcut.Value] = true;
-				}
-				catch(e) {
-				}
-			}
-			this.saveKeywordsCache();
-		}
 	},
-	evalInSandbox : function(aCode, aOwner) 
+	evalInSandbox : function(aCode, aOwner)
 	{
 		try {
 			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
@@ -1420,7 +1338,7 @@ SecondSearchBrowser.prototype = {
 		return void(0);
 	},
  
-	// Firefox 3: SQLite based bookmarks 
+	// SQLite based bookmarks 
 	
 	newKeywordFromPlaces : function(aId) 
 	{
@@ -1487,32 +1405,14 @@ SecondSearchBrowser.prototype = {
 		this.setPref('secondsearch.keyword.cache.count', this.keywords.length);
 	},
  
-	get placesAvailable() 
-	{
-		return 'PlacesController' in window;
-	},
- 
 	get placesDB() 
 	{
 		if (!this._placesDB) {
-			if ('nsPIPlacesDatabase' in Components.interfaces) { // Firefox 3.1 or later
-				this._placesDB = Components
+			this._placesDB = Components
 						.classes['@mozilla.org/browser/nav-history-service;1']
 						.getService(Components.interfaces.nsINavHistoryService)
 						.QueryInterface(Components.interfaces.nsPIPlacesDatabase)
 						.DBConnection;
-			}
-			else { // Firefox 3.0.x
-				const DirectoryService = Components
-					.classes['@mozilla.org/file/directory_service;1']
-					.getService(Components.interfaces.nsIProperties);
-				var file = DirectoryService.get('ProfD', Components.interfaces.nsIFile);
-				file.append('places.sqlite');
-				const StorageService = Components
-					.classes['@mozilla.org/storage/service;1']
-					.getService(Components.interfaces.mozIStorageService);
-				this._placesDB = StorageService.openDatabase(file);
-			}
 		}
 		return this._placesDB;
 	},
@@ -1614,149 +1514,6 @@ SecondSearchBrowser.prototype = {
 	set placesObserver(val) 
 	{
 		this.mPlacesObserver = val;
-		return val;
-	},
-  
-	// Firefox 2: RDF based bookmarks 
-	
-	updateKeywordFromRDF : function(aSource, aMode) 
-	{
-		var res = this.RDF.GetResource(aSource);
-		var keyword = this.bookmarksDS.GetTargets(res, this.shortcutRes, true);
-
-		var name = this.bookmarksDS.GetTargets(res, this.nameRes, true);
-		var icon = this.bookmarksDS.GetTargets(res, this.iconRes, true);
-		var data = {
-				id      : aSource,
-				name    : (name.hasMoreElements() ? name.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ),
-				icon    : (icon.hasMoreElements() ? icon.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' ),
-				uri     : aSource,
-				keyword : (keyword.hasMoreElements() ? keyword.getNext().QueryInterface(Components.interfaces.nsIRDFLiteral).Value : '' )
-			};
-		keyword = data.keyword;
-
-		if (!keyword) aMode = 'delete';
-
-		var removedId = null;
-		this.keywords.slice().some(function(aKeyword, aIndex) {
-			if (aKeyword.id != data.id)
-				return false;
-
-			if (aMode != 'add') {
-				removedId = aKeyword.id;
-				delete this.keywordsHash[aKeyword.id];
-				this.keywords.splice(aIndex, 1);
-			}
-			if (aMode != 'delete') {
-				this.keywords.push(data);
-				this.keywordsHash[data.id] = data;
-			}
-			return true;
-		}, this);
-
-		if (!removedId) {
-			if (aMode != 'delete') {
-				this.keywords.push(data);
-				this.keywordsHash[data.id] = data;
-			}
-		}
-		else {
-			this.removeAndAddRecentEngine(
-				removedId,
-				(aMode == 'delete' ? null : data.id )
-			);
-		}
-
-		this.saveKeywordsCache();
-	},
- 
-	get RDF() 
-	{
-		if (!this._RDF)
-			this._RDF = Components.classes['@mozilla.org/rdf/rdf-service;1'].getService(Components.interfaces.nsIRDFService);
-		return this._RDF;
-	},
-	_RDF : null,
- 
-	get shortcutRes() 
-	{
-		if (!this._shortcutRes)
-			this._shortcutRes = this.RDF.GetResource('http://home.netscape.com/NC-rdf#ShortcutURL')
-		return this._shortcutRes;
-	},
-	_shortcutRes : null,
- 
-	get nameRes() 
-	{
-		if (!this._nameRes)
-			this._nameRes = this.RDF.GetResource('http://home.netscape.com/NC-rdf#Name')
-		return this._nameRes;
-	},
-	_nameRes : null,
- 
-	get iconRes() 
-	{
-		if (!this._iconRes)
-			this._iconRes = this.RDF.GetResource('http://home.netscape.com/NC-rdf#Icon')
-		return this._iconRes;
-	},
-	_iconRes : null,
- 
-	get bookmarksDS() 
-	{
-		if (!this._bookmarksDS)
-			this._bookmarksDS = this.RDF.GetDataSource('rdf:bookmarks')
-		return this._bookmarksDS;
-	},
-	_bookmarksDS : null,
- 
-	get bookmarksRDFObserver() 
-	{
-		if (!this.mBookmarksRDFObserver) {
-			this.mBookmarksRDFObserver = {
-				owner : this,
-				onAssert: function (aDataSource, aSource, aProperty, aTarget)
-				{
-					this.setOverflowTimeout(aSource, aProperty, 'add');
-				},
-				onUnassert: function (aDataSource, aSource, aProperty, aTarget)
-				{
-					this.setOverflowTimeout(aSource, aProperty, 'delete');
-				},
-				onChange: function (aDataSource, aSource, aProperty, aOldTarget, aNewTarget)
-				{
-					this.setOverflowTimeout(aSource, aProperty, 'change');
-				},
-				onMove: function (aDataSource, aOldSource, aNewSource, aProperty, aTarget) {},
-				onBeginUpdateBatch: function (aDataSource) {},
-				onEndUpdateBatch: function (aDataSource) {},
-				setOverflowTimeout: function (aSource, aProperty, aMode)
-				{
-					if (
-						aProperty.Value == 'http://home.netscape.com/NC-rdf#ShortcutURL' ||
-						(
-							aSource.Value in this.owner.keywordsHash &&
-							(
-								aProperty.Value == 'http://home.netscape.com/NC-rdf#ShortcutURL' ||
-								aProperty.Value == 'http://home.netscape.com/NC-rdf#Name' ||
-								aProperty.Value == 'http://home.netscape.com/NC-rdf#Icon'
-							)
-						)
-						)
-						this.owner.updateKeywordFromRDF(aSource.Value, aMode);
-				},
-				destroy : function()
-				{
-					this.owner = null;
-				}
-			};
-		}
-		return this.mBookmarksRDFObserver;
-	},
- 
-	set bookmarksRDFObserver(val) 
-	{
-		this.mBookmarksRDFObserver = val;
 		return val;
 	},
    
