@@ -36,16 +36,6 @@ SecondSearchBrowser.prototype = {
 			);
 	},
  
-	isContentSelection : function(aTerm)
-	{
-		var w = document.commandDispatcher.focusedWindow;
-		return (
-			w &&
-			w.top == this.browser.contentWindow &&
-			w.getSelection().toString() == aTerm
-		);
-	},
- 
 /* preference values */ 
 	
 	get historyNum() 
@@ -877,11 +867,12 @@ SecondSearchBrowser.prototype = {
 		if (this.canOpenNewTab(aURI, null, aEvent)) {
 			// for Tree Style Tab
 			if (
-				this.isContentSelection(aTerm) &&
-				'treeStyleTab' in b &&
-				'readyToOpenChildTab' in b.treeStyleTab
+				'TreeStyleTabService' in window &&
+				'readyToOpenChildTab' in TreeStyleTabService &&
+				'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
+				TreeStyleTabService.shouldOpenSearchResultAsChild(aTerm)
 				)
-				b.treeStyleTab.readyToOpenChildTab();
+				TreeStyleTabService.readyToOpenChildTab();
 
 			b.contentWindow.focus();
 
@@ -933,11 +924,12 @@ SecondSearchBrowser.prototype = {
 
 				// for Tree Style Tab
 				if (
-					ss.isContentSelection(ss.searchterm) &&
-					'treeStyleTab' in b &&
-					'readyToOpenChildTab' in b.treeStyleTab
+					'TreeStyleTabService' in window &&
+					'readyToOpenChildTab' in TreeStyleTabService &&
+					'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
+					TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
 					)
-					b.treeStyleTab.readyToOpenChildTab();
+					TreeStyleTabService.readyToOpenChildTab();
 
 				if (!loadInBackground) b.contentWindow.focus();
 				b.loadOneTab(url, null, null, postData, loadInBackground, false);
@@ -955,18 +947,20 @@ SecondSearchBrowser.prototype = {
 			// for Tree Style Tab
 			if (
 				ss.canOpenNewTab(null, aWhere) &&
-				ss.isContentSelection(ss.searchterm) &&
-				'treeStyleTab' in b &&
-				'readyToOpenChildTab' in b.treeStyleTab
+				'TreeStyleTabService' in window &&
+				'readyToOpenChildTab' in TreeStyleTabService &&
+				'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
+				TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
 				)
-				b.treeStyleTab.readyToOpenChildTab();
+				TreeStyleTabService.readyToOpenChildTab();
 
 			var retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
 
 			// for Tree Style Tab
-			if ('treeStyleTab' in b && 'stopToOpenChildTab' in b.treeStyleTab)
-				b.treeStyleTab.stopToOpenChildTab();
+			if ('TreeStyleTabService' in window &&
+				'stopToOpenChildTab' in TreeStyleTabService)
+				TreeStyleTabService.stopToOpenChildTab();
 
 			return retVal;
 		}
