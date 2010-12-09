@@ -812,11 +812,10 @@ catch(e) {
 		this.popup.addEventListener('dragover',  this, false);
 		if (this.isGecko19) {
 			search.addEventListener('dragleave', this, false);
-			search.addEventListener('drop',      this, false);
+			search.addEventListener('drop',      this, true);
 			this.popup.addEventListener('dragleave', this, false);
 			this.popup.addEventListener('drop',      this, false);
-			textbox.addEventListener('dragover', this, false);
-			textbox.addEventListener('drop',     this, false);
+			textbox.addEventListener('drop', this, true);
 		}
 		else {
 			search.addEventListener('dragexit', this, false);
@@ -863,11 +862,10 @@ catch(e) {
 		this.popup.removeEventListener('dragover',  this, false);
 		if (this.isGecko19) {
 			search.removeEventListener('dragleave', this, false);
-			search.removeEventListener('drop',      this, false);
+			search.removeEventListener('drop',      this, true);
 			this.popup.removeEventListener('dragleave', this, false);
 			this.popup.removeEventListener('drop',      this, false);
-			textbox.removeEventListener('dragover', this, false);
-			textbox.removeEventListener('drop',     this, false);
+			textbox.removeEventListener('drop', this, true);
 		}
 		else {
 			search.removeEventListener('dragexit', this, false);
@@ -1279,23 +1277,25 @@ catch(e) {
 		{
 			aDragSession = aDragSession || this.currentDragSession;
 
+			var ss = this.owner;
+
 			if (
 				!this.canDropHere(aEvent, aDragSession) ||
 				this.isPlatformNotSupported ||
 				this.isTimerSupported ||
 				!aDragSession.sourceNode ||
-				aEvent.target != this.owner.searchbar
+				aEvent.target != ss.searchbar
 				)
 				return;
 
 			var now   = (new Date()).getTime();
-			var delay = this.owner.autoShowDragdropDelay;
+			var delay = ss.autoShowDragdropDelay;
 			var popup = this.getPopup(aEvent);
 
 			if (popup.hideTimer && (now - delay > popup.hideTimer)) {
-				if (!this.owner.getCurrentItem(popup)) {
-					if (popup == this.owner.popup)
-						this.owner.hideSecondSearch();
+				if (!ss.getCurrentItem(popup)) {
+					if (popup == ss.popup)
+						ss.hideSecondSearch();
 					else {
 						popup.hidePopup();
 						popup.shown = false;
@@ -1305,8 +1305,8 @@ catch(e) {
 				}
 			}
 			if (popup.showTimer && (now - delay > popup.showTimer)) {
-				if (popup == this.owner.popup)
-					this.owner.showSecondSearch(this.owner.SHOWN_BY_DRAGOVER);
+				if (popup == ss.popup)
+					ss.showSecondSearch(ss.SHOWN_BY_DRAGOVER);
 				else {
 					popup.showPopup();
 					popup.shown = true;
@@ -1335,6 +1335,38 @@ catch(e) {
 			aDragSession = aDragSession || this.currentDragSession;
 
 			var ss = this.owner;
+
+			if (
+				aEvent.type == 'drop' &&
+				aEvent.currentTarget == ss.textbox &&
+				ss.evaluateXPath(
+					'ancestor::*[local-name()="input"]',
+					aDragSession.sourceNode,
+					XPathResult.FIRST_ORDERED_NODE_TYPE
+				).singleNodeValue == ss.textbox.inputField
+				) {
+				if (
+					ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
+					(
+						ss.handleDragdropOnlyOnButton &&
+						!ss.getSearchDropTarget(aEvent)
+					)
+					) {
+					aEvent.stopPropagation();
+					return;
+				}
+				else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
+					ss.textbox.value = data;
+					ss.showSecondSearch(ss.SHOWN_BY_DROP);
+					aEvent.preventDefault();
+					aEvent.stopPropagation();
+					return;
+				}
+				else { // do search
+					// cancel default behavior for drop to the textbox
+					aEvent.preventDefault();
+				}
+			}
 
 			var string = (aXferData ?
 							aXferData.data : // for Gecko 1.8 (Thunderbird 2)
