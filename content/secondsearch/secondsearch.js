@@ -159,7 +159,7 @@ SecondSearchBase.prototype = {
 				return 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul';
 			}
 		};
-		return document.evaluate(aExpression, aContextNode, resolver, type, null);
+		return (aContextNode.ownerDocument || aContextNode).evaluate(aExpression, aContextNode, resolver, type, null);
 	},
   
 /* UI */ 
@@ -802,20 +802,24 @@ catch(e) {
 		textbox.addEventListener('input',    this, true);
 		textbox.addEventListener('keypress', this, true);
 		textbox.addEventListener('blur',     this, false);
-
 		textbox.addEventListener('focus',    this, true);
-		this.popup.addEventListener('click', this, true);
 
 		search.addEventListener('dragenter', this, false);
 		search.addEventListener('dragover',  this, false);
+
+		this.popup.addEventListener('click',     this, true);
 		this.popup.addEventListener('dragenter', this, false);
 		this.popup.addEventListener('dragover',  this, false);
+
 		if (this.isGecko19) {
 			search.addEventListener('dragleave', this, false);
-			search.addEventListener('drop',      this, true);
+			search.addEventListener('drop',      this, textbox.searchbarDNDObserver ? false : true );
+
+			if (!textbox.searchbarDNDObserver)
+				textbox.addEventListener('drop', this, true);
+
 			this.popup.addEventListener('dragleave', this, false);
 			this.popup.addEventListener('drop',      this, false);
-			textbox.addEventListener('drop', this, true);
 		}
 		else {
 			search.addEventListener('dragexit', this, false);
@@ -852,20 +856,24 @@ catch(e) {
 		textbox.removeEventListener('input',    this, true);
 		textbox.removeEventListener('keypress', this, true);
 		textbox.removeEventListener('blur',     this, false);
-
 		textbox.removeEventListener('focus',    this, true);
-		this.popup.removeEventListener('click', this, true);
 
 		search.removeEventListener('dragenter', this, false);
 		search.removeEventListener('dragover',  this, false);
+
+		this.popup.removeEventListener('click',     this, true);
 		this.popup.removeEventListener('dragenter', this, false);
 		this.popup.removeEventListener('dragover',  this, false);
+
 		if (this.isGecko19) {
 			search.removeEventListener('dragleave', this, false);
-			search.removeEventListener('drop',      this, true);
+			search.removeEventListener('drop',      this, textbox.searchbarDNDObserver ? false : true );
+
+			if (!textbox.searchbarDNDObserver)
+				textbox.removeEventListener('drop', this, true);
+
 			this.popup.removeEventListener('dragleave', this, false);
 			this.popup.removeEventListener('drop',      this, false);
-			textbox.removeEventListener('drop', this, true);
 		}
 		else {
 			search.removeEventListener('dragexit', this, false);
@@ -1139,6 +1147,42 @@ catch(e) {
 		return val;
 	},
  
+	get currentDragSession() 
+	{
+		return Components.classes['@mozilla.org/widget/dragservice;1']
+				.getService(Components.interfaces.nsIDragService)
+				.getCurrentSession();
+	},
+ 
+	getDroppedText : function(aEvent, aXferData)
+	{
+		return (aXferData ?
+					aXferData.data : // for Gecko 1.8 (Thunderbird 2)
+					( // for Gecko 1.9.1 (Firefox 3.5-)
+						aEvent.dataTransfer.getData('text/unicode') ||
+						aEvent.dataTransfer.getData('text/x-moz-text-internal')
+					)
+				).replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
+	},
+ 
+	isDragFromTextbox : function(aDragSession)
+	{
+		aDragSession = aDragSession || this.currentDragSession;
+		return this.evaluateXPath(
+				'ancestor-or-self::*[local-name()="input"]',
+				aDragSession.sourceNode,
+				XPathResult.FIRST_ORDERED_NODE_TYPE
+			).singleNodeValue == this.textbox.inputField
+	},
+	isDropOnTextbox : function(aEvent)
+	{
+		return this.evaluateXPath(
+				'ancestor-or-self::*[local-name()="input"]',
+				aEvent.originalTarget,
+				XPathResult.FIRST_ORDERED_NODE_TYPE
+			).singleNodeValue == this.textbox.inputField;
+	},
+ 
 	createSearchDNDObserver : function() 
 	{
 		return ({
@@ -1147,13 +1191,6 @@ catch(e) {
 		showTimer : -1,
 		hideTimer : -1,
 	
-		get currentDragSession() 
-		{
-			return Components.classes['@mozilla.org/widget/dragservice;1']
-					.getService(Components.interfaces.nsIDragService)
-					.getCurrentSession();
-		},
- 
 		canDropHere : function(aEvent, aDragSession) 
 		{
 			var dt = aEvent.dataTransfer;
@@ -1174,7 +1211,7 @@ catch(e) {
  
 		onDragEnter : function(aEvent, aDragSession) 
 		{
-			aDragSession = aDragSession || this.currentDragSession;
+			aDragSession = aDragSession || this.owner.currentDragSession;
 
 			if (
 				!this.canDropHere(aEvent, aDragSession) ||
@@ -1221,7 +1258,7 @@ catch(e) {
  
 		onDragLeave : function(aEvent, aDragSession) 
 		{
-			aDragSession = aDragSession || this.currentDragSession;
+			aDragSession = aDragSession || this.owner.currentDragSession;
 
 			if (this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER)
 				return;
@@ -1275,9 +1312,8 @@ catch(e) {
  
 		onDragOver : function(aEvent, aFlavour, aDragSession) 
 		{
-			aDragSession = aDragSession || this.currentDragSession;
-
 			var ss = this.owner;
+			aDragSession = aDragSession || ss.currentDragSession;
 
 			if (
 				!this.canDropHere(aEvent, aDragSession) ||
@@ -1332,62 +1368,58 @@ catch(e) {
  
 		onDrop : function(aEvent, aXferData, aDragSession) 
 		{
-			aDragSession = aDragSession || this.currentDragSession;
-
 			var ss = this.owner;
+			aDragSession = aDragSession || ss.currentDragSession;
 
 			if (
 				aEvent.type == 'drop' &&
-				aEvent.currentTarget == ss.textbox &&
-				ss.evaluateXPath(
-					'ancestor::*[local-name()="input"]',
-					aDragSession.sourceNode,
-					XPathResult.FIRST_ORDERED_NODE_TYPE
-				).singleNodeValue == ss.textbox.inputField
+				(
+					aEvent.currentTarget == ss.textbox ||
+					ss.isDropOnTextbox(aEvent)
+				)
 				) {
+				// do nothing for Firefox 3.6 or older, because this is done by textbox.searchbarDNDObserver
+				if (ss.textbox.searchbarDNDObserver)
+					return;
 				if (
 					ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 					(
 						ss.handleDragdropOnlyOnButton &&
-						!ss.getSearchDropTarget(aEvent)
+						ss.isDragFromTextbox(aDragSession)
 					)
 					) {
+					// cancel search behavior but do drop behavior of the textbox
 					aEvent.stopPropagation();
-					return;
 				}
 				else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-					ss.textbox.value = data;
+					ss.textbox.value = ss.getDroppedText(aEvent, aXferData);
 					ss.showSecondSearch(ss.SHOWN_BY_DROP);
 					aEvent.preventDefault();
 					aEvent.stopPropagation();
-					return;
+					return; // don't do "search on drop"
 				}
 				else { // do search
-					// cancel default behavior for drop to the textbox
+					// cancel drop behavior of the textbox but do search
 					aEvent.preventDefault();
 				}
+				if (aEvent.currentTarget == ss.textbox)
+					return;
 			}
-
-			var string = (aXferData ?
-							aXferData.data : // for Gecko 1.8 (Thunderbird 2)
-							( // for Gecko 1.9.1 (Firefox 3.5-)
-								aEvent.dataTransfer.getData('text/unicode') ||
-								aEvent.dataTransfer.getData('text/x-moz-text-internal')
-							)
-						).replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
 
 			var bar = ss.searchbar;
 			bar.removeAttribute(ss.emptyAttribute);
 
 			var textbox = ss.textbox;
-			textbox.value = string;
+			textbox.value = ss.getDroppedText(aEvent, aXferData);
 			ss.onSearchTermDrop(aEvent);
 			ss.clearAfterSearch();
 			window.setTimeout(function() {
 				ss.hideSecondSearch();
+				textbox.blur();
 			}, 0);
 
 			aEvent.stopPropagation();
+			aEvent.preventDefault();
 		},
  
 		getSupportedFlavours : function() 

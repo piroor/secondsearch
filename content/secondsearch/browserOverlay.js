@@ -484,7 +484,7 @@ SecondSearchBrowser.prototype = {
 								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 								(
 									ss.handleDragdropOnlyOnButton &&
-									!ss.getSearchDropTarget(aEvent)
+									ss.isDragFromTextbox()
 								)
 								) {
 								return;
@@ -505,7 +505,10 @@ SecondSearchBrowser.prototype = {
 							(ss.searchbar == this.mOuter || ss.textbox == this.mOuter) &&
 							(
 								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-								ss.handleDragdropOnlyOnButton
+								(
+									ss.handleDragdropOnlyOnButton &&
+									ss.isDragFromTextbox()
+								)
 							) &&
 							("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )
 							) {
