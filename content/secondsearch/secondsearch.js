@@ -205,7 +205,7 @@ SecondSearchBase.prototype = {
 				);
 		}
 		else if (this.isGecko19) {
-			this.showSecondSearchInternal();
+			this.showSecondSearchInternal(aEvent);
 		}
 		else {
 			this.showSecondSearchInternalObsolete();
@@ -218,7 +218,7 @@ SecondSearchBase.prototype = {
 	correctingPopupPosition : false,
 	correctingPopupPositionTimer : null,
 	 
-	showSecondSearchInternal : function() 
+	showSecondSearchInternal : function(aEvent) 
 	{
 		if (this.repositionController) {
 			this.repositionController.cancel();
@@ -242,7 +242,7 @@ SecondSearchBase.prototype = {
 			popup[this.kLAST_ANCHOR_X] == anchorBox.screenX &&
 			popup[this.kLAST_ANCHOR_Y] == anchorBox.screenY
 			) {
-			popup.openPopup(bar, 'after_start', popup[this.kLAST_X], popup[this.kLAST_Y], true, true);
+			popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], false, aEvent);
 			return;
 		}
 
