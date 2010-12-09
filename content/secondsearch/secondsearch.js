@@ -808,11 +808,15 @@ catch(e) {
 
 		search.addEventListener('dragenter', this, false);
 		search.addEventListener('dragover',  this, false);
-		search.addEventListener('dragexit',  this, false);
-		search.addEventListener('dragdrop',  this, false);
 		if (this.isGecko19) {
-			textbox.addEventListener('dragover',  this, false);
-			textbox.addEventListener('dragdrop',  this, false);
+			search.addEventListener('dragleave', this, false);
+			search.addEventListener('drop',      this, false);
+			textbox.addEventListener('dragover', this, false);
+			textbox.addEventListener('drop',     this, false);
+		}
+		else {
+			search.addEventListener('dragexit', this, false);
+			search.addEventListener('dragdrop', this, false);
 		}
 
 		window.addEventListener('focus', this.focusEventListener, true);
@@ -851,11 +855,15 @@ catch(e) {
 
 		search.removeEventListener('dragenter', this, false);
 		search.removeEventListener('dragover',  this, false);
-		search.removeEventListener('dragexit',  this, false);
-		search.removeEventListener('dragdrop',  this, false);
 		if (this.isGecko19) {
-			textbox.removeEventListener('dragover',  this, false);
-			textbox.removeEventListener('dragdrop',  this, false);
+			search.removeEventListener('dragleave', this, false);
+			search.removeEventListener('drop',      this, false);
+			textbox.removeEventListener('dragover', this, false);
+			textbox.removeEventListener('drop',     this, false);
+		}
+		else {
+			search.removeEventListener('dragexit', this, false);
+			search.removeEventListener('dragdrop', this, false);
 		}
 
 		window.removeEventListener('focus', this.focusEventListener, true);
@@ -903,6 +911,8 @@ catch(e) {
 
 			case 'dragenter':
 			case 'dragover':
+			case 'dragleave':
+			case 'drop':
 			case 'dragexit':
 			case 'dragdrop':
 				var bar = this.searchbar;
@@ -913,20 +923,23 @@ catch(e) {
 						target = target.parentNode;
 					if (target == input) return;
 				}
-				switch (aEvent.type)
-				{
-					case 'dragenter':
-						nsDragAndDrop.dragEnter(aEvent, this.searchDNDObserver);
-						break;
-					case 'dragover':
-						nsDragAndDrop.dragOver(aEvent, this.searchDNDObserver);
-						break;
-					case 'dragexit':
-						nsDragAndDrop.dragExit(aEvent, this.searchDNDObserver);
-						break;
-					case 'dragdrop':
-						nsDragAndDrop.drop(aEvent, this.searchDNDObserver);
-						break;
+				if (this.isGecko19) {
+					switch (aEvent.type)
+					{
+						case 'dragenter': return this.searchDNDObserver.onDragEnter(aEvent);
+						case 'dragover':  return this.searchDNDObserver.onDragOver(aEvent);
+						case 'dragleave': return this.searchDNDObserver.onDragLeave(aEvent);
+						case 'drop':      return this.searchDNDObserver.onDrop(aEvent);
+					}
+				}
+				else {
+					switch (aEvent.type)
+					{
+						case 'dragenter': return nsDragAndDrop.dragEnter(aEvent, this.searchDNDObserver);
+						case 'dragover':  return nsDragAndDrop.dragOver(aEvent, this.searchDNDObserver);
+						case 'dragexit':  return nsDragAndDrop.dragExit(aEvent, this.searchDNDObserver);
+						case 'dragdrop':  return nsDragAndDrop.drop(aEvent, this.searchDNDObserver);
+					}
 				}
 				break;
 
@@ -1128,8 +1141,26 @@ catch(e) {
 		showTimer : -1,
 		hideTimer : -1,
 	
+		get currentDragSession() 
+		{
+			return Components.classes['@mozilla.org/widget/dragservice;1']
+					.getService(Components.interfaces.nsIDragService)
+					.getCurrentSession();
+		},
+ 
 		onDragEnter : function(aEvent, aDragSession) 
 		{
+			aDragSession = aDragSession || this.currentDragSession;
+
+			var dt = aEvent.dataTransfer;
+			if (
+				dt &&
+				(dt.types.contains('text/unicode') || dt.types.contains('text/plain'))
+				) {
+				dt.effectAllowed = dt.dropEffect = 'copy';
+				aDragSession.canDrop = true;
+			}
+
 			if (this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER)
 				return;
 
@@ -1168,8 +1199,10 @@ catch(e) {
 			}
 		},
  
-		onDragExit : function(aEvent, aDragSession) 
+		onDragLeave : function(aEvent, aDragSession) 
 		{
+			aDragSession = aDragSession || this.currentDragSession;
+
 			if (this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER)
 				return;
 
@@ -1215,9 +1248,15 @@ catch(e) {
 					}, 0, this);
 			}
 		},
+		onDragExit : function(aEvent, aDragSession) // for Gecko 1.8 (Thunderbird 2)
+		{
+			this.onDragLeave(aEvent, aDragSession);
+		},
  
 		onDragOver : function(aEvent, aFlavour, aDragSession) 
 		{
+			aDragSession = aDragSession || this.currentDragSession;
+
 			if (this.isPlatformNotSupported) return;
 			if (this.isTimerSupported || !aDragSession.sourceNode) return;
 			if (aEvent.target != this.owner.searchbar) return;
@@ -1266,7 +1305,12 @@ catch(e) {
  
 		onDrop : function(aEvent, aXferData, aDragSession) 
 		{
-			var string = aXferData.data.replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
+			aDragSession = aDragSession || this.currentDragSession;
+
+			var string = (aXferData ?
+							aXferData.data : // for Gecko 1.8 (Thunderbird 2)
+							aEvent.dataTransfer.getData('text/unicode') // for Gecko 1.9.1 (Firefox 3.5-)
+						).replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
 
 			var bar = this.owner.searchbar;
 			bar.removeAttribute(this.owner.emptyAttribute);
@@ -1278,6 +1322,8 @@ catch(e) {
 			window.setTimeout(function(aOwner) {
 				aOwner.hideSecondSearch();
 			}, 0, this.owner);
+
+			aEvent.stopPropagation();
 		},
  
 		getSupportedFlavours : function() 
@@ -1288,10 +1334,10 @@ catch(e) {
 			return flavourSet;
 		},
  
-			destroy : function() 
-			{
-				this.owner = null;
-			}
+		destroy : function() 
+		{
+			this.owner = null;
+		}
  
 		}); 
 	},
