@@ -36,6 +36,16 @@ SecondSearchBrowser.prototype = {
 			);
 	},
  
+	isContentSelection : function(aTerm)
+	{
+		var w = document.commandDispatcher.focusedWindow;
+		return (
+			w &&
+			w.top == this.browser.contentWindow &&
+			w.getSelection().toString() == aTerm
+		);
+	},
+ 
 /* preference values */ 
 	
 	get historyNum() 
@@ -128,8 +138,7 @@ SecondSearchBrowser.prototype = {
 	{
 		var bar = this.searchbar;
 		return bar ? (
-				bar.textbox || /* Firefox 3 */
-				bar._textbox || /* Firefox 2 */
+				bar.textbox ||
 				(bar.localName == 'textbox' ? bar : null ) /* location bar*/
 			) : null ;
 	},
@@ -143,10 +152,8 @@ SecondSearchBrowser.prototype = {
 	{
 		var bar = this.searchbar;
 		return bar ? (
-				bar.searchButton || /* Firefox 3 */
-				bar._engineButton || /* Firefox 2 */
-				document.getElementById('page-proxy-stack') || /* Firefox 3, location bar*/
-				document.getElementById('page-proxy-deck') /* Firefox 2, location bar*/
+				bar.searchButton ||
+				document.getElementById('page-proxy-stack') /* location bar*/
 			) : null ;
 	},
  
@@ -838,9 +845,9 @@ SecondSearchBrowser.prototype = {
 				if (!uri)
 					return retVal;
 
-				this.loadForSearch(uri, (postData.value || null), aEvent);
+				this.loadForSearch(uri, (postData.value || null), aEvent, this.searchterm);
 			}
-			else if (isSearchBar) { // Firefox 2
+			else if (isSearchBar) {
 				retVal = bar.handleSearchCommand(aEvent, true);
 			}
 		}
@@ -856,7 +863,7 @@ SecondSearchBrowser.prototype = {
 		return retVal;
 	},
 	
-	loadForSearch : function(aURI, aPostData, aEvent) 
+	loadForSearch : function(aURI, aPostData, aEvent, aTerm) 
 	{
 		var inBackground = false;
 		if ('TM_init' in window) { // Tab Mix Plus
@@ -866,24 +873,33 @@ SecondSearchBrowser.prototype = {
 			inBackground = this.loadInBackground;
 		}
 
+		var b = this.browser;
 		if (this.canOpenNewTab(aURI, null, aEvent)) {
-			this.browser.contentWindow.focus();
+			// for Tree Style Tab
+			if (
+				this.isContentSelection(aTerm) &&
+				'treeStyleTab' in b &&
+				'readyToOpenChildTab' in b.treeStyleTab
+				)
+				b.treeStyleTab.readyToOpenChildTab();
+
+			b.contentWindow.focus();
 
 			// for location bar
-			if (this.browser.userTypedValue == this.searchterm)
-				this.browser.userTypedValue = null;
+			if (b.userTypedValue == this.searchterm)
+				b.userTypedValue = null;
 
-			var t = this.browser.loadOneTab(aURI, null, null, aPostData, false, true);
+			var t = b.loadOneTab(aURI, null, null, aPostData, false, true);
 			if (!inBackground)
-				this.browser.selectedTab = t;
+				b.selectedTab = t;
 			if (gURLBar)
 				gURLBar.value = aURI;
 		}
 		else {
-			this.browser.webNavigation.loadURI(aURI, Components.interfaces.LOAD_FLAGS_NONE, null, aPostData, null);
+			b.webNavigation.loadURI(aURI, Components.interfaces.LOAD_FLAGS_NONE, null, aPostData, null);
 		}
 
-		this.browser.contentWindow.focus();
+		b.contentWindow.focus();
 	},
  
 	selectedEngine : null, 
@@ -896,6 +912,7 @@ SecondSearchBrowser.prototype = {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
 
+		var b = ss.browser;
 		if (aOverride) {
 			var engine = ss.selectedEngine || ss.getRecentEngines()[0];
 			engine = ss.getSearchEngineFromName(engine.name);
@@ -911,24 +928,46 @@ SecondSearchBrowser.prototype = {
 			var loadInBackground = ss.loadInBackground;
 			if (ss.canOpenNewTab(url, aWhere)) {
 				// for location bar
-				if (ss.browser.userTypedValue == ss.searchterm)
-					ss.browser.userTypedValue = null;
+				if (b.userTypedValue == ss.searchterm)
+					b.userTypedValue = null;
 
-				if (!loadInBackground) ss.browser.contentWindow.focus();
-				ss.browser.loadOneTab(url, null, null, postData, loadInBackground, false);
+				// for Tree Style Tab
+				if (
+					ss.isContentSelection(ss.searchterm) &&
+					'treeStyleTab' in b &&
+					'readyToOpenChildTab' in b.treeStyleTab
+					)
+					b.treeStyleTab.readyToOpenChildTab();
+
+				if (!loadInBackground) b.contentWindow.focus();
+				b.loadOneTab(url, null, null, postData, loadInBackground, false);
 				if (gURLBar && !loadInBackground)
 					gURLBar.value = url;
 			}
 			else {
-				ss.browser.webNavigation.loadURI(url, Components.interfaces.LOAD_FLAGS_NONE, null, postData, null);
+				b.webNavigation.loadURI(url, Components.interfaces.LOAD_FLAGS_NONE, null, postData, null);
 			}
 
-			ss.browser.contentWindow.focus();
+			b.contentWindow.focus();
 			return;
 		}
 		else {
+			// for Tree Style Tab
+			if (
+				ss.canOpenNewTab(null, aWhere) &&
+				ss.isContentSelection(ss.searchterm) &&
+				'treeStyleTab' in b &&
+				'readyToOpenChildTab' in b.treeStyleTab
+				)
+				b.treeStyleTab.readyToOpenChildTab();
+
 			var retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
+
+			// for Tree Style Tab
+			if ('treeStyleTab' in b && 'stopToOpenChildTab' in b.treeStyleTab)
+				b.treeStyleTab.stopToOpenChildTab();
+
 			return retVal;
 		}
 	},
