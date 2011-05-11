@@ -86,7 +86,7 @@ SecondSearchBrowser.prototype = {
 	{
 		var val = this.getPref('secondsearch.loadInBackground');
 		if (val === null) {
-			val = this.getPref('browser.tabs.loadInBackground');
+			val = this.getPref('browser.tabs.loadDivertedInBackground') || false;
 			this.setPref('secondsearch.loadInBackground', val);
 		}
 		return val;
@@ -526,7 +526,7 @@ SecondSearchBrowser.prototype = {
 					', aOverride)'
 				).replace(
 					/doSearch\(([^\)]+)\)/,
-					'doSearch($1, aOverride)'
+					'doSearch($1, aEvent, aOverride)'
 				));
 				eval('search.doSearch = '+search.doSearch.toSource().replace(
 					'{',
@@ -901,8 +901,8 @@ SecondSearchBrowser.prototype = {
 	selectedEngine : null, 
 	doingSearch : false,
   
-	doSearchbarSearch : function(aData, aWhere, aOverride) 
-	{ // Firefox 2
+	doSearchbarSearch : function(aData, aWhere, aEvent, aOverride) 
+	{
 		var ss = window.getSecondSearch();
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
@@ -922,7 +922,7 @@ SecondSearchBrowser.prototype = {
 				postData = submission.postData;
 			}
 			var loadInBackground = ss.loadInBackground;
-			if (ss.canOpenNewTab(url, aWhere)) {
+			if (ss.canOpenNewTab(url, aWhere, aEvent)) {
 				// for location bar
 				if (b.userTypedValue == ss.searchterm)
 					b.userTypedValue = null;
