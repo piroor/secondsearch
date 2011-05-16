@@ -910,18 +910,18 @@ SecondSearchBrowser.prototype = {
 
 		var b = ss.browser;
 		if (aOverride) {
-			var engine = ss.selectedEngine || ss.getRecentEngines()[0];
+			let engine = ss.selectedEngine || ss.getRecentEngines()[0];
 			engine = ss.getSearchEngineFromName(engine.name);
 			if (!engine) return;
 
-			var postData = null;
-			var url = 'about:blank';
-			var submission = engine.getSubmission(aData, null);
+			let postData = null;
+			let url = 'about:blank';
+			let submission = engine.getSubmission(aData, null);
 			if (submission) {
 				url = submission.uri.spec;
 				postData = submission.postData;
 			}
-			var loadInBackground = ss.loadInBackground;
+			let loadInBackground = ss.loadInBackground;
 			if (ss.canOpenNewTab(url, aWhere, aEvent)) {
 				// for location bar
 				if (b.userTypedValue == ss.searchterm)
@@ -949,9 +949,19 @@ SecondSearchBrowser.prototype = {
 			return;
 		}
 		else {
+			let newTabAction = aWhere == 'tab' || aWhere == 'tabshifted';
+			if (
+				newTabAction &&
+				ss.reuseBlankTab &&
+				ss.currentURI == 'about:blank'
+				) {
+				aWhere = 'current';
+				newTabAction = false;
+			}
+
 			// for Tree Style Tab
 			if (
-				ss.canOpenNewTab(null, aWhere) &&
+				newTabAction &&
 				'TreeStyleTabService' in window &&
 				'readyToOpenChildTab' in TreeStyleTabService &&
 				'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
@@ -959,7 +969,7 @@ SecondSearchBrowser.prototype = {
 				)
 				TreeStyleTabService.readyToOpenChildTab();
 
-			var retVal = this.__secondsearch__doSearch(aData, aWhere);
+			let retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
 
 			// for Tree Style Tab
