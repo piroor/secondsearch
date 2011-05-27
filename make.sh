@@ -3,6 +3,6 @@
 appname=secondsearch
 
 cp buildscript/makexpi.sh ./
-./makexpi.sh $appname version=0
+./makexpi.sh $appname
 rm ./makexpi.sh
 
