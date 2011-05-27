@@ -229,7 +229,8 @@ SecondSearchBase.prototype = {
 		var bar = this.searchbar;
 		var self = this;
 
-		document.popupNode = bar;
+		// Don't override document.popupNode, because it blocks the context menu on the content area!
+		// document.popupNode = bar;
 
 		var anchorNode = this.canFitPopupToSearchField ? bar : this.engineButton ;
 		var anchorBox = anchorNode.boxObject;
