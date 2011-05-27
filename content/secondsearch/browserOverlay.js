@@ -950,13 +950,11 @@ SecondSearchBrowser.prototype = {
 		}
 		else {
 			let newTabAction = aWhere == 'tab' || aWhere == 'tabshifted';
-			if (
-				newTabAction &&
-				ss.reuseBlankTab &&
-				ss.currentURI == 'about:blank'
-				) {
-				aWhere = 'current';
-				newTabAction = false;
+			if (ss.canOpenNewTab(null, !aEvent ? aWhere : null , aEvent) != newTabAction) {
+				aWhere = newTabAction ?
+							'current' :
+							(ss.loadInBackground ? 'tabshifted' : 'tab' );
+				newTabAction = !newTabAction;
 			}
 
 			// for Tree Style Tab
