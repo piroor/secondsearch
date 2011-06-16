@@ -1,0 +1,82 @@
+<!ENTITY secondsearch.searchBy     "&#37;s">
+<!ENTITY secondsearch.searchByMore "Sök med…">
+<!ENTITY secondsearch.loadAsURI    "Läs in som en URI">
+
+
+
+<!ENTITY config.title     "Inställningar för Second Search">
+<!ENTITY config.disabled  "Inställningarna för Second Search fungerar inte med Firefox 1.0. Gå istället till &quot;about:config&quot; och leta upp objekt med nyckeln &quot;secondsearch.&quot;.">
+
+<!ENTITY config.tab.general   "Allmänt">
+<!ENTITY config.tab.auto_show "Popup">
+<!ENTITY config.tab.tab       "Flik">
+<!ENTITY config.tab.advanced  "Avancerat">
+
+<!ENTITY config.caption.type "Popup-typ">
+
+<!ENTITY config.popup.type.0 "Senast använda sökmotorer">
+<!ENTITY config.popup.type.1 "All sökmotorer (normal ordning)">
+<!ENTITY config.popup.type.2 "All sökmotorer (omvänd ordning)">
+
+<!ENTITY config.caption.position "Popup-position">
+
+<!ENTITY config.popup.position.0 "Ovanför sökfältet (visas m.h.a. uppåtpiltangenten)">
+<!ENTITY config.popup.position.1 "Nedanför sökfältet (visas m.h.a. nedåtpiltangenten)">
+<!ENTITY config.popup.position.note "* &quot;Komplettera automatiskt&quot; inaktiveras om popup-rutan visas nedanför sökfältet.">
+
+<!ENTITY config.override.locationBar  "Aktivera webbsökning från adressfältet om sökfältet inte finns i verktygsfältet.">
+
+<!ENTITY config.recentengines.num.before "Visa de senaste">
+<!ENTITY config.recentengines.num.after  "sökmotorerna">
+
+
+
+
+
+
+<!ENTITY config.caption.behavior  "Beteende">
+
+<!ENTITY config.keyword.show        "Lägg till smarta nyckelord i listan över sökmotorer">
+<!ENTITY config.switch.blank_input  "Byt standardsökmotor vid sökning utan sökterm">
+<!ENTITY config.clear_after_search  "Rensa">
+<!ENTITY config.clear_after_search.delay.before  "söktermer">
+<!ENTITY config.clear_after_search.delay.after   "ms efter avslutad sökning.">
+<!ENTITY config.handle_dragdrop_only_on_button "Tillåt att text dras och släpps i textrutan">
+<!ENTITY config.handle_dragdrop_only_on_button.description "* För att direktsöka med dra och släpp, släpp på knappar.">
+
+<!ENTITY config.popup.auto_show     "Visa popup-rutan automatiskt vid tangentnedtryckningar i sökfältet">
+
+<!ENTITY config.caption.manual_show.arrowKeys "Öppna popup-rutan manuellt via">
+<!ENTITY config.popup.manual_show.arrowKeys.3 "Uppåtpil/nedåtpil eller Skift+uppåtpil/nedåtpil">
+<!ENTITY config.popup.manual_show.arrowKeys.1 "Uppåtpil/nedåtpil (ignorera Skift+uppåtpil/nedåtpil)">
+<!ENTITY config.popup.manual_show.arrowKeys.2 "Skift+uppåtpil/nedåtpil (anv. uppåtpil/nedåtpil för Komplettera automatiskt)">
+
+<!ENTITY config.caption.auto_show.dragdrop "Dra och släpp i sökfältet">
+<!ENTITY config.popup.auto_show.dragdrop.mode.-1 "Gör ingenting">
+<!ENTITY config.popup.auto_show.dragdrop.mode.0 "Sök med den aktuella sökmotorn (standard i Firefox)">
+<!ENTITY config.popup.auto_show.dragdrop.mode.1 "Välj sökmotor i popup-rutan medan du drar">
+<!ENTITY config.popup.auto_show.dragdrop.mode.2 "Välj sökmotor i popup-rutan efter att du har släppt">
+
+
+
+<!ENTITY config.tab.caption           "Öppna sökresultat i">
+<!ENTITY config.tab.current           "Aktuell flik">
+<!ENTITY config.tab.newtab            "Ny flik i förgrunden">
+<!ENTITY config.tab.newtab_background "Ny flik i bakgrunden">
+<!ENTITY config.reuse_blank_tab  "Öppna inte en ny flik om aktuell flik är tom">
+
+
+<!ENTITY config.caption.type.dragdrop "Popup-typ vid dra och släpp">
+<!ENTITY config.popup.type.dragdrop.-1 "Samma som vanligt">
+<!ENTITY config.popup.type.dragdrop.0  "Senast använda sökmotor">
+<!ENTITY config.popup.type.dragdrop.1  "Alla sökmotorer">
+<!ENTITY config.popup.type.dragdrop.2  "Alla sökmotorer (omvänd ordning)">
+
+<!ENTITY config.caption.type.context "Popup-typ för snabbmenyn på sökmotorknappen">
+<!ENTITY config.popup.type.context.-1 "Samma som vanligt">
+<!ENTITY config.popup.type.context.0  "Senast använda sökmotor">
+<!ENTITY config.popup.type.context.1  "Alla sökmotorer">
+<!ENTITY config.popup.type.context.2  "Alla sökmotorer (omvänd ordning)">
+
+
+<!ENTITY config.initialize.keywords  "Återskapa listan över smarta nyckelord">

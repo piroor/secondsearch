@@ -6,3 +6,4 @@ overlay	chrome://messenger/content/messenger.xul	chrome://secondsearch/content/m
 locale	secondsearch	en-US	jar:chrome/secondsearch.jar!/locale/en-US/secondsearch/
 locale	secondsearch	ja-JP	jar:chrome/secondsearch.jar!/locale/ja-JP/secondsearch/
 locale	secondsearch	hu-HU	jar:chrome/secondsearch.jar!/locale/hu-HU/secondsearch/
+locale	secondsearch	sv-SE	jar:chrome/secondsearch.jar!/locale/sv-SE/secondsearch/

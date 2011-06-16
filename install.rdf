@@ -42,6 +42,15 @@
 		<em:translator>Mikes Kaszmán István (hu-HU locale)</em:translator>
       </RDF:Description>
     </em:localized>
+	<em:localized>
+      <RDF:Description em:locale="sv-SE"
+                       em:name="Second Search"
+                       em:description="Visar en liten popup-ruta för sökfältet, som ger dig möjlighet att snabbt söka med en annan sökmotor."
+                       em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en">
+		<em:creator>Hiroshi Shimoda</em:creator>
+		<em:translator>Mikael Hiort af Ornäs (sv-SE)</em:translator>
+      </RDF:Description>
+    </em:localized>
 
 
     <em:targetApplication>
