@@ -27,7 +27,7 @@ SecondSearchBrowser.prototype = {
 					(aEvent.type.indexOf('key') == 0 && aEvent.altKey) ||
 					(aEvent.type == 'click' && aEvent.button == 1)
 				);
-		var shouldRecycle = this.reuseBlankTab && this.currentURI == 'about:blank';
+		var shouldRecycle = this.reuseBlankTab && (window.isBlankPageURL ? window.isBlankPageURL(this.currentURI) : (this.currentURI == 'about:blank'));
 
 		return (
 				(newTabAction ? !newTabPref : (newTabPref && !shouldRecycle) ) &&
