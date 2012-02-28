@@ -1,4 +1,5 @@
 .secondsearch-popup.dummy {
+	appearance: none !important;
 	-moz-appearance: none !important;
 }
 
