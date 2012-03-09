@@ -525,7 +525,15 @@ SecondSearchBrowser.prototype = {
 			}
 
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
-				eval('search.handleSearchCommand = '+search.handleSearchCommand.toSource().replace(
+				let target = 'search.handleSearchCommand';
+				let func = search.handleSearchCommand;
+				if ('autosizer' in window && autosizer.originalHandleSearchCommand) {
+					// compatibility for Searchbar Autosizer
+					// https://addons.mozilla.org/firefox/addon/searchbar-autosizer/
+					target = 'autosizer.originalHandleSearchCommand';
+					func = autosizer.originalHandleSearchCommand;
+				}
+				eval(target+' = '+func.toSource().replace(
 					')',
 					', aOverride)'
 				).replace(
