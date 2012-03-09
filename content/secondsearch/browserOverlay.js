@@ -29,9 +29,13 @@ SecondSearchBrowser.prototype = {
 				);
 		var shouldRecycle = this.reuseBlankTab && (window.isBlankPageURL ? window.isBlankPageURL(this.currentURI) : (this.currentURI == 'about:blank'));
 
+		// "foreground" and "background" are specified by Tab Utilities.
+		// https://addons.mozilla.org/firefox/addon/tab-utilities/
+		var newTabOption = /^tab|^(foreground|background)$/.test(String(aWhere));
+
 		return (
 				(newTabAction ? !newTabPref : (newTabPref && !shouldRecycle) ) &&
-				(!aWhere || aWhere.indexOf('tab') == 0) &&
+				(!aWhere || newTabOption) &&
 				(!aURI || aURI.indexOf('javascript:') != 0)
 			);
 	},
@@ -949,11 +953,13 @@ SecondSearchBrowser.prototype = {
 			return;
 		}
 		else {
-			let newTabAction = aWhere == 'tab' || aWhere == 'tabshifted';
+			// "foreground" and "background" are specified by Tab Utilities.
+			// https://addons.mozilla.org/firefox/addon/tab-utilities/
+			let newTabAction = /^tab|^(foreground|background)$/.test(String(aWhere));
 			if (ss.canOpenNewTab(null, !aEvent ? aWhere : null , aEvent) != newTabAction) {
 				aWhere = newTabAction ?
 							'current' :
-							(ss.loadInBackground ? 'tabshifted' : 'tab' );
+							(aWhere == 'background' || ss.loadInBackground ? 'tabshifted' : 'tab' );
 				newTabAction = !newTabAction;
 			}
 
@@ -1016,13 +1022,17 @@ SecondSearchBrowser.prototype = {
 
 			case 'tabshifted':
 				loadInBackground = !loadInBackground;
+			// "foreground" and "background" are specified by Tab Utilities.
+			// https://addons.mozilla.org/firefox/addon/tab-utilities/
+			case 'foreground':
+			case 'background':
 			case 'tab':
 				b.loadOneTab(
 					aURI,
 					aReferrerURI,
 					null,
 					aPostData,
-					loadInBackground,
+					(aWhere == 'background') || loadInBackground,
 					aAllowThirdPartyFixup || false
 				);
 				break;
