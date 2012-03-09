@@ -243,7 +243,12 @@ SecondSearchBase.prototype = {
 			popup[this.kLAST_ANCHOR_X] == anchorBox.screenX &&
 			popup[this.kLAST_ANCHOR_Y] == anchorBox.screenY
 			) {
-			popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], false, aEvent);
+			// Popup must be opened as a context menu,
+			// because non-context menu popup hides the caret
+			// in the textbox of the search bar.
+			// ref: http://mxr.mozilla.org/mozilla-central/ident?i=MustDrawCaret
+			//      http://mxr.mozilla.org/mozilla-central/ident?i=IsMenuPopupHidingCaret
+			popup.openPopupAtScreen(popup[this.kLAST_X], popup[this.kLAST_Y], true, aEvent);
 			return;
 		}
 
