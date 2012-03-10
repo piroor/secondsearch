@@ -477,53 +477,6 @@ SecondSearchBrowser.prototype = {
 		}
 
 		if (search.localName == 'searchbar') { // search bar
-			if (textbox.searchbarDNDObserver &&
-				!textbox.searchbarDNDObserver.__secondsearch__updated) { // for Firefox 3.6 or olders
-				eval('textbox.searchbarDNDObserver.onDrop = '+textbox.searchbarDNDObserver.onDrop.toSource().replace(
-					'this.mOuter.value = data',
-					<![CDATA[
-						var ss = window.getSecondSearch();
-						if (ss.searchbar == this.mOuter || ss.textbox == this.mOuter) {
-							if (
-								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-								(
-									ss.handleDragdropOnlyOnButton &&
-									ss.isDragFromTextbox()
-								)
-								) {
-								return;
-							}
-							else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-								ss.textbox.value = data;
-								ss.showSecondSearch(ss.SHOWN_BY_DROP);
-								return;
-							}
-						}
-						$&]]>.toString()
-				));
-				eval('textbox.searchbarDNDObserver.getSupportedFlavours = '+textbox.searchbarDNDObserver.getSupportedFlavours.toSource().replace(
-					'flavourSet.appendFlavour',
-					<![CDATA[
-						var ss = window.getSecondSearch();
-						if (
-							(ss.searchbar == this.mOuter || ss.textbox == this.mOuter) &&
-							(
-								ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
-								(
-									ss.handleDragdropOnlyOnButton &&
-									ss.isDragFromTextbox()
-								)
-							) &&
-							("handleSearchCommand" in ss.searchbar ? (ss.searchbar.getAttribute(ss.emptyAttribute) != "true") : ss.textbox.value )
-							) {
-							flavourSet.appendFlavour('moz-unknown/unknown');
-							return flavourSet;
-						};
-						flavourSet.appendFlavour]]>.toString()
-				));
-				textbox.searchbarDNDObserver.__secondsearch__updated = true;
-			}
-
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
 				let target = 'search.handleSearchCommand';
 				let func = search.handleSearchCommand;
@@ -552,21 +505,6 @@ SecondSearchBrowser.prototype = {
 				search._popup.addEventListener('command', this, true);
 			}
 
-			if ('SearchLoadURL' in window &&
-				!('__secondsearch__SearchLoadURLUpdated' in window)) { // for Firefox 1.5-3.6?
-				eval('window.SearchLoadURL = '+window.SearchLoadURL.toSource().replace(
-					/([\w\d\.]+).focus\(\)/,
-					'if (!window.getSecondSearch().loadInBackground) $1.focus()'
-				).replace(
-					/([\w\d\.]+).selectedTab = /,
-					'if (!window.getSecondSearch().loadInBackground) $1.selectedTab = '
-				).replace(
-					'if (gURLBar)',
-					'if (gURLBar && !window.getSecondSearch().loadInBackground)'
-				));
-				window.__secondsearch__SearchLoadURLUpdated = true;
-			}
-
 			// old Tab Mix Plus, only Firefox 2?
 			if ('handleSearchCommand' in search &&
 				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
@@ -584,7 +522,7 @@ SecondSearchBrowser.prototype = {
 		}
 		else { // location bar
 			if (textbox.onDrop &&
-				!textbox.__secondsearch__updated) { // for Firefox 3.6 or older
+				!textbox.__secondsearch__updated) {
 				eval('textbox.onDrop = '+textbox.onDrop.toSource().replace(
 					'{',
 					<![CDATA[$&
@@ -723,6 +661,19 @@ SecondSearchBrowser.prototype = {
   
 /* event handling */ 
 	
+	handleEvent : function(aEvent) 
+	{
+		switch (aEvent.type)
+		{
+			case 'beforecustomization':
+				return this.destroyBar();
+			case 'aftercustomization':
+				return this.initBarWithDelay();
+
+		}
+		return this.handleEventBase(aEvent);
+	},
+ 
 	onSearchTermDrop : function(aEvent) 
 	{
 		if (aEvent.target == this.searchbar ||
@@ -1624,30 +1575,9 @@ SecondSearchBrowser.prototype = {
 	{
 		this.initBase();
 
-		window.__secondsearch__BrowserCustomizeToolbar = window.BrowserCustomizeToolbar;
-		window.BrowserCustomizeToolbar = function() {
-			window.getSecondSearch().destroyBar();
-			window.__secondsearch__BrowserCustomizeToolbar.call(window);
-		};
+		window.addEventListener('beforecustomization', this, false);
+		window.addEventListener('aftercustomization', this, false);
 
-		var toolbox = document.getElementById('browser-toolbox') || // Firefox 3
-					document.getElementById('navigator-toolbox'); // Firefox 2
-		if (toolbox.customizeDone) {
-			toolbox.__secondsearch__customizeDone = toolbox.customizeDone;
-			toolbox.customizeDone = function(aChanged) {
-				this.__secondsearch__customizeDone(aChanged);
-				window.getSecondSearch().initBarWithDelay();
-			};
-		}
-		if ('BrowserToolboxCustomizeDone' in window) {
-			window.__secondsearch__BrowserToolboxCustomizeDone = window.BrowserToolboxCustomizeDone;
-			window.BrowserToolboxCustomizeDone = function(aChanged) {
-				window.__secondsearch__BrowserToolboxCustomizeDone.apply(window, arguments);
-				window.getSecondSearch().initBarWithDelay();
-			};
-		}
-
-		// for Firefox 3
 		eval('window.openUILinkIn = '+window.openUILinkIn.toSource().replace(
 			'{',
 			<![CDATA[$&
@@ -1671,6 +1601,9 @@ SecondSearchBrowser.prototype = {
 	{
 		this.destroyBase();
 		this.endObserveKeyword();
+
+		window.removeEventListener('beforecustomization', this, false);
+		window.removeEventListener('aftercustomization', this, false);
 
 		for (var i in this._statements)
 		{

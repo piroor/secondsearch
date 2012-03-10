@@ -2,7 +2,7 @@ function SecondSearchBase()
 {
 }
 SecondSearchBase.prototype = {
-	 
+	
 	SHOWN_BY_INPUT            : 1, 
 	SHOWN_BY_MANUAL_OPERATION : 2,
 	SHOWN_BY_CONTEXT          : 4,
@@ -23,17 +23,9 @@ SecondSearchBase.prototype = {
 	{
 		return this.browser ? true : false ;
 	},
-
-	get isGecko19()
-	{
-		const XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
-				.getService(Components.interfaces.nsIXULAppInfo);
-		var version = XULAppInfo.platformVersion.split('.');
-		return parseInt(version[0]) >= 2 || parseInt(version[1]) >= 9;
-	},
  
 /* preference values */ 
-	 
+	
 	get delay() 
 	{
 		var val = this.getPref('secondsearch.popup.auto_show.delay');
@@ -163,7 +155,7 @@ SecondSearchBase.prototype = {
 	},
   
 /* UI */ 
-	 
+	
 	getCurrentItem : function(aPopup, aDig) 
 	{
 		var popup = aPopup || this.popup;
@@ -204,11 +196,8 @@ SecondSearchBase.prototype = {
 					null
 				);
 		}
-		else if (this.isGecko19) {
-			this.showSecondSearchInternal(aEvent);
-		}
 		else {
-			this.showSecondSearchInternalObsolete();
+			this.showSecondSearchInternal(aEvent);
 		}
 
 		var current = this.getCurrentItem(popup);
@@ -217,7 +206,7 @@ SecondSearchBase.prototype = {
 	canFitPopupToSearchField : true,
 	correctingPopupPosition : false,
 	correctingPopupPositionTimer : null,
-	 
+	
 	showSecondSearchInternal : function(aEvent) 
 	{
 		if (this.repositionController) {
@@ -260,7 +249,7 @@ SecondSearchBase.prototype = {
 		this.repositionController.next();
 	},
 	repositionController : null,
-	 
+	
 	createRepositionController : function() 
 	{
 		var pos = this.popupPosition;
@@ -431,41 +420,6 @@ SecondSearchBase.prototype = {
 		}
 	],
   
-	showSecondSearchInternalObsolete : function() 
-	{
-		var popup = this.popup;
-		var pos = this.popupPosition;
-		var bar = this.searchbar;
-
-		var num = this.popupHeight;
-		var anchor, align;
-		var anchorNode = this.canFitPopupToSearchField ? bar : bar.parentNode ;
-		var anchorBox = anchorNode.boxObject;
-		var rootBox = document.documentElement.boxObject;
-		var popupBox = popup.boxObject;
-		if (pos == 0 &&
-			anchorBox.screenY >= rootBox.screenY + (anchorBox.height * (num+1) * 0.8)) { // above
-			anchor = 'topleft';
-			align  = 'bottomleft';
-		}
-		else if (pos == 1 &&
-			anchorBox.screenY + anchorBox.height + this.textbox.popup.boxObject.height <= rootBox.screenY + rootBox.height - (anchorBox.height * (num+1) * 0.8)) { // below
-			anchor = 'bottomleft';
-			align  = 'topleft';
-		}
-		else if (anchorBox.screenX < rootBox.screenY + anchorBox.width) { // right
-			anchor = 'bottomright';
-			align  = 'bottomleft';
-		}
-		else { // left
-			anchor = 'bottomleft';
-			align  = 'bottomright';
-		}
-
-		document.popupNode = bar;
-		popup.showPopup(anchorNode, -1, -1, 'menupopup', anchor, align);
-	},
- 
 	kLAST_X        : '__secondsearch__framework__lastX', 
 	kLAST_Y        : '__secondsearch__framework__lastY',
 	kLAST_ANCHOR_X : '__secondsearch__framework__lastAnchorX',
@@ -525,7 +479,7 @@ SecondSearchBase.prototype = {
 		this.destroyPopup();
 		popup.hidePopup();
 	},
- 	
+ 
 	operateSecondSearch : function(aEvent) 
 	{
 try{
@@ -796,7 +750,7 @@ catch(e) {
 	{
 		this.initBarBase();
 	},
-	 
+	
 	initBarBase : function() 
 	{
 		var search = this.searchbar;
@@ -816,21 +770,13 @@ catch(e) {
 		this.popup.addEventListener('click',     this, true);
 		this.popup.addEventListener('dragenter', this, false);
 		this.popup.addEventListener('dragover',  this, false);
+		this.popup.addEventListener('dragleave', this, false);
+		this.popup.addEventListener('drop',      this, false);
 
-		if (this.isGecko19) {
-			search.addEventListener('dragleave', this, false);
-			search.addEventListener('drop',      this, textbox.searchbarDNDObserver ? false : true );
+		search.addEventListener('dragleave', this, false);
+		search.addEventListener('drop',      this, true);
 
-			if (!textbox.searchbarDNDObserver)
-				textbox.addEventListener('drop', this, true);
-
-			this.popup.addEventListener('dragleave', this, false);
-			this.popup.addEventListener('drop',      this, false);
-		}
-		else {
-			search.addEventListener('dragexit', this, false);
-			search.addEventListener('dragdrop', this, false);
-		}
+		textbox.addEventListener('drop', this, true);
 
 		window.addEventListener('focus', this.focusEventListener, true);
 		window.addEventListener('blur',  this.focusEventListener, true);
@@ -850,7 +796,7 @@ catch(e) {
 	{
 		this.destroyBarBase(aBar);
 	},
-	 
+	
 	destroyBarBase : function(aBar) 
 	{
 		var search = aBar || this.searchbar;
@@ -870,21 +816,13 @@ catch(e) {
 		this.popup.removeEventListener('click',     this, true);
 		this.popup.removeEventListener('dragenter', this, false);
 		this.popup.removeEventListener('dragover',  this, false);
+		this.popup.removeEventListener('dragleave', this, false);
+		this.popup.removeEventListener('drop',      this, false);
 
-		if (this.isGecko19) {
-			search.removeEventListener('dragleave', this, false);
-			search.removeEventListener('drop',      this, textbox.searchbarDNDObserver ? false : true );
+		search.removeEventListener('dragleave', this, false);
+		search.removeEventListener('drop',      this, true);
 
-			if (!textbox.searchbarDNDObserver)
-				textbox.removeEventListener('drop', this, true);
-
-			this.popup.removeEventListener('dragleave', this, false);
-			this.popup.removeEventListener('drop',      this, false);
-		}
-		else {
-			search.removeEventListener('dragexit', this, false);
-			search.removeEventListener('dragdrop', this, false);
-		}
+		textbox.removeEventListener('drop', this, true);
 
 		window.removeEventListener('focus', this.focusEventListener, true);
 		window.removeEventListener('blur',  this.focusEventListener, true);
@@ -899,6 +837,11 @@ catch(e) {
 /* event handlers */ 
 	
 	handleEvent : function(aEvent) 
+	{
+		return this.handleEventBase(aEvent);
+	},
+ 
+	handleEventBase : function(aEvent) 
 	{
 		switch (aEvent.type)
 		{
@@ -943,23 +886,12 @@ catch(e) {
 						target = target.parentNode;
 					if (target == input) return;
 				}
-				if (this.isGecko19) {
-					switch (aEvent.type)
-					{
-						case 'dragenter': return this.searchDNDObserver.onDragEnter(aEvent);
-						case 'dragover':  return this.searchDNDObserver.onDragOver(aEvent);
-						case 'dragleave': return this.searchDNDObserver.onDragLeave(aEvent);
-						case 'drop':      return this.searchDNDObserver.onDrop(aEvent);
-					}
-				}
-				else {
-					switch (aEvent.type)
-					{
-						case 'dragenter': return nsDragAndDrop.dragEnter(aEvent, this.searchDNDObserver);
-						case 'dragover':  return nsDragAndDrop.dragOver(aEvent, this.searchDNDObserver);
-						case 'dragexit':  return nsDragAndDrop.dragExit(aEvent, this.searchDNDObserver);
-						case 'dragdrop':  return nsDragAndDrop.drop(aEvent, this.searchDNDObserver);
-					}
+				switch (aEvent.type)
+				{
+					case 'dragenter': return this.searchDNDObserver.onDragEnter(aEvent);
+					case 'dragover':  return this.searchDNDObserver.onDragOver(aEvent);
+					case 'dragleave': return this.searchDNDObserver.onDragLeave(aEvent);
+					case 'drop':      return this.searchDNDObserver.onDrop(aEvent);
 				}
 				break;
 
@@ -1160,23 +1092,19 @@ catch(e) {
 				.getCurrentSession();
 	},
  
-	getDroppedText : function(aEvent, aXferData)
+	getDroppedText : function(aEvent) 
 	{
-		return (aXferData ?
-					aXferData.data : // for Gecko 1.8 (Thunderbird 2)
-					( // for Gecko 1.9.1 (Firefox 3.5-)
-						aEvent.dataTransfer.getData('text/unicode') ||
-						aEvent.dataTransfer.getData('text/x-moz-text-internal')
-					)
+		return (
+				aEvent.dataTransfer.getData('text/unicode') ||
+				aEvent.dataTransfer.getData('text/x-moz-text-internal')
 				).replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
 	},
  
-	isDragFromTextbox : function(aDragSession)
+	isDragFromTextbox : function() 
 	{
-		aDragSession = aDragSession || this.currentDragSession;
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
-				aDragSession.sourceNode,
+				this.currentDragSession.sourceNode,
 				XPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue == this.textbox.inputField
 	},
@@ -1197,7 +1125,7 @@ catch(e) {
 		showTimer : -1,
 		hideTimer : -1,
 	
-		canDropHere : function(aEvent, aDragSession) 
+		canDropHere : function(aEvent) 
 		{
 			var dt = aEvent.dataTransfer;
 			if (
@@ -1209,18 +1137,16 @@ catch(e) {
 				)
 				) {
 				dt.effectAllowed = dt.dropEffect = 'copy';
-				aDragSession.canDrop = true;
+				this.owner.currentDragSession.canDrop = true;
 				return true;
 			}
 			return false;
 		},
  
-		onDragEnter : function(aEvent, aDragSession) 
+		onDragEnter : function(aEvent) 
 		{
-			aDragSession = aDragSession || this.owner.currentDragSession;
-
 			if (
-				!this.canDropHere(aEvent, aDragSession) ||
+				!this.canDropHere(aEvent) ||
 				this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER
 				)
 				return;
@@ -1230,42 +1156,33 @@ catch(e) {
 				aEvent.target.setAttribute('_moz-menuactive', true);
 			}
 
-			if (!aDragSession.canDrop)
+			if (!this.owner.currentDragSession.canDrop)
 				return;
 
 			var popup = this.getPopup(aEvent);
 			var now = (new Date()).getTime();
 
-			if (this.isPlatformNotSupported) return;
-			if (this.isTimerSupported || !aDragSession.sourceNode) {
-				window.setTimeout(function(aSelf) { // do after dragleave
-					if (popup.hideTimer) {
-						window.clearTimeout(popup.hideTimer);
-						popup.hideTimer = null;
+			window.setTimeout(function(aSelf) { // do after dragleave
+				if (popup.hideTimer) {
+					window.clearTimeout(popup.hideTimer);
+					popup.hideTimer = null;
+				}
+				window.clearTimeout(popup.showTimer);
+				if (aEvent.target == aSelf.owner.currentDragSession.sourceNode) return;
+				popup.showTimer = window.setTimeout(function(aOwner) {
+					if (popup == aOwner.popup)
+						aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
+					else {
+						popup.showPopup();
+						popup.shown = true;
 					}
-					window.clearTimeout(popup.showTimer);
-					if (aEvent.target == aDragSession.sourceNode) return;
-					popup.showTimer = window.setTimeout(function(aOwner) {
-						if (popup == aOwner.popup)
-							aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
-						else {
-							popup.showPopup();
-							popup.shown = true;
-						}
-					}, aSelf.owner.autoShowDragdropDelay, aSelf.owner);
-					aSelf.showTimer = now;
-				}, 0, this);
-			}
-			else {
-				popup.showTimer  = now;
-				popup.showTarget = aEvent.target;
-			}
+				}, aSelf.owner.autoShowDragdropDelay, aSelf.owner);
+				aSelf.showTimer = now;
+			}, 0, this);
 		},
  
-		onDragLeave : function(aEvent, aDragSession) 
+		onDragLeave : function(aEvent) 
 		{
-			aDragSession = aDragSession || this.owner.currentDragSession;
-
 			if (this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER)
 				return;
 
@@ -1277,86 +1194,22 @@ catch(e) {
 			var popup = this.getPopup(aEvent);
 			var now = (new Date()).getTime();
 
-			if (this.isPlatformNotSupported) return;
-			if (this.isTimerSupported || !aDragSession.sourceNode) {
-				window.clearTimeout(popup.hideTimer);
-				popup.hideTimer = window.setTimeout(function(aSelf) {
-					if (aSelf.showTimer > aSelf.hideTimer) return;
-					if (popup == aSelf.owner.popup)
-						aSelf.owner.hideSecondSearch();
-					else {
-						popup.hidePopup();
-						popup.shown = false;
-					}
-				}, this.owner.autoShowDragdropDelay, this);
-				this.hideTimer = now;
-			}
-			else {
-				popup.hideTimer  = now;
-				popup.hideTarget = aEvent.target;
-				popup.showTimer  = null;
-				popup.showTarget = null;
-
-				if (aDragSession.sourceNode.localName != 'menuitem' &&
-					aDragSession.sourceNode.localName != 'menu')
-					window.setTimeout(function (aSelf) {
-						aSelf.showTimer = null;
-						aSelf.showTarget = null;
-						if (popup == aSelf.owner.popup)
-							aSelf.owner.hideSecondSearch();
-						else {
-							popup.hidePopup();
-							popup.shown = false;
-						}
-					}, 0, this);
-			}
-		},
-		onDragExit : function(aEvent, aDragSession) // for Gecko 1.8 (Thunderbird 2)
-		{
-			this.onDragLeave(aEvent, aDragSession);
+			window.clearTimeout(popup.hideTimer);
+			popup.hideTimer = window.setTimeout(function(aSelf) {
+				if (aSelf.showTimer > aSelf.hideTimer) return;
+				if (popup == aSelf.owner.popup)
+					aSelf.owner.hideSecondSearch();
+				else {
+					popup.hidePopup();
+					popup.shown = false;
+				}
+			}, this.owner.autoShowDragdropDelay, this);
+			this.hideTimer = now;
 		},
  
-		onDragOver : function(aEvent, aFlavour, aDragSession) 
+		onDragOver : function(aEvent) 
 		{
 			var ss = this.owner;
-			aDragSession = aDragSession || ss.currentDragSession;
-
-			if (
-				!this.canDropHere(aEvent, aDragSession) ||
-				this.isPlatformNotSupported ||
-				this.isTimerSupported ||
-				!aDragSession.sourceNode ||
-				aEvent.target != ss.searchbar
-				)
-				return;
-
-			var now   = (new Date()).getTime();
-			var delay = ss.autoShowDragdropDelay;
-			var popup = this.getPopup(aEvent);
-
-			if (popup.hideTimer && (now - delay > popup.hideTimer)) {
-				if (!ss.getCurrentItem(popup)) {
-					if (popup == ss.popup)
-						ss.hideSecondSearch();
-					else {
-						popup.hidePopup();
-						popup.shown = false;
-					}
-					popup.hideTimer  = null;
-					popup.hideTarget = null;
-				}
-			}
-			if (popup.showTimer && (now - delay > popup.showTimer)) {
-				if (popup == ss.popup)
-					ss.showSecondSearch(ss.SHOWN_BY_DRAGOVER);
-				else {
-					popup.showPopup();
-					popup.shown = true;
-				}
-
-				popup.showTimer  = null;
-				popup.showTarget = null;
-			}
 		},
  
 		getPopup : function(aEvent) 
@@ -1369,36 +1222,25 @@ catch(e) {
 			return this.owner.popup;
 		},
  
-		isPlatformNotSupported : (!this.isGecko19 && navigator.platform.indexOf('Mac') != -1), // see bug 136524 
-		isTimerSupported       : (this.isGecko19 || navigator.platform.indexOf('Win') == -1), // see bug 232795.
- 
-		onDrop : function(aEvent, aXferData, aDragSession) 
+		onDrop : function(aEvent) 
 		{
 			var ss = this.owner;
-			aDragSession = aDragSession || ss.currentDragSession;
-
 			if (
-				aEvent.type == 'drop' &&
-				(
-					aEvent.currentTarget == ss.textbox ||
-					ss.isDropOnTextbox(aEvent)
-				)
+				aEvent.currentTarget == ss.textbox ||
+				ss.isDropOnTextbox(aEvent)
 				) {
-				// do nothing for Firefox 3.6 or older, because this is done by textbox.searchbarDNDObserver
-				if (ss.textbox.searchbarDNDObserver)
-					return;
 				if (
 					ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
 					(
 						ss.handleDragdropOnlyOnButton &&
-						ss.isDragFromTextbox(aDragSession)
+						ss.isDragFromTextbox()
 					)
 					) {
 					// cancel search behavior but do drop behavior of the textbox
 					aEvent.stopPropagation();
 				}
 				else if (ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-					ss.textbox.value = ss.getDroppedText(aEvent, aXferData);
+					ss.textbox.value = ss.getDroppedText(aEvent);
 					ss.showSecondSearch(ss.SHOWN_BY_DROP);
 					aEvent.preventDefault();
 					aEvent.stopPropagation();
@@ -1416,7 +1258,7 @@ catch(e) {
 			bar.removeAttribute(ss.emptyAttribute);
 
 			var textbox = ss.textbox;
-			textbox.value = ss.getDroppedText(aEvent, aXferData);
+			textbox.value = ss.getDroppedText(aEvent);
 			ss.onSearchTermDrop(aEvent);
 			ss.clearAfterSearch();
 			window.setTimeout(function() {
@@ -1563,7 +1405,7 @@ catch(e) {
 	{
 		this.initBase();
 	},
-	 
+	
 	initBase : function() 
 	{
 		var self = this;
@@ -1584,8 +1426,7 @@ catch(e) {
 		popup.addEventListener('popupshowing', this, false);
 		popup.addEventListener('popuphiding', this, false);
 
-		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER &&
-			this.searchDNDObserver.isPlatformNotSupported)
+		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER)
 			this.setPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
 	},
   
@@ -1593,7 +1434,7 @@ catch(e) {
 	{
 		this.destroyBase();
 	},
-	 
+	
 	destroyBase : function() 
 	{
 		this.destroyBar();
