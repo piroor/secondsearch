@@ -480,12 +480,21 @@ SecondSearchBrowser.prototype = {
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
 				let target = 'search.handleSearchCommand';
 				let func = search.handleSearchCommand;
+
+				// compatibility for Searchbar Autosizer
+				// https://addons.mozilla.org/firefox/addon/searchbar-autosizer/
 				if ('autosizer' in window && autosizer.originalHandleSearchCommand) {
-					// compatibility for Searchbar Autosizer
-					// https://addons.mozilla.org/firefox/addon/searchbar-autosizer/
 					target = 'autosizer.originalHandleSearchCommand';
 					func = autosizer.originalHandleSearchCommand;
 				}
+
+				// compatibility for Tab Control
+				// https://addons.mozilla.org/firefox/addon/tab-control/
+				if ('gTabControl' in window && gTabControl.origHandleSearchCommand) {
+					target = 'gTabControl.origHandleSearchCommand';
+					func = gTabControl.origHandleSearchCommand;
+				}
+
 				eval(target+' = '+func.toSource().replace(
 					')',
 					', aOverride)'
@@ -665,6 +674,8 @@ SecondSearchBrowser.prototype = {
 	{
 		switch (aEvent.type)
 		{
+			case 'DOMContentLoaded':
+				return this.preInit();
 			case 'beforecustomization':
 				return this.destroyBar();
 			case 'aftercustomization':
@@ -1571,6 +1582,24 @@ SecondSearchBrowser.prototype = {
   
 /* initializing */ 
 	
+	preInit : function SSBrowser_preInit() 
+	{
+		window.removeEventListener('DOMContentLoaded', this, false);
+		window.addEventListener('load', this, false);
+
+		// compatibility for Tab Control
+		// https://addons.mozilla.org/firefox/addon/tab-control/
+		if ('gTabControl' in window && gTabControl.handleSearchCommand) {
+			eval('gTabControl.handleSearchCommand = '+gTabControl.handleSearchCommand.toSource().replace(
+				')',
+				', aOverride)'
+			).replace(
+				'[aEvent]',
+				'[aEvent, aOverride]'
+			));
+		}
+	},
+ 
 	init : function SSBrowser_init() 
 	{
 		this.initBase();
@@ -1617,5 +1646,5 @@ SecondSearchBrowser.prototype = {
 SecondSearchBrowser.prototype.__proto__ = SecondSearchBase.prototype; 
 var SecondSearch = new SecondSearchBrowser();
 
-window.addEventListener('load', SecondSearch, false);
+window.addEventListener('DOMContentLoaded', SecondSearch, false);
  
