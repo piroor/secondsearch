@@ -18,16 +18,6 @@ SecondSearchBase.prototype = {
 
 	ARROWKEYS_NORMAL  : 1,
 	ARROWKEYS_SHIFTED : 2,
-
-	get XULAppInfo() {
-		if (!this._XULAppInfo) {
-			this._XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
-								.getService(Components.interfaces.nsIXULAppInfo)
-								.QueryInterface(Components.interfaces.nsIXULRuntime);
-		}
-		return this._XULAppInfo;
-	},
-	_XULAppInfo : null,
  
 	get isBrowser() 
 	{
