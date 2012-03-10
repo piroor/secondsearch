@@ -876,8 +876,6 @@ catch(e) {
 			case 'dragover':
 			case 'dragleave':
 			case 'drop':
-			case 'dragexit':
-			case 'dragdrop':
 				var bar = this.searchbar;
 				if (this.handleDragdropOnlyOnButton && aEvent.target == bar) {
 					var target = aEvent.originalTarget;
@@ -1210,6 +1208,8 @@ catch(e) {
 		onDragOver : function(aEvent) 
 		{
 			var ss = this.owner;
+			if (!this.canDropHere(aEvent))
+				return;
 		},
  
 		getPopup : function(aEvent) 
