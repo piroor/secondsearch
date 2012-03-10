@@ -495,6 +495,15 @@ SecondSearchBrowser.prototype = {
 					func = gTabControl.origHandleSearchCommand;
 				}
 
+				// compatibility for SearchLoad Options
+				// https://addons.mozilla.org/firefox/addon/searchload-options/
+				if ('esteban_torres' in window &&
+					'searchLoad_Options' in esteban_torres &&
+					esteban_torres.searchLoad_Options.MOZhandleSearch) {
+					target = 'esteban_torres.searchLoad_Options.MOZhandleSearch';
+					func = esteban_torres.searchLoad_Options.MOZhandleSearch;
+				}
+
 				eval(target+' = '+func.toSource().replace(
 					')',
 					', aOverride)'
