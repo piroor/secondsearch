@@ -18,6 +18,16 @@ SecondSearchBase.prototype = {
 
 	ARROWKEYS_NORMAL  : 1,
 	ARROWKEYS_SHIFTED : 2,
+
+	get XULAppInfo() {
+		if (!this._XULAppInfo) {
+			this._XULAppInfo = Components.classes['@mozilla.org/xre/app-info;1']
+								.getService(Components.interfaces.nsIXULAppInfo)
+								.QueryInterface(Components.interfaces.nsIXULRuntime);
+		}
+		return this._XULAppInfo;
+	},
+	_XULAppInfo : null,
  
 	get isBrowser() 
 	{
@@ -1106,13 +1116,23 @@ catch(e) {
 				XPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue == this.textbox.inputField
 	},
-	isDropOnTextbox : function SSB_isDropOnTextbox(aEvent)
+ 
+	isEventFiredOnTextbox : function SSB_isEventFiredOnTextbox(aEvent)
 	{
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
 				aEvent.originalTarget,
 				XPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue == this.textbox.inputField;
+	},
+ 
+	isEventFiredOnAutoRepeatButton : function SSB_isEventFiredOnAutoRepeatButton(aEvent)
+	{
+		return this.evaluateXPath(
+				'ancestor-or-self::*[local-name()="autorepeatbutton"]',
+				aEvent.originalTarget,
+				XPathResult.BOOLEAN_TYPE
+			).booleanValue;
 	},
  
 	createSearchDNDObserver : function SSB_createSearchDNDObserver() 
@@ -1123,7 +1143,7 @@ catch(e) {
 		showTimer : -1,
 		hideTimer : -1,
 	
-		canDropHere : function(aEvent) 
+		isDroppableData : function SSSearchDNDObserver_isDroppableData(aEvent) 
 		{
 			var dt = aEvent.dataTransfer;
 			if (
@@ -1141,10 +1161,10 @@ catch(e) {
 			return false;
 		},
  
-		onDragEnter : function(aEvent) 
+		onDragEnter : function SSSearchDNDObserver_onDragEnter(aEvent) 
 		{
 			if (
-				!this.canDropHere(aEvent) ||
+				!this.isDroppableData(aEvent) ||
 				this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER
 				)
 				return;
@@ -1179,7 +1199,7 @@ catch(e) {
 			}, 0, this);
 		},
  
-		onDragLeave : function(aEvent) 
+		onDragLeave : function SSSearchDNDObserver_onDragLeave(aEvent) 
 		{
 			if (this.owner.autoShowDragdropMode != this.owner.DRAGDROP_MODE_DRAGOVER)
 				return;
@@ -1205,14 +1225,21 @@ catch(e) {
 			this.hideTimer = now;
 		},
  
-		onDragOver : function(aEvent) 
+		onDragOver : function SSSearchDNDObserver_onDragOver(aEvent) 
 		{
 			var ss = this.owner;
-			if (!this.canDropHere(aEvent))
+			if (!this.isDroppableData(aEvent))
 				return;
+
+			if (ss.isEventFiredOnAutoRepeatButton(aEvent)) {
+				let event = document.createEvent('XULCommandEvents');
+				event.initCommandEvent('command', true, true, aEvent.view, 0, aEvent.ctrlKey, aEvent.altKey, aEvent.shiftKey, aEvent.metaKey, aEvent);
+				aEvent.originalTarget.dispatchEvent(event);
+				return;
+			}
 		},
  
-		getPopup : function(aEvent) 
+		getPopup : function SSSearchDNDObserver_getPopup(aEvent) 
 		{
 			var node = aEvent.target;
 			if (node.localName == 'menu')
@@ -1222,12 +1249,12 @@ catch(e) {
 			return this.owner.popup;
 		},
  
-		onDrop : function(aEvent) 
+		onDrop : function SSSearchDNDObserver_onDrop(aEvent) 
 		{
 			var ss = this.owner;
 			if (
 				aEvent.currentTarget == ss.textbox ||
-				ss.isDropOnTextbox(aEvent)
+				ss.isEventFiredOnTextbox(aEvent)
 				) {
 				if (
 					ss.autoShowDragdropMode == ss.DRAGDROP_MODE_NONE ||
@@ -1270,15 +1297,7 @@ catch(e) {
 			aEvent.preventDefault();
 		},
  
-		getSupportedFlavours : function() 
-		{
-			var flavourSet = new FlavourSet();
-			flavourSet.appendFlavour('text/unicode');
-			flavourSet.appendFlavour('text/plain');
-			return flavourSet;
-		},
- 
-		destroy : function() 
+		destroy : function SSSearchDNDObserver_destroy() 
 		{
 			this.owner = null;
 		}
