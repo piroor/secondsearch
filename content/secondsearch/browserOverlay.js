@@ -10,7 +10,7 @@ SecondSearchBrowser.prototype = {
 		return (uri && uri.spec) ? uri.spec : 'about:blank' ;
 	},
  
-	canOpenNewTab : function(aURI, aWhere, aEvent) 
+	canOpenNewTab : function SSBrowser_canOpenNewTab(aURI, aWhere, aEvent) 
 	{
 		if (this.browser.localName != 'tabbrowser') return false;
 
@@ -163,7 +163,7 @@ SecondSearchBrowser.prototype = {
   
 /* UI */ 
 	
-	initAllEngines : function(aPopup, aParent, aReverse) 
+	initAllEngines : function SSBrowser_initAllEngines(aPopup, aParent, aReverse) 
 	{
 		var popup  = aPopup || this.popup;
 		var parent = aParent || null;
@@ -243,7 +243,7 @@ SecondSearchBrowser.prototype = {
 		range.detach();
 	},
 	
-	createItemForEngine : function(aEngine, aLabel) 
+	createItemForEngine : function SSBrowser_createItemForEngine(aEngine, aLabel) 
 	{
 		var item = document.createElement('menuitem');
 		item.setAttribute('label', aLabel || aEngine.name);
@@ -259,7 +259,7 @@ SecondSearchBrowser.prototype = {
 		return item;
 	},
  
-	getFaviconForPage : function(aURI) 
+	getFaviconForPage : function SSBrowser_getFaviconForPage(aURI) 
 	{
 		var uri = this.makeURIFromSpec(aURI);
 		var revHost;
@@ -296,7 +296,7 @@ SecondSearchBrowser.prototype = {
 		return result ? 'moz-anno:favicon:'+result : '' ;
 	},
 	
-	makeURIFromSpec : function(aURI) 
+	makeURIFromSpec : function SSBrowser_makeURIFromSpec(aURI) 
 	{
 		var newURI;
 		aURI = aURI || '';
@@ -322,7 +322,7 @@ SecondSearchBrowser.prototype = {
 	},
 	_IOService : null,
     
-	addIconCache : function(aKey, aURI) 
+	addIconCache : function SSBrowser_addIconCache(aKey, aURI) 
 	{
 		/* create a dummy element, because Firefox forgets image data
 		   from the memory if no more element shows the image. */
@@ -339,7 +339,7 @@ SecondSearchBrowser.prototype = {
 		document.getElementById('secondsearch_cached_icons').appendChild(cache);
 	},
  
-	initRecentEngines : function(aPopup) 
+	initRecentEngines : function SSBrowser_initRecentEngines(aPopup) 
 	{
 		var popup = aPopup || this.popup;
 
@@ -397,7 +397,7 @@ SecondSearchBrowser.prototype = {
 		range.detach();
 	},
  
-	switchTo : function(aEngine) 
+	switchTo : function SSBrowser_switchTo(aEngine) 
 	{
 		var bar = this.searchbar;
 		if (bar.localName != 'searchbar') return;
@@ -422,13 +422,13 @@ SecondSearchBrowser.prototype = {
 			(this.searchEngines.length + this.keywords.length) ;
 	},
  
-	initEmptySearchBar : function() 
+	initEmptySearchBar : function SSBrowser_initEmptySearchBar() 
 	{
 		if ('_displayCurrentEngine' in this.textbox)
 			this.textbox._displayCurrentEngine();
 	},
  
-	initPopup : function() 
+	initPopup : function SSBrowser_initPopup() 
 	{
 		var popup = this.popup;
 		var typeFlag = this.popupType;
@@ -444,7 +444,7 @@ SecondSearchBrowser.prototype = {
 	},
 	lastPopupType : -1,
  
-	destroyPopup : function() 
+	destroyPopup : function SSBrowser_destroyPopup() 
 	{
 		try {
 			this.allMenuItem.hidePopup();
@@ -455,7 +455,7 @@ SecondSearchBrowser.prototype = {
   
 /* update searchbar */ 
 	
-	initBar : function() 
+	initBar : function SSBrowser_initBar() 
 	{
 		if (!this.initBarBase()) return;
 
@@ -561,7 +561,7 @@ SecondSearchBrowser.prototype = {
 		}, 1000, this);
 	},
 	
-	testOpenPopup : function() 
+	testOpenPopup : function SSBrowser_testOpenPopup() 
 	{
 		// ドラッグ中の最初のメニュー展開に何故か失敗するので、この時点で一度試行しておく
 		this.popup.style.opacity = 0;
@@ -577,7 +577,7 @@ SecondSearchBrowser.prototype = {
 		}, 10, this);
 	},
  
-	onTextEntered : function(aEvent) 
+	onTextEntered : function SSBrowser_onTextEntered(aEvent) 
 	{
 		var ss = window.getSecondSearch();
 		if (ss.getCurrentItem()) {
@@ -590,7 +590,7 @@ SecondSearchBrowser.prototype = {
 		}
 	},
  
-	onTextboxKeyPress : function(aEvent) 
+	onTextboxKeyPress : function SSBrowser_onTextboxKeyPress(aEvent) 
 	{
 		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 
@@ -642,7 +642,7 @@ SecondSearchBrowser.prototype = {
 			return this.__secondsearch__onKeyPress(aEvent);
 	},
   
-	destroyBar : function(aBar) 
+	destroyBar : function SSBrowser_destroyBar(aBar) 
 	{
 		if (!this.destroyBarBase(aBar)) return;
 
@@ -661,7 +661,7 @@ SecondSearchBrowser.prototype = {
   
 /* event handling */ 
 	
-	handleEvent : function(aEvent) 
+	handleEvent : function SSBrowser_handleEvent(aEvent) 
 	{
 		switch (aEvent.type)
 		{
@@ -674,7 +674,7 @@ SecondSearchBrowser.prototype = {
 		return this.handleEventBase(aEvent);
 	},
  
-	onSearchTermDrop : function(aEvent) 
+	onSearchTermDrop : function SSBrowser_onSearchTermDrop(aEvent) 
 	{
 		if (aEvent.target == this.searchbar ||
 			this.getSearchDropTarget(aEvent)) {
@@ -684,7 +684,7 @@ SecondSearchBrowser.prototype = {
 			this.doSearchBy(aEvent.target, aEvent);
 		}
 	},
-	getSearchDropTarget : function(aEvent)
+	getSearchDropTarget : function SSBrowser_getSearchDropTarget(aEvent)
 	{
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="button" or @class="search-go-container"]',
@@ -693,7 +693,7 @@ SecondSearchBrowser.prototype = {
 			).singleNodeValue;
 	},
  
-	onCommand : function(aEvent) 
+	onCommand : function SSBrowser_onCommand(aEvent) 
 	{
 		var node = aEvent.originalTarget || aEvent.target;
 		if (node.getAttribute('class').indexOf('addengine-item') < 0) return;
@@ -702,7 +702,7 @@ SecondSearchBrowser.prototype = {
 			this.addEngineToRecentList(current);
 	},
  
-	onOperationPre : function(aEvent) 
+	onOperationPre : function SSBrowser_onOperationPre(aEvent) 
 	{
 		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
 		var textbox = this.textbox;
@@ -736,19 +736,19 @@ SecondSearchBrowser.prototype = {
 		return true;
 	},
  
-	onOperationEnterPre : function(aEvent) 
+	onOperationEnterPre : function SSBrowser_onOperationEnterPre(aEvent) 
 	{
 		if ('GSuggest' in window) GSuggest.hideSuggestPopup();
 	},
  
-	onOperationEnter : function(aCurrentItem, aEvent) 
+	onOperationEnter : function SSBrowser_onOperationEnter(aCurrentItem, aEvent) 
 	{
 		this.doSearchBy(aCurrentItem, aEvent);
 	},
   
 /* do search */ 
 	
-	doSearchBy : function(aItem, aEvent) 
+	doSearchBy : function SSBrowser_doSearchBy(aItem, aEvent) 
 	{
 		if (!aItem.getAttribute('engineId'))
 			aItem.setAttribute('engineId', 'search:'+aItem.getAttribute('label'));
@@ -821,7 +821,7 @@ SecondSearchBrowser.prototype = {
 		return retVal;
 	},
 	
-	loadForSearch : function(aURI, aPostData, aEvent, aTerm) 
+	loadForSearch : function SSBrowser_loadForSearch(aURI, aPostData, aEvent, aTerm) 
 	{
 		var inBackground = false;
 		if ('TM_init' in window) { // Tab Mix Plus
@@ -864,7 +864,7 @@ SecondSearchBrowser.prototype = {
 	selectedEngine : null, 
 	doingSearch : false,
   
-	doSearchbarSearch : function(aData, aWhere, aEvent, aOverride) 
+	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEvent, aOverride) 
 	{
 		var ss = window.getSecondSearch();
 		if (!aWhere || typeof aWhere != 'string') {
@@ -944,7 +944,7 @@ SecondSearchBrowser.prototype = {
 		}
 	},
  
-	checkToDoSearch : function(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
+	checkToDoSearch : function SSBrowser_checkToDoSearch(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
 	{
 		if (!this.doingSearch) return false;
 
@@ -1001,17 +1001,17 @@ SecondSearchBrowser.prototype = {
 
 		return true;
 	},
-	readyToSearch : function()
+	readyToSearch : function SSBrowser_readyToSearch()
 	{
 		this.doingSearch = true;
 	},
-	searchDone : function()
+	searchDone : function SSBrowser_searchDone()
 	{
 		this.doingSearch = false;
 	},
 	doingSearch : false,
  
-	loadDroppedURI : function() 
+	loadDroppedURI : function SSBrowser_loadDroppedURI() 
 	{
 		this.textbox.value = this.droppedURI;
 		this.textbox.handleCommand();
@@ -1053,7 +1053,7 @@ SecondSearchBrowser.prototype = {
 	},
 	_searchStringBundle : null,
   
-	getCurrentEngine : function() 
+	getCurrentEngine : function SSBrowser_getCurrentEngine() 
 	{
 		var bar = this.searchbar;
 		return (bar.localName == 'searchbar') ?
@@ -1061,7 +1061,7 @@ SecondSearchBrowser.prototype = {
 			null ;
 	},
  
-	getEngineById : function(aId, aNot) 
+	getEngineById : function SSBrowser_getEngineById(aId, aNot) 
 	{
 		if (aId.indexOf('search:') == 0) {
 			if (aNot) {
@@ -1095,7 +1095,7 @@ SecondSearchBrowser.prototype = {
 		}
 	},
 	
-	getSearchEngineFromName : function(aName) 
+	getSearchEngineFromName : function SSBrowser_getSearchEngineFromName(aName) 
 	{
 		var engine = null;
 		this.searchEngines.some(function(aEngine) {
@@ -1107,7 +1107,7 @@ SecondSearchBrowser.prototype = {
 		return engine;
 	},
  
-	getEngineFromSearchEngine : function(aEngine) 
+	getEngineFromSearchEngine : function SSBrowser_getEngineFromSearchEngine(aEngine) 
 	{
 		if (!aEngine) return null;
 		var engine = {
@@ -1122,14 +1122,14 @@ SecondSearchBrowser.prototype = {
 		return engine;
 	},
  
-	isSearchEngineAvailable : function(aName) 
+	isSearchEngineAvailable : function SSBrowser_isSearchEngineAvailable(aName) 
 	{
 		return this.searchEngines.some(function(aEngine) {
 				return aEngine.name == aName;
 			});
 	},
   
-	getRecentEngines : function() 
+	getRecentEngines : function SSBrowser_getRecentEngines() 
 	{
 		var ids = this.getArrayPref('secondsearch.recentengines.list');
 
@@ -1174,7 +1174,7 @@ SecondSearchBrowser.prototype = {
 		return list;
 	},
  
-	updateRecentList : function(aOperation, aEngine) 
+	updateRecentList : function SSBrowser_updateRecentList(aOperation, aEngine) 
 	{
 		var ids = this.getArrayPref('secondsearch.recentengines.list');
 
@@ -1218,7 +1218,7 @@ SecondSearchBrowser.prototype = {
 
 		return retVal;
 	},
-	removeAndAddRecentEngine : function(aRemoveId, aAddId)
+	removeAndAddRecentEngine : function SSBrowser_removeAndAddRecentEngine(aRemoveId, aAddId)
 	{
 		var ids = this.getArrayPref('secondsearch.recentengines.list');
 		if (aRemoveId) {
@@ -1230,19 +1230,19 @@ SecondSearchBrowser.prototype = {
 		this.setArrayPref('secondsearch.recentengines.list', ids);
 	},
 	
-	addEngineToRecentList : function(aEngine) 
+	addEngineToRecentList : function SSBrowser_addEngineToRecentList(aEngine) 
 	{
 		if (!aEngine) return;
 		this.updateRecentList('add', aEngine);
 	},
  
-	removeEngineFromRecentList : function(aEngine) 
+	removeEngineFromRecentList : function SSBrowser_removeEngineFromRecentList(aEngine) 
 	{
 		if (!aEngine) return;
 		this.updateRecentList('remove', aEngine);
 	},
  
-	isEngineInRecentList : function(aEngine) 
+	isEngineInRecentList : function SSBrowser_isEngineInRecentList(aEngine) 
 	{
 		var retVal = this.updateRecentList('check', aEngine);
 		return retVal ? true : false ;
@@ -1253,19 +1253,19 @@ SecondSearchBrowser.prototype = {
 	keywords : [], 
 	keywordsHash : {},
  
-	startObserveKeyword : function() 
+	startObserveKeyword : function SSBrowser_startObserveKeyword() 
 	{
 		this.NavBMService.addObserver(this.placesObserver, false);
 	},
  
-	endObserveKeyword : function() 
+	endObserveKeyword : function SSBrowser_endObserveKeyword() 
 	{
 		this.NavBMService.removeObserver(this.placesObserver);
 		this.placesObserver.destroy();
 		this.placesObserver = null;
 	},
  
-	initKeywords : function(aForceUpdate) 
+	initKeywords : function SSBrowser_initKeywords(aForceUpdate) 
 	{
 		this.keywords     = [];
 		this.keywordsHash = {};
@@ -1342,7 +1342,7 @@ SecondSearchBrowser.prototype = {
 			this.saveKeywordsCache();
 		}
 	},
-	evalInSandbox : function(aCode, aOwner)
+	evalInSandbox : function SSBrowser_evalInSandbox(aCode, aOwner)
 	{
 		try {
 			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
@@ -1355,7 +1355,7 @@ SecondSearchBrowser.prototype = {
  
 	// SQLite based bookmarks 
 	
-	newKeywordFromPlaces : function(aId) 
+	newKeywordFromPlaces : function SSBrowser_newKeywordFromPlaces(aId) 
 	{
 		var uri = this.NavBMService.getBookmarkURI(aId);
 		return {
@@ -1367,7 +1367,7 @@ SecondSearchBrowser.prototype = {
 		};
 	},
  
-	updateKeywordFromPlaces : function(aId, aMode) 
+	updateKeywordFromPlaces : function SSBrowser_updateKeywordFromPlaces(aId, aMode) 
 	{
 		var data = this.newKeywordFromPlaces(aId);
 		var removedId = null;
@@ -1412,7 +1412,7 @@ SecondSearchBrowser.prototype = {
 		this.saveKeywordsCache();
 	},
  
-	saveKeywordsCache : function() 
+	saveKeywordsCache : function SSBrowser_saveKeywordsCache() 
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 
@@ -1433,7 +1433,7 @@ SecondSearchBrowser.prototype = {
 	},
 	_placesDB : null,
  
-	_getStatement : function(aName, aSQL) 
+	_getStatement : function SSBrowser__getStatement(aName, aSQL) 
 	{
 		if (!(aName in this._statements)) {
 			this._statements[aName] = this.placesDB.createStatement(aSQL);
@@ -1536,7 +1536,7 @@ SecondSearchBrowser.prototype = {
 	
 	domain  : 'secondsearch', 
  
-	observe : function(aSubject, aTopic, aPrefName) 
+	observe : function SSBrowser_observe(aSubject, aTopic, aPrefName) 
 	{
 		if (aTopic != 'nsPref:changed') return;
 
@@ -1571,7 +1571,7 @@ SecondSearchBrowser.prototype = {
   
 /* initializing */ 
 	
-	init : function() 
+	init : function SSBrowser_init() 
 	{
 		this.initBase();
 
@@ -1591,13 +1591,13 @@ SecondSearchBrowser.prototype = {
 		}, 100, this);
 	},
 	
-	delayedInit : function() 
+	delayedInit : function SSBrowser_delayedInit() 
 	{
 		this.initKeywords();
 		this.startObserveKeyword();
 	},
   
-	destroy : function() 
+	destroy : function SSBrowser_destroy() 
 	{
 		this.destroyBase();
 		this.endObserveKeyword();

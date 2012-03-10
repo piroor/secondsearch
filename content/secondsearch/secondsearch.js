@@ -139,7 +139,7 @@ SecondSearchBase.prototype = {
 		return document.getElementById('secondsearch_popup_dummy');
 	},
  
-	evaluateXPath : function(aExpression, aContextNode, aType) 
+	evaluateXPath : function SSB_evaluateXPath(aExpression, aContextNode, aType) 
 	{
 		aExpression  = aExpression || '';
 		aContextNode = aContextNode || document.documentElement;
@@ -156,7 +156,7 @@ SecondSearchBase.prototype = {
   
 /* UI */ 
 	
-	getCurrentItem : function(aPopup, aDig) 
+	getCurrentItem : function SSB_getCurrentItem(aPopup, aDig) 
 	{
 		var popup = aPopup || this.popup;
 		var active;
@@ -172,7 +172,7 @@ SecondSearchBase.prototype = {
 		}
 	},
  
-	showSecondSearch : function(aReason, aX, aY, aEvent) 
+	showSecondSearch : function SSB_showSecondSearch(aReason, aX, aY, aEvent) 
 	{
 		var popup = this.popup;
 		var pos = this.popupPosition;
@@ -207,7 +207,7 @@ SecondSearchBase.prototype = {
 	correctingPopupPosition : false,
 	correctingPopupPositionTimer : null,
 	
-	showSecondSearchInternal : function(aEvent) 
+	showSecondSearchInternal : function SSB_showSecondSearchInternal(aEvent) 
 	{
 		if (this.repositionController) {
 			this.repositionController.cancel();
@@ -250,7 +250,7 @@ SecondSearchBase.prototype = {
 	},
 	repositionController : null,
 	
-	createRepositionController : function() 
+	createRepositionController : function SSB_createRepositionController() 
 	{
 		var pos = this.popupPosition;
 		var position = pos == 0 ? 'before_start' : 'after_start';
@@ -425,7 +425,7 @@ SecondSearchBase.prototype = {
 	kLAST_ANCHOR_X : '__secondsearch__framework__lastAnchorX',
 	kLAST_ANCHOR_Y : '__secondsearch__framework__lastAnchorY',
 	kLAST_STATUS   : '__secondsearch__framework__lastStatus',
-	getPopupStatus : function(aPopupOrItemsArray, aIgnoreOrder)
+	getPopupStatus : function SSB_getPopupStatus(aPopupOrItemsArray, aIgnoreOrder)
 	{
 		var items = Array.slice(aPopupOrItemsArray.childNodes || aPopup)
 				.map(function(aItem) {
@@ -447,7 +447,7 @@ SecondSearchBase.prototype = {
 		return items.join('\n');
 	},
  
-	destroyDummy : function() 
+	destroyDummy : function SSB_destroyDummy() 
 	{
 		var popup = this.popupDummy;
 		popup.hidePopup();
@@ -462,7 +462,7 @@ SecondSearchBase.prototype = {
 		return this.popup.childNodes.length;
 	},
   
-	hideSecondSearch : function(aWithDelay) 
+	hideSecondSearch : function SSB_hideSecondSearch(aWithDelay) 
 	{
 		if (aWithDelay) {
 			window.setTimeout(function(aSelf) {
@@ -480,7 +480,7 @@ SecondSearchBase.prototype = {
 		popup.hidePopup();
 	},
  
-	operateSecondSearch : function(aEvent) 
+	operateSecondSearch : function SSB_operateSecondSearch(aEvent) 
 	{
 try{
 		var popup = this.popup;
@@ -663,20 +663,20 @@ catch(e) {
 }
 	},
 	
-	onOperationPre : function(aEvent) 
+	onOperationPre : function SSB_onOperationPre(aEvent) 
 	{
 		return true;
 	},
  
-	onOperationEnterPre : function(aEvent) 
+	onOperationEnterPre : function SSB_onOperationEnterPre(aEvent) 
 	{
 	},
  
-	onOperationEnter : function(aCurrentItem, aEvent) 
+	onOperationEnter : function SSB_onOperationEnter(aCurrentItem, aEvent) 
 	{
 	},
  
-	getNextOrPrevItem : function(aCurrent, aDir, aCycle) 
+	getNextOrPrevItem : function SSB_getNextOrPrevItem(aCurrent, aDir, aCycle) 
 	{
 		var node;
 		try {
@@ -697,17 +697,17 @@ catch(e) {
 			);
 	},
  
-	getFirstItem : function(aPopup) 
+	getFirstItem : function SSB_getFirstItem(aPopup) 
 	{
 		return this.getNextOrPrevItem(aPopup.lastChild, 1, true);
 	},
  
-	getLastItem : function(aPopup) 
+	getLastItem : function SSB_getLastItem(aPopup) 
 	{
 		return this.getNextOrPrevItem(aPopup.firstChild, -1, true);
 	},
   
-	clearTextBox : function() 
+	clearTextBox : function SSB_clearTextBox() 
 	{
 		if (
 			!this.textbox.value ||
@@ -719,11 +719,11 @@ catch(e) {
 		this.initEmptySearchBar();
 	},
 	
-	initEmptySearchBar : function() 
+	initEmptySearchBar : function SSB_initEmptySearchBar() 
 	{
 	},
   
-	clearAfterSearch : function() 
+	clearAfterSearch : function SSB_clearAfterSearch() 
 	{
 		if (!this.canClearAfterSearch ||
 			!this.getPref('secondsearch.clear_after_search'))
@@ -736,7 +736,7 @@ catch(e) {
 			aSelf.clearAfterSearchTimer = null;
 		}, this.clearDelay, this);
 	},
-	stopClearAfterSearch : function()
+	stopClearAfterSearch : function SSB_stopClearAfterSearch()
 	{
 		if (this.clearAfterSearchTimer)
 			window.clearTimeout(this.clearAfterSearchTimer);
@@ -746,12 +746,12 @@ catch(e) {
   
 /* update searchbar */ 
 	
-	initBar : function() 
+	initBar : function SSB_initBar() 
 	{
 		this.initBarBase();
 	},
 	
-	initBarBase : function() 
+	initBarBase : function SSB_initBarBase() 
 	{
 		var search = this.searchbar;
 		if (!search || search.secondsearchInitialized) return false;
@@ -784,7 +784,7 @@ catch(e) {
 
 		return true;
 	},
-	initBarWithDelay : function()
+	initBarWithDelay : function SSB_initBarWithDelay()
 	{
 		// initialize with delay for other addons modifying "doSearch" method (ex. Tab Mix Plus)
 		window.setTimeout(function(aSelf) {
@@ -792,12 +792,12 @@ catch(e) {
 		}, 100, this);
 	},
   
-	destroyBar : function(aBar) 
+	destroyBar : function SSB_destroyBar(aBar) 
 	{
 		this.destroyBarBase(aBar);
 	},
 	
-	destroyBarBase : function(aBar) 
+	destroyBarBase : function SSB_destroyBarBase(aBar) 
 	{
 		var search = aBar || this.searchbar;
 		if (!search || !search.secondsearchInitialized) return false;;
@@ -836,12 +836,12 @@ catch(e) {
    
 /* event handlers */ 
 	
-	handleEvent : function(aEvent) 
+	handleEvent : function SSB_handleEvent(aEvent) 
 	{
 		return this.handleEventBase(aEvent);
 	},
  
-	handleEventBase : function(aEvent) 
+	handleEventBase : function SSB_handleEventBase(aEvent) 
 	{
 		switch (aEvent.type)
 		{
@@ -920,11 +920,11 @@ catch(e) {
 	},
 	textBoxFocused : false,
  
-	onCommand : function(aEvent) 
+	onCommand : function SSB_onCommand(aEvent) 
 	{
 	},
  
-	onInput : function(aEvent) 
+	onInput : function SSB_onInput(aEvent) 
 	{
 		var popup = this.popup;
 		if (popup.shown) {
@@ -954,7 +954,7 @@ catch(e) {
 		else
 			this.hideSecondSearch();
 	},
-	showPopupOnInput : function()
+	showPopupOnInput : function SSB_showPopupOnInput()
 	{
 		if (!this.searchterm) return;
 		this.showSecondSearch(this.SHOWN_BY_INPUT);
@@ -966,7 +966,7 @@ catch(e) {
 	autoShowTimer : null,
 	autoHideTimer : null,
  
-	onPopupShowing : function(aEvent) 
+	onPopupShowing : function SSB_onPopupShowing(aEvent) 
 	{
 		aEvent.target.shown = true;
 
@@ -982,12 +982,12 @@ catch(e) {
 //		this.initPopup(); // do it before popupshowing! (see "showSecondSearch()")
 	},
 	
-	initPopup : function() 
+	initPopup : function SSB_initPopup() 
 	{
 		dump('base-popup\n');
 	},
   
-	onPopupHiding : function(aEvent) 
+	onPopupHiding : function SSB_onPopupHiding(aEvent) 
 	{
 		aEvent.target.shown = false;
 		var current = this.getCurrentItem(aEvent.target);
@@ -1021,7 +1021,7 @@ catch(e) {
 			this.repositionController.cancel();
 	},
 	
-	destroyPopup : function() 
+	destroyPopup : function SSB_destroyPopup() 
 	{
 	},
   
@@ -1067,7 +1067,7 @@ catch(e) {
   
 /* drag and drop */ 
 	
-	onSearchTermDrop : function(aEvent) 
+	onSearchTermDrop : function SSB_onSearchTermDrop(aEvent) 
 	{
 	},
  
@@ -1092,7 +1092,7 @@ catch(e) {
 				.getCurrentSession();
 	},
  
-	getDroppedText : function(aEvent) 
+	getDroppedText : function SSB_getDroppedText(aEvent) 
 	{
 		return (
 				aEvent.dataTransfer.getData('text/unicode') ||
@@ -1100,7 +1100,7 @@ catch(e) {
 				).replace(/[\r\n]/g, '').replace(/[\s]+/g, ' ');
 	},
  
-	isDragFromTextbox : function() 
+	isDragFromTextbox : function SSB_isDragFromTextbox() 
 	{
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
@@ -1108,7 +1108,7 @@ catch(e) {
 				XPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue == this.textbox.inputField
 	},
-	isDropOnTextbox : function(aEvent)
+	isDropOnTextbox : function SSB_isDropOnTextbox(aEvent)
 	{
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
@@ -1117,7 +1117,7 @@ catch(e) {
 			).singleNodeValue == this.textbox.inputField;
 	},
  
-	createSearchDNDObserver : function() 
+	createSearchDNDObserver : function SSB_createSearchDNDObserver() 
 	{
 		return ({
 
@@ -1299,7 +1299,7 @@ catch(e) {
 	},
 	mPrefs : null,
  
-	getPref : function(aKey) 
+	getPref : function SSB_getPref(aKey) 
 	{
 		try {
 			switch (this.Prefs.getPrefType(aKey))
@@ -1320,7 +1320,7 @@ catch(e) {
 		return null;
 	},
  
-	setPref : function(aKey, aNewValue) 
+	setPref : function SSB_setPref(aKey, aNewValue) 
 	{
 		var pref = this.Prefs ;
 		var type;
@@ -1348,7 +1348,7 @@ catch(e) {
 		return true;
 	},
  
-	getArrayPref : function(aKey) 
+	getArrayPref : function SSB_getArrayPref(aKey) 
 	{
 		var value = this.getPref(aKey);
 		var array = (value || '').split('|');
@@ -1360,7 +1360,7 @@ catch(e) {
 			});
 	},
  
-	setArrayPref : function(aKey, aValues) 
+	setArrayPref : function SSB_setArrayPref(aKey, aValues) 
 	{
 		var encoded = aValues.map(function(aValue) {
 				return encodeURIComponent(aValue);
@@ -1369,7 +1369,7 @@ catch(e) {
 		return aValues;
 	},
  
-	clearPref : function(aKey) 
+	clearPref : function SSB_clearPref(aKey) 
 	{
 		try {
 			this.Prefs.clearUserPref(aKey);
@@ -1379,7 +1379,7 @@ catch(e) {
 		return;
 	},
  
-	addPrefListener : function(aObserver) 
+	addPrefListener : function SSB_addPrefListener(aObserver) 
 	{
 		try {
 			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
@@ -1389,7 +1389,7 @@ catch(e) {
 		}
 	},
  
-	removePrefListener : function(aObserver) 
+	removePrefListener : function SSB_removePrefListener(aObserver) 
 	{
 		try {
 			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
@@ -1401,12 +1401,12 @@ catch(e) {
   
 /* initializing */ 
 	
-	init : function() 
+	init : function SSB_init() 
 	{
 		this.initBase();
 	},
 	
-	initBase : function() 
+	initBase : function SSB_initBase() 
 	{
 		var self = this;
 		window.getSecondSearch = function() {
@@ -1430,12 +1430,12 @@ catch(e) {
 			this.setPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
 	},
   
-	destroy : function() 
+	destroy : function SSB_destroy() 
 	{
 		this.destroyBase();
 	},
 	
-	destroyBase : function() 
+	destroyBase : function SSB_destroyBase() 
 	{
 		this.destroyBar();
 		window.removeEventListener('unload', this, false);
