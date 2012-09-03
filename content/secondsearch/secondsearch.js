@@ -1168,7 +1168,7 @@ catch(e) {
 				return;
 
 			var popup = this.getPopup(aEvent);
-			var now = (new Date()).getTime();
+			var now = Date.now();
 
 			window.setTimeout(function(aSelf) { // do after dragleave
 				if (popup.hideTimer) {
@@ -1200,7 +1200,7 @@ catch(e) {
 			}
 
 			var popup = this.getPopup(aEvent);
-			var now = (new Date()).getTime();
+			var now = Date.now();
 
 			window.clearTimeout(popup.hideTimer);
 			popup.hideTimer = window.setTimeout(function(aSelf) {
