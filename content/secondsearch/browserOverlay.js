@@ -147,7 +147,8 @@ SecondSearchBrowser.prototype = {
 		var bar = this.searchbar;
 		return bar ? (
 				bar.searchButton ||
-				document.getElementById('page-proxy-stack') /* location bar*/
+				document.getElementById('page-proxy-stack') || /* location bar */
+				document.getElementById('identity-box') /* location bar, Firefox 16 and later */
 			) : null ;
 	},
  
@@ -272,13 +273,11 @@ SecondSearchBrowser.prototype = {
 
 		var statement = this._getStatement(
 				'getFaviconForPage',
-				<![CDATA[
-					SELECT f.url
-					  FROM moz_favicons f
-					       JOIN moz_places p ON p.favicon_id = f.id
-					 WHERE p.rev_host = ?1
-					 ORDER BY p.frecency
-				]]>.toString()
+				'SELECT f.url' +
+				'  FROM moz_favicons f' +
+				'       JOIN moz_places p ON p.favicon_id = f.id' +
+				' WHERE p.rev_host = ?1' +
+				' ORDER BY p.frecency'
 			);
 		var result;
 		try {
@@ -529,12 +528,11 @@ SecondSearchBrowser.prototype = {
 				window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
 				eval('window.TMP_SearchLoadURL = '+window.TMP_SearchLoadURL.toSource().replace(
 					'var submission = searchbar.currentEngine',
-					<![CDATA[
-						var overrideEngine = null;
-						if (window.getSecondSearch().selectedEngine) {
-							overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);
-						};
-						var submission = (overrideEngine || searchbar.currentEngine)]]>.toString()
+					'var overrideEngine = null;' +
+					'if (window.getSecondSearch().selectedEngine) {' +
+					'  overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);' +
+					'};' +
+					'var submission = (overrideEngine || searchbar.currentEngine)'
 				));
 			}
 		}
@@ -543,32 +541,28 @@ SecondSearchBrowser.prototype = {
 				!textbox.__secondsearch__updated) {
 				eval('textbox.onDrop = '+textbox.onDrop.toSource().replace(
 					'{',
-					<![CDATA[$&
-						var ss = window.getSecondSearch();
-						ss.droppedURI = null;
-						var showSecondSearch = false;
-						if (aXferData.flavour.contentType == 'text/unicode' &&
-							ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {
-							showSecondSearch = (ss.searchbar == this);
-						}
-					]]>.toString()
+					'{' +
+					'  var ss = window.getSecondSearch();' +
+					'  ss.droppedURI = null;' +
+					'  var showSecondSearch = false;' +
+					'  if (aXferData.flavour.contentType == "text/unicode" &&' +
+					'    ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {' +
+					'    showSecondSearch = (ss.searchbar == this);' +
+					'  }'
 				).replace(
 					'return;',
-					<![CDATA[
-						if (showSecondSearch)
-							ss.showSecondSearch(ss.SHOWN_BY_DROP);
-					$&]]>.toString()
+					'if (showSecondSearch)' +
+					'  ss.showSecondSearch(ss.SHOWN_BY_DROP);' +
+					'$&'
 				).replace(
 					/((handleURLBarCommand|this\.handleCommand)\(\);)/,
-					<![CDATA[
-						if (showSecondSearch) {
-							ss.droppedURI = this.value;
-							ss.showSecondSearch(ss.SHOWN_BY_DROP);
-						}
-						else {
-							$1;
-						}
-					]]>.toString()
+					'if (showSecondSearch) {' +
+					'  ss.droppedURI = this.value;' +
+					'  ss.showSecondSearch(ss.SHOWN_BY_DROP);' +
+					'}' +
+					'else {' +
+					'  $1;' +
+					'}'
 				));
 				textbox.__secondsearch__updated = true;
 			}
@@ -1618,10 +1612,9 @@ SecondSearchBrowser.prototype = {
 
 		eval('window.openUILinkIn = '+window.openUILinkIn.toSource().replace(
 			'{',
-			<![CDATA[$&
-				if (SecondSearch.checkToDoSearch.apply(SecondSearch, arguments))
-					return;
-			]]>
+			'{' +
+			'  if (SecondSearch.checkToDoSearch.apply(SecondSearch, arguments))' +
+			'    return;'
 		));
 
 		window.setTimeout(function(aSelf) {
