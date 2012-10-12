@@ -582,6 +582,7 @@ try{
 					var current = isUpKey ? this.getLastItem(popup) : this.getFirstItem(popup) ;
 					if (current) {
 						current.setAttribute('_moz-menuactive', true);
+						this.disableAutoFill();
 					}
 
 					aEvent.stopPropagation();
@@ -606,8 +607,10 @@ try{
 				}
 				if (current) {
 					current.setAttribute('_moz-menuactive', true);
+					this.disableAutoFill();
 				}
 				else {
+					this.revertAutoFill();
 					return true;
 				}
 
@@ -633,7 +636,13 @@ try{
 					popup.shown = true;
 					var current = this.getCurrentItem(popup);
 					if (current) current.removeAttribute('_moz-menuactive');
-					if (popup.hasChildNodes()) popup.firstChild.setAttribute('_moz-menuactive', true);
+					if (popup.hasChildNodes()) {
+						popup.firstChild.setAttribute('_moz-menuactive', true);
+						this.disableAutoFill();
+					}
+					else {
+						this.revertAutoFill();
+					}
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					return false;
@@ -648,9 +657,10 @@ try{
 					current.removeAttribute('_moz-menuactive');
 					current.parentNode.hidePopup();
 					current.parentNode.shown = false;
-					window.setTimeout(function(aMenu) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+					window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
 						aMenu.setAttribute('_moz-menuactive', true);
-					}, 0, current.parentNode.parentNode);
+						aSelf.disableAutoFill();
+					}, 0, current.parentNode.parentNode, this);
 					aEvent.stopPropagation();
 					aEvent.preventDefault();
 					return false;
@@ -743,7 +753,24 @@ catch(e) {
 	},
 	clearAfterSearchTimer : null,
 	canClearAfterSearch : true,
-  
+ 
+	disableAutoFill : function SSB_disableAutoFill() 
+	{
+		if (this.textbox.completeDefaultIndex) {
+			if (this.formFillOriginalState === undefined)
+				this.formFillOriginalState = this.textbox.completeDefaultIndex;
+			this.textbox.completeDefaultIndex = false;
+		}
+	},
+ 
+	revertAutoFill : function SSB_revertAutoFill() 
+	{
+		if (this.formFillOriginalState !== undefined) {
+			this.textbox.completeDefaultIndex = this.formFillOriginalState;
+			delete this.formFillOriginalState;
+		}
+	},
+ 	 
 /* update searchbar */ 
 	
 	initBar : function SSB_initBar() 
@@ -929,6 +956,7 @@ catch(e) {
 				var current = this.getCurrentItem(popup);
 				if (current) {
 					current.removeAttribute('_moz-menuactive');
+					this.revertAutoFill();
 				}
 		}
 		if (this.autoHideTimer) {
@@ -990,6 +1018,7 @@ catch(e) {
 		aEvent.target.shown = false;
 		var current = this.getCurrentItem(aEvent.target);
 		if (current) current.removeAttribute('_moz-menuactive');
+		this.revertAutoFill();
 		if (aEvent.target != this.popup)
 			return;
 
@@ -1107,7 +1136,7 @@ catch(e) {
 			).singleNodeValue == this.textbox.inputField
 	},
  
-	isEventFiredOnTextbox : function SSB_isEventFiredOnTextbox(aEvent)
+	isEventFiredOnTextbox : function SSB_isEventFiredOnTextbox(aEvent) 
 	{
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
@@ -1116,7 +1145,7 @@ catch(e) {
 			).singleNodeValue == this.textbox.inputField;
 	},
  
-	isEventFiredOnAutoRepeatButton : function SSB_isEventFiredOnAutoRepeatButton(aEvent)
+	isEventFiredOnAutoRepeatButton : function SSB_isEventFiredOnAutoRepeatButton(aEvent) 
 	{
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="autorepeatbutton"]',
