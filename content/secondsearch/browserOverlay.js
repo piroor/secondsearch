@@ -545,7 +545,9 @@ SecondSearchBrowser.prototype = {
 					'  var ss = window.getSecondSearch();' +
 					'  ss.droppedURI = null;' +
 					'  var showSecondSearch = false;' +
-					'  if (aXferData.flavour.contentType == "text/unicode" &&' +
+					'  if ((typeof aXferData == "undefined" ? ' +
+					'         ss.getDroppedText(aEvent) : ' +
+					'         aXferData.flavour.contentType == "text/unicode") &&' +
 					'    ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {' +
 					'    showSecondSearch = (ss.searchbar == this);' +
 					'  }'
