@@ -772,6 +772,7 @@ SecondSearchBrowser.prototype = {
 		var engineId = aItem.getAttribute('engineId');
 		if (engineId == this.kLOAD_AS_URI) { // location bar
 			this.loadDroppedURI();
+			this.revertAutoFill();
 			return false;
 		}
 
@@ -833,6 +834,7 @@ SecondSearchBrowser.prototype = {
 		}, 1, this);
 
 		this.clearAfterSearch();
+		this.revertAutoFill();
 
 		return retVal;
 	},
@@ -925,6 +927,7 @@ SecondSearchBrowser.prototype = {
 			}
 
 			b.contentWindow.focus();
+			sv.revertAutoFill();
 			return;
 		}
 		else {
@@ -950,6 +953,7 @@ SecondSearchBrowser.prototype = {
 
 			let retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
+			sv.revertAutoFill();
 
 			// for Tree Style Tab
 			if ('TreeStyleTabService' in window &&

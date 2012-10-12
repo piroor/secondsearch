@@ -122,9 +122,12 @@ SecondSearchBase.prototype = {
 		var bar = this.searchbar;
 		var box = this.textbox;
 		var value = (box && bar && bar.getAttribute(this.emptyAttribute) != 'true') ? box.value : '' ;
-		if (value &&
+		if (
+			value &&
 			this.autoFillEnabled &&
-			this.getPref('secondsearch.ignoreAutoFillResult')) {
+			this.textbox.controller.input && // ignore results stored in inactive autocomplete controller (for drag and drop)
+			this.getPref('secondsearch.ignoreAutoFillResult')
+			) {
 			value = this.textbox.controller.searchString || value;
 		}
 		return value;
@@ -491,6 +494,7 @@ SecondSearchBase.prototype = {
 
 		this.destroyPopup();
 		popup.hidePopup();
+		this.revertAutoFill();
 	},
  
 	operateSecondSearch : function SSB_operateSecondSearch(aEvent) 
@@ -767,6 +771,8 @@ catch(e) {
 	clearAfterSearchTimer : null,
 	canClearAfterSearch : true,
  
+	// because browser.urlbar.autoFill automatically runs search from C++
+	// components, we have to disable it to provide custom search behavior.
 	disableAutoFill : function SSB_disableAutoFill() 
 	{
 		if (this.textbox.completeDefaultIndex) {
@@ -964,13 +970,13 @@ catch(e) {
  
 	onInput : function SSB_onInput(aEvent) 
 	{
+		this.revertAutoFill();
+
 		var popup = this.popup;
 		if (popup.shown) {
 				var current = this.getCurrentItem(popup);
-				if (current) {
+				if (current)
 					current.removeAttribute('_moz-menuactive');
-					this.revertAutoFill();
-				}
 		}
 		if (this.autoHideTimer) {
 			window.clearTimeout(this.autoHideTimer);
@@ -1031,9 +1037,10 @@ catch(e) {
 		aEvent.target.shown = false;
 		var current = this.getCurrentItem(aEvent.target);
 		if (current) current.removeAttribute('_moz-menuactive');
-		this.revertAutoFill();
 		if (aEvent.target != this.popup)
 			return;
+
+		this.revertAutoFill();
 
 		if (this.correctingPopupPosition) return;
 		var popup = this.popup;
