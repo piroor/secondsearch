@@ -121,12 +121,25 @@ SecondSearchBase.prototype = {
 	{
 		var bar = this.searchbar;
 		var box = this.textbox;
-		return (box && bar && bar.getAttribute(this.emptyAttribute) != 'true') ? box.value : '' ;
+		var value = (box && bar && bar.getAttribute(this.emptyAttribute) != 'true') ? box.value : '' ;
+		if (value &&
+			this.autoFillEnabled &&
+			this.getPref('secondsearch.ignoreAutoFillResult')) {
+			value = this.textbox.controller.searchString || value;
+		}
+		return value;
 	},
 	
 	get emptyAttribute() 
 	{
 		return this.isBrowser ? 'empty' : 'searchCriteria' ;
+	},
+
+	get autoFillEnabled() 
+	{
+		return this.autoFillOriginalState !== undefined ?
+				this.autoFillOriginalState :
+				this.textbox.completeDefaultIndex;
 	},
   
 	get popup() 
@@ -757,17 +770,17 @@ catch(e) {
 	disableAutoFill : function SSB_disableAutoFill() 
 	{
 		if (this.textbox.completeDefaultIndex) {
-			if (this.formFillOriginalState === undefined)
-				this.formFillOriginalState = this.textbox.completeDefaultIndex;
+			if (this.autoFillOriginalState === undefined)
+				this.autoFillOriginalState = this.textbox.completeDefaultIndex;
 			this.textbox.completeDefaultIndex = false;
 		}
 	},
  
 	revertAutoFill : function SSB_revertAutoFill() 
 	{
-		if (this.formFillOriginalState !== undefined) {
-			this.textbox.completeDefaultIndex = this.formFillOriginalState;
-			delete this.formFillOriginalState;
+		if (this.autoFillOriginalState !== undefined) {
+			this.textbox.completeDefaultIndex = this.autoFillOriginalState;
+			delete this.autoFillOriginalState;
 		}
 	},
  	 
