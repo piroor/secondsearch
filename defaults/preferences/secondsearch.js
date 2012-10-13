@@ -24,6 +24,3 @@ pref("secondsearch.keyword.updating", false);
 //pref("secondsearch.loadInBackground", false);
 
 pref("secondsearch.handle_dragdrop_only_on_button", false);
-
-pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.name", "chrome://secondsearch/locale/secondsearch.properties");
-pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.description", "chrome://secondsearch/locale/secondsearch.properties");
