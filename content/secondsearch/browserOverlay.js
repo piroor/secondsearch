@@ -927,7 +927,7 @@ SecondSearchBrowser.prototype = {
 			}
 
 			b.contentWindow.focus();
-			sv.revertAutoFill();
+			ss.revertAutoFill();
 			return;
 		}
 		else {
@@ -953,7 +953,7 @@ SecondSearchBrowser.prototype = {
 
 			let retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
-			sv.revertAutoFill();
+			ss.revertAutoFill();
 
 			// for Tree Style Tab
 			if ('TreeStyleTabService' in window &&
