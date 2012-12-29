@@ -1,8 +1,8 @@
-content	secondsearch	jar:chrome/secondsearch.jar!/content/secondsearch/
+content	secondsearch	content/secondsearch/
 
 overlay	chrome://browser/content/browser.xul	chrome://secondsearch/content/browserOverlay.xul
 
-locale	secondsearch	en-US	jar:chrome/secondsearch.jar!/locale/en-US/secondsearch/
-locale	secondsearch	ja-JP	jar:chrome/secondsearch.jar!/locale/ja-JP/secondsearch/
-locale	secondsearch	hu-HU	jar:chrome/secondsearch.jar!/locale/hu-HU/secondsearch/
-locale	secondsearch	sv-SE	jar:chrome/secondsearch.jar!/locale/sv-SE/secondsearch/
+locale	secondsearch	en-US	locale/en-US/secondsearch/
+locale	secondsearch	ja-JP	locale/ja-JP/secondsearch/
+locale	secondsearch	hu-HU	locale/hu-HU/secondsearch/
+locale	secondsearch	sv-SE	locale/sv-SE/secondsearch/
