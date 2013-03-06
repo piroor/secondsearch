@@ -269,7 +269,7 @@ SecondSearchBrowser.prototype = {
 		}
 		catch(e) {
 		}
-		if (!revHost) return this.FavIconService.defaultFavicon.spec;
+		if (!revHost) return this.FaviconService.defaultFavicon.spec;
 
 		var statement = this._getStatement(
 				'getFaviconForPage',
@@ -285,7 +285,7 @@ SecondSearchBrowser.prototype = {
 			while (statement.executeStep())
 			{
 				result = statement.getString(0);
-				if (!this.FavIconService.isFailedFavicon(this.makeURIFromSpec(result)))
+				if (!this.FaviconService.isFailedFavicon(this.makeURIFromSpec(result)))
 					break;
 			}
 		}
@@ -1471,13 +1471,13 @@ SecondSearchBrowser.prototype = {
 		return this._NavBMService;
 	},
  
-	get FavIconService() 
+	get FaviconService() 
 	{
-		if (!this._FavIconService) {
-			this._FavIconService = Components.classes['@mozilla.org/browser/favicon-service;1']
+		if (!this._FaviconService) {
+			this._FaviconService = Components.classes['@mozilla.org/browser/favicon-service;1']
 						.getService(Components.interfaces.nsIFaviconService);
 		}
-		return this._FavIconService;
+		return this._FaviconService;
 	},
  
 	get placesObserver() 
