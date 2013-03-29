@@ -1,5 +1,7 @@
 # History
 
+ - master/HEAD
+   * Modified: "jar" archive is no longer included.
  - 0.7.2012122901
    * Works on Nightly 20.0a1.
    * Fixed: Clear the search term after search correctly, when it is searched by an engine in the popup.
