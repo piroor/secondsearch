@@ -802,10 +802,7 @@ SecondSearchBrowser.prototype = {
 			if (engine.keyword || !isSearchBar) {
 				var postData = {};
 				var uri = engine.keyword ?
-					('getShortcutOrURL' in window ?
-						getShortcutOrURL(engine.keyword+' '+this.searchterm, postData) :
-						getShortcutOrURI(engine.keyword+' '+this.searchterm, postData)
-					) :
+					this._getShortcutOrURI(engine.keyword+' '+this.searchterm, postData) :
 					engine.uri;
 
 				if (!engine.keyword) {
@@ -837,6 +834,45 @@ SecondSearchBrowser.prototype = {
 		this.revertAutoFill();
 
 		return retVal;
+	},
+	_getShortcutOrURI : function SSBrowser__getShortcutOrURI(aURI, aPostData) 
+	{
+		if ('getShortcutOrURL' in window) // too old Firefox
+			return getShortcutOrURL(aURI, aPostData);
+
+		if ('getShortcutOrURI' in window) // Firefox 24 and older
+			return getShortcutOrURI(aURI, aPostData);
+
+		aPostData = aPostData || {};
+
+		// Firefox 25 and later
+		var Task = this._Task;
+		var done = false;
+		Task.spawn(function() {
+			var data = yield getShortcutOrURIAndPostData(aURI);
+			aURI = data.url;
+			if (data.postData)
+				aPostData.value = data.postData;
+			done = true;
+		});
+
+		// this should be rewritten in asynchronous style...
+		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
+		while (!done)
+		{
+			thread.processNextEvent(true);
+		}
+
+		return aURI;
+	},
+	get _Task()
+	{
+		if (!this.__Task) {
+			let TaskNS = {};
+			Components.utils.import('resource://gre/modules/Task.jsm', TaskNS);
+			this.__Task = TaskNS.Task;
+		}
+		return this.__Task;
 	},
 	
 	loadForSearch : function SSBrowser_loadForSearch(aURI, aPostData, aEvent, aTerm) 
