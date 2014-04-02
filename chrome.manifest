@@ -6,3 +6,5 @@ locale	secondsearch	en-US	locale/en-US/secondsearch/
 locale	secondsearch	ja-JP	locale/ja-JP/secondsearch/
 locale	secondsearch	hu-HU	locale/hu-HU/secondsearch/
 locale	secondsearch	sv-SE	locale/sv-SE/secondsearch/
+
+resource secondsearch-modules modules/

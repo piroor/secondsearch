@@ -1,3 +1,6 @@
+(function() {
+let { inherit } = Components.utils.import('resource://secondsearch-modules/inherit.jsm', {});
+
 function SecondSearchBrowser() 
 {
 }
@@ -1688,7 +1691,8 @@ SecondSearchBrowser.prototype = {
 }; 
   
 SecondSearchBrowser.prototype.__proto__ = SecondSearchBase.prototype; 
-var SecondSearch = new SecondSearchBrowser();
+var SecondSearch = window.SecondSearch = new SecondSearchBrowser();
 
 window.addEventListener('DOMContentLoaded', SecondSearch, false);
  
+})();
