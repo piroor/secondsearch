@@ -848,16 +848,24 @@ SecondSearchBrowser.prototype = {
 
 		aPostData = aPostData || {};
 
-		// Firefox 25 and later
-		var Task = this._Task;
+		var getShortcutOrURIAndPostData = aBrowserWindow.getShortcutOrURIAndPostData;
 		var done = false;
-		Task.spawn(function() {
-			var data = yield getShortcutOrURIAndPostData(aURI);
-			aURI = data.url;
-			if (data.postData)
-				aPostData.value = data.postData;
-			done = true;
-		});
+		if (getShortcutOrURIAndPostData.length == 2) {
+			// Firefox 31 and later, after https://bugzilla.mozilla.org/show_bug.cgi?id=989984
+			getShortcutOrURIAndPostData(aURI, function(aData) {
+				aURI = aData.url;
+				done = true;
+			});
+		}
+		else {
+			// Firefox 25-30
+			let Task = this._Task;
+			Task.spawn(function() {
+				var data = yield getShortcutOrURIAndPostData(aURI);
+				aURI = data.url;
+				done = true;
+			});
+		}
 
 		// this should be rewritten in asynchronous style...
 		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
