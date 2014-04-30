@@ -848,7 +848,6 @@ SecondSearchBrowser.prototype = {
 
 		aPostData = aPostData || {};
 
-		var getShortcutOrURIAndPostData = aBrowserWindow.getShortcutOrURIAndPostData;
 		var done = false;
 		if (getShortcutOrURIAndPostData.length == 2) {
 			// Firefox 31 and later, after https://bugzilla.mozilla.org/show_bug.cgi?id=989984
