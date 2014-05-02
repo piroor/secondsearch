@@ -1336,18 +1336,6 @@ SecondSearchBrowser.prototype = {
 			}
 		}
 
-		if (
-			!aForceUpdate &&
-			( // from Fx 2 to Fx 3
-				cachedKeywords &&
-				cachedKeywords.length &&
-				cachedKeywords.some(function(aKeyword) {
-					return aKeyword.uri.indexOf('rdf:#') > -1;
-				})
-			)
-			)
-			aForceUpdate = true;
-
 		var count = this.getPref('secondsearch.keyword.cache.count');
 		if (
 			cachedKeywords &&
