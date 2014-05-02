@@ -504,7 +504,7 @@ try{
 		if (!this.onOperationPre(aEvent))
 			return true;
 
-		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
 
 		if (
 			popup.shown &&
@@ -1017,7 +1017,7 @@ catch(e) {
 
 //		if (aEvent.target.popupBoxObject &&
 //			'setConsumeRollupEvent' in aEvent.target.popupBoxObject)
-//			aEvent.target.popupBoxObject.setConsumeRollupEvent(Components.interfaces.nsIPopupBoxObject.ROLLUP_NO_CONSUME);
+//			aEvent.target.popupBoxObject.setConsumeRollupEvent(Ci.nsIPopupBoxObject.ROLLUP_NO_CONSUME);
 
 		if (aEvent.target != this.popup) return;
 
@@ -1135,7 +1135,7 @@ catch(e) {
 	get currentDragSession() 
 	{
 		return Components.classes['@mozilla.org/widget/dragservice;1']
-				.getService(Components.interfaces.nsIDragService)
+				.getService(Ci.nsIDragService)
 				.getCurrentSession();
 	},
  
@@ -1351,7 +1351,7 @@ catch(e) {
 		if (!this.mPrefs)
 			this.mPrefs = Components
 					.classes['@mozilla.org/preferences-service;1']
-					.getService(Components.interfaces.nsIPrefService)
+					.getService(Ci.nsIPrefService)
 					.getBranch(null);
 		return this.mPrefs;
 	},
@@ -1440,7 +1440,7 @@ catch(e) {
 	addPrefListener : function SSB_addPrefListener(aObserver) 
 	{
 		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			var pbi = this.Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.addObserver(aObserver.domain, aObserver, false);
 		}
 		catch(e) {
@@ -1450,7 +1450,7 @@ catch(e) {
 	removePrefListener : function SSB_removePrefListener(aObserver) 
 	{
 		try {
-			var pbi = this.Prefs.QueryInterface(Components.interfaces.nsIPrefBranchInternal);
+			var pbi = this.Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
 			pbi.removeObserver(aObserver.domain, aObserver, false);
 		}
 		catch(e) {

@@ -1,5 +1,5 @@
 (function() {
-let { inherit } = Components.utils.import('resource://secondsearch-modules/inherit.jsm', {});
+let { inherit } = Cu.import('resource://secondsearch-modules/inherit.jsm', {});
 
 function SecondSearchBrowser() 
 {
@@ -303,26 +303,18 @@ SecondSearchBrowser.prototype = {
 		var newURI;
 		aURI = aURI || '';
 		if (aURI && String(aURI).indexOf('file:') == 0) {
-			var fileHandler = this.IOService.getProtocolHandler('file')
-					.QueryInterface(Components.interfaces.nsIFileProtocolHandler);
+			var fileHandler = Services.io.getProtocolHandler('file')
+					.QueryInterface(Ci.nsIFileProtocolHandler);
 			var tempLocalFile = fileHandler.getFileFromURLSpec(aURI);
-			newURI = this.IOService.newFileURI(tempLocalFile);
+			newURI = Services.io.newFileURI(tempLocalFile);
 		}
 		else {
-			newURI = this.IOService.newURI(aURI || 'about:blank', null, null);
+			newURI = Services.io.newURI(aURI || 'about:blank', null, null);
 		}
 		return newURI;
 	},
 	
-	get IOService() { 
-		if (!this._IOService) {
-			this._IOService = Components
-					.classes['@mozilla.org/network/io-service;1']
-					.getService(Components.interfaces.nsIIOService);
-		}
-		return this._IOService;
-	},
-	_IOService : null,
+
     
 	addIconCache : function SSBrowser_addIconCache(aKey, aURI) 
 	{
@@ -609,7 +601,7 @@ SecondSearchBrowser.prototype = {
  
 	onTextboxKeyPress : function SSBrowser_onTextboxKeyPress(aEvent) 
 	{
-		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
 
 		var ss = window.getSecondSearch();
 
@@ -723,7 +715,7 @@ SecondSearchBrowser.prototype = {
  
 	onOperationPre : function SSBrowser_onOperationPre(aEvent) 
 	{
-		const nsIDOMKeyEvent = Components.interfaces.nsIDOMKeyEvent;
+		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
 		var textbox = this.textbox;
 		if (
 			(this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED) &&
@@ -879,7 +871,7 @@ SecondSearchBrowser.prototype = {
 	{
 		if (!this.__Task) {
 			let TaskNS = {};
-			Components.utils.import('resource://gre/modules/Task.jsm', TaskNS);
+			Cu.import('resource://gre/modules/Task.jsm', TaskNS);
 			this.__Task = TaskNS.Task;
 		}
 		return this.__Task;
@@ -919,7 +911,7 @@ SecondSearchBrowser.prototype = {
 				gURLBar.value = aURI;
 		}
 		else {
-			b.webNavigation.loadURI(aURI, Components.interfaces.LOAD_FLAGS_NONE, null, aPostData, null);
+			b.webNavigation.loadURI(aURI, Ci.LOAD_FLAGS_NONE, null, aPostData, null);
 		}
 
 		b.contentWindow.focus();
@@ -969,7 +961,7 @@ SecondSearchBrowser.prototype = {
 					gURLBar.value = url;
 			}
 			else {
-				b.webNavigation.loadURI(url, Components.interfaces.LOAD_FLAGS_NONE, null, postData, null);
+				b.webNavigation.loadURI(url, Ci.nsIWebNavigation.LOAD_FLAGS_NONE, null, postData, null);
 			}
 
 			b.contentWindow.focus();
@@ -1036,8 +1028,8 @@ SecondSearchBrowser.prototype = {
 				b.webNavigation.loadURI(
 					aURI,
 					(aAllowThirdPartyFixup ?
-						Components.interfaces.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP :
-						Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE
+						Ci.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP :
+						Ci.nsIWebNavigation.LOAD_FLAGS_NONE
 					),
 					aReferrerURI,
 					aPostData,
@@ -1101,9 +1093,8 @@ SecondSearchBrowser.prototype = {
 	get SearchService() 
 	{
 		if (!this._SearchService)
-			this._SearchService = Components
-				.classes['@mozilla.org/browser/search-service;1']
-				.getService(Components.interfaces.nsIBrowserSearchService);
+			this._SearchService = Cc['@mozilla.org/browser/search-service;1']
+				.getService(Ci.nsIBrowserSearchService);
 		return this._SearchService;
 	},
 	_SearchService : null,
@@ -1111,9 +1102,8 @@ SecondSearchBrowser.prototype = {
 	get searchStringBundle() 
 	{
 		if (!this._searchStringBundle)
-			this._searchStringBundle = Components
-				.classes['@mozilla.org/intl/stringbundle;1']
-				.getService(Components.interfaces.nsIStringBundleService)
+			this._searchStringBundle = Cc['@mozilla.org/intl/stringbundle;1']
+				.getService(Ci.nsIStringBundleService)
 				.createBundle('chrome://browser/locale/search.properties');
 		return this._searchStringBundle;
 	},
@@ -1411,8 +1401,8 @@ SecondSearchBrowser.prototype = {
 	evalInSandbox : function SSBrowser_evalInSandbox(aCode, aOwner)
 	{
 		try {
-			var sandbox = new Components.utils.Sandbox(aOwner || 'about:blank');
-			return Components.utils.evalInSandbox(aCode, sandbox);
+			var sandbox = new Cu.Sandbox(aOwner || 'about:blank');
+			return Cu.evalInSandbox(aCode, sandbox);
 		}
 		catch(e) {
 		}
@@ -1489,10 +1479,9 @@ SecondSearchBrowser.prototype = {
 	get placesDB() 
 	{
 		if (!this._placesDB) {
-			this._placesDB = Components
-						.classes['@mozilla.org/browser/nav-history-service;1']
-						.getService(Components.interfaces.nsINavHistoryService)
-						.QueryInterface(Components.interfaces.nsPIPlacesDatabase)
+			this._placesDB = Cc['@mozilla.org/browser/nav-history-service;1']
+						.getService(Ci.nsINavHistoryService)
+						.QueryInterface(Ci.nsPIPlacesDatabase)
 						.DBConnection;
 		}
 		return this._placesDB;
@@ -1511,8 +1500,8 @@ SecondSearchBrowser.prototype = {
 	get NavBMService() 
 	{
 		if (!this._NavBMService) {
-			this._NavBMService = Components.classes['@mozilla.org/browser/nav-bookmarks-service;1']
-						.getService(Components.interfaces.nsINavBookmarksService);
+			this._NavBMService = Cc['@mozilla.org/browser/nav-bookmarks-service;1']
+						.getService(Ci.nsINavBookmarksService);
 		}
 		return this._NavBMService;
 	},
@@ -1520,8 +1509,8 @@ SecondSearchBrowser.prototype = {
 	get FaviconService() 
 	{
 		if (!this._FaviconService) {
-			this._FaviconService = Components.classes['@mozilla.org/browser/favicon-service;1']
-						.getService(Components.interfaces.nsIFaviconService);
+			this._FaviconService = Cc['@mozilla.org/browser/favicon-service;1']
+						.getService(Ci.nsIFaviconService);
 		}
 		return this._FaviconService;
 	},
@@ -1577,11 +1566,11 @@ SecondSearchBrowser.prototype = {
 				onEndUpdateBatch : function() {},
 				QueryInterface : function(aIID)
 				{
-					if (aIID.equals(Components.interfaces.nsINavBookmarkObserver) ||
-						aIID.equals(Components.interfaces.nsISupports))
+					if (aIID.equals(Ci.nsINavBookmarkObserver) ||
+						aIID.equals(Ci.nsISupports))
 						return this;
 
-					throw Components.results.NS_NOINTERFACE;
+					throw Cr.NS_NOINTERFACE;
 				},
 				destroy : function()
 				{
