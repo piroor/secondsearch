@@ -1330,20 +1330,10 @@ SecondSearchBrowser.prototype = {
 		var cachedKeywords = this.getPref('secondsearch.keyword.cache');
 		if (cachedKeywords) {
 			try {
-				cachedKeywords = this.evalInSandbox('('+cachedKeywords+')');
+				cachedKeywords = JSON.parse(cachedKeywords);
 			}
 			catch(e) {
 			}
-		}
-
-		// clear old cache for Second Search 0.4.x
-		if (cachedKeywords === null &&
-			this.getPref('secondsearch.keyword.cache.uri')) {
-			this.clearPref('secondsearch.keyword.cache.icon');
-			this.clearPref('secondsearch.keyword.cache.id');
-			this.clearPref('secondsearch.keyword.cache.keyword');
-			this.clearPref('secondsearch.keyword.cache.name');
-			this.clearPref('secondsearch.keyword.cache.uri');
 		}
 
 		if (
@@ -1397,16 +1387,6 @@ SecondSearchBrowser.prototype = {
 			}
 			this.saveKeywordsCache();
 		}
-	},
-	evalInSandbox : function SSBrowser_evalInSandbox(aCode, aOwner)
-	{
-		try {
-			var sandbox = new Cu.Sandbox(aOwner || 'about:blank');
-			return Cu.evalInSandbox(aCode, sandbox);
-		}
-		catch(e) {
-		}
-		return void(0);
 	},
  
 	// SQLite based bookmarks 
@@ -1472,7 +1452,7 @@ SecondSearchBrowser.prototype = {
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
 
-		this.setPref('secondsearch.keyword.cache', this.keywords.toSource());
+		this.setPref('secondsearch.keyword.cache', JSON.stringify(this.keywords));
 		this.setPref('secondsearch.keyword.cache.count', this.keywords.length);
 	},
  
