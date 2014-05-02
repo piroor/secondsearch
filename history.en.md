@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.7.2014050201
    * Works on Nightly 32.0a1.
    * Modified: "jar" archive is no longer included.
  - 0.7.2012122901
