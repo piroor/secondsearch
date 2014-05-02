@@ -1333,6 +1333,7 @@ SecondSearchBrowser.prototype = {
 				cachedKeywords = JSON.parse(cachedKeywords);
 			}
 			catch(e) {
+				cachedKeywords = [];
 				aForceUpdate = true; // cache is broken!
 			}
 		}
