@@ -1333,6 +1333,7 @@ SecondSearchBrowser.prototype = {
 				cachedKeywords = JSON.parse(cachedKeywords);
 			}
 			catch(e) {
+				aForceUpdate = true; // cache is broken!
 			}
 		}
 
@@ -1355,7 +1356,7 @@ SecondSearchBrowser.prototype = {
 			if (updated)
 				this.saveKeywordsCache();
 		}
-		else { // initialize for Firefox 3
+		else {
 			var statement = this._getStatement(
 					'initKeywords',
 					'SELECT b.id FROM moz_bookmarks b'+
