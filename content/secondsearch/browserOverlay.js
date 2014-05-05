@@ -452,10 +452,10 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		if (!textbox.__secondsearch__onTextEntered) {
 			textbox.__secondsearch__onTextEntered = textbox.onTextEntered;
-			textbox.onTextEntered = this.onTextEntered;
+			textbox.onTextEntered = this.onTextEntered.bind(this);
 
 			textbox.__secondsearch__onKeyPress = textbox.onKeyPress;
-			textbox.onKeyPress = this.onTextboxKeyPress;
+			textbox.onKeyPress = this.onTextboxKeyPress.bind(this);
 		}
 
 		if (search.localName == 'searchbar') { // search bar
@@ -576,13 +576,12 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
  
 	onTextEntered : function SSBrowser_onTextEntered(aEvent) 
 	{
-		var ss = window.getSecondSearch();
-		if (ss.getCurrentItem()) {
+		if (this.getCurrentItem()) {
 			return false;
 		}
 		else {
-			var retVal = this.__secondsearch__onTextEntered(aEvent);
-			ss.clearAfterSearch();
+			var retVal = this.textbox.__secondsearch__onTextEntered(aEvent);
+			this.clearAfterSearch();
 			return retVal;
 		}
 	},
@@ -591,32 +590,30 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	{
 		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
 
-		var ss = window.getSecondSearch();
-
 		var normalOpenKeys = (
 				(
-					(ss.autoShowInput && ss.popup.shown) ||
-					(ss.manualShowArrowKeys & ss.ARROWKEYS_NORMAL)
+					(this.autoShowInput && this.popup.shown) ||
+					(this.manualShowArrowKeys & this.ARROWKEYS_NORMAL)
 				) &&
 				(
-					(ss.popupPosition == 0) ?
+					(this.popupPosition == 0) ?
 						(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP) :
 						(aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN)
 				)
 			);
 		var shiftedOpenKeys = (
-				(ss.manualShowArrowKeys & ss.ARROWKEYS_SHIFTED) &&
+				(this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED) &&
 				aEvent.shiftKey &&
 				(
 					aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_UP ||
 					aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_DOWN
 				)
 			);
-		var current = ss.getCurrentItem(ss.popup, true);
+		var current = this.getCurrentItem(this.popup, true);
 
 		if (
 			(
-				(this.popup.selectedIndex < 0 && normalOpenKeys) ||
+				(this.textbox.popup.selectedIndex < 0 && normalOpenKeys) ||
 				shiftedOpenKeys
 			) ||
 			(
@@ -636,7 +633,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			)
 			return false;
 		else
-			return this.__secondsearch__onKeyPress(aEvent);
+			return this.textbox.__secondsearch__onKeyPress(aEvent);
 	},
  
 	// for Firefox 29 and later (Australis)
@@ -1739,7 +1736,7 @@ function SecondSearchLocationbar()
 }
 SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchLocationbar',
-	get overrideLocationbar() 
+	get active() 
 	{
 		var val = this.getPref('secondsearch.override.locationBar');
 		if (val === null) {
@@ -1751,9 +1748,7 @@ SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	defaultOverrideLocationBar : true,
 	get searchbar()
 	{
-		return this.overrideLocationbar ?
-			document.getElementById('urlbar') :
-			null ;
+		return document.getElementById('urlbar');
 	}
 });
 

@@ -2,6 +2,7 @@ function SecondSearchBase()
 {
 }
 SecondSearchBase.prototype = {
+	active : true,
 	
 	SHOWN_BY_INPUT            : 1, 
 	SHOWN_BY_MANUAL_OPERATION : 2,
@@ -904,11 +905,15 @@ catch(e) {
 
 
 			case 'input':
+				if (!this.active)
+					return;
 				this.stopClearAfterSearch();
 				this.onInput(aEvent);
 				break;
 
 			case 'keypress':
+				if (!this.active)
+					return;
 				this.operateSecondSearch(aEvent);
 				break;
 
@@ -917,6 +922,8 @@ catch(e) {
 				break;
 
 			case 'command':
+				if (!this.active)
+					return;
 				this.onCommand(aEvent);
 				break;
 
@@ -925,6 +932,8 @@ catch(e) {
 			case 'dragover':
 			case 'dragleave':
 			case 'drop':
+				if (!this.active)
+					return;
 				var bar = this.searchbar;
 				if (this.handleDragdropOnlyOnButton && aEvent.target == bar) {
 					var target = aEvent.originalTarget;
@@ -943,6 +952,8 @@ catch(e) {
 				break;
 
 			case 'contextmenu':
+				if (!this.active)
+					return;
 				window.setTimeout(function(aSelf, aX, aY) {
 					aSelf.showSecondSearch(aSelf.SHOWN_BY_CONTEXT, aX, aY, aEvent);
 				}, 0, this, aEvent.screenX, aEvent.screenY);
@@ -952,6 +963,8 @@ catch(e) {
 
 			case 'click':
 			case 'focus':
+				if (!this.active)
+					return;
 				this.stopClearAfterSearch();
 				this.textBoxFocused = true;
 				break;
