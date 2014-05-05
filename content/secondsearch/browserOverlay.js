@@ -46,6 +46,16 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			);
 	},
  
+	isInVisibleContainer : function SSBrowser_isInVisibleContainer() 
+	{
+		var searchbar = this.searchbar;
+		return searchbar && this.evaluateXPath(
+				'ancestor::*[(local-name()="panel" and @panelopen="true") or local-name()="toolbar"]',
+				searchbar,
+				XPathResult.BOOLEAN_TYPE
+			).booleanValue;
+	},
+ 
 /* preference values */ 
 	
 	get historyNum() 
@@ -706,15 +716,6 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				return;
 
 			case 'popupshowing':
-			case 'popuphiding':
-				if (!this.isEventFiredOnMyPopup(aEvent)) {
-					this.destroyBar();
-					return;
-				}
-				break;
-
-			case 'popupshown':
-			case 'popuphidden':
 				if (!this.isEventFiredOnMyPopup(aEvent)) {
 					this.initBarWithDelay();
 					return;
@@ -1659,12 +1660,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				document.getElementById('widget-overflow'),
 				document.getElementById('PanelUI-popup')
 			].forEach(function(aPanel) {
-				if (aPanel) {
-					aPanel.addEventListener('popupshown', this, false);
+				if (aPanel)
 					aPanel.addEventListener('popupshowing', this, false);
-					aPanel.addEventListener('popuphidden', this, false);
-					aPanel.addEventListener('popuphiding', this, false);
-				}
 			}, this);
 		}
 
@@ -1693,12 +1690,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				document.getElementById('widget-overflow'),
 				document.getElementById('PanelUI-popup')
 			].forEach(function(aPanel) {
-				if (aPanel) {
-					aPanel.removeEventListener('popupshown', this, false);
+				if (aPanel)
 					aPanel.removeEventListener('popupshowing', this, false);
-					aPanel.removeEventListener('popuphidden', this, false);
-					aPanel.removeEventListener('popuphiding', this, false);
-				}
 			}, this);
 		}
 
@@ -1718,6 +1711,13 @@ function SecondSearchSearchbar()
 SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchSearchbar',
 	toolbarItemId : 'search-container',
+	get active()
+	{
+		if (!this.searchbar)
+			return false;
+
+		return this.isInVisibleContainer();
+	},
 	get searchbar()
 	{
 		var container = document.getElementById(this.toolbarItemId);
@@ -1736,14 +1736,17 @@ function SecondSearchLocationbar()
 SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchLocationbar',
 	toolbarItemId : 'urlbar-container',
-	get active() 
+	get active()
 	{
 		var val = this.getPref('secondsearch.override.locationBar');
 		if (val === null) {
 			val = this.defaultOverrideLocationBar;
 			this.setPref('secondsearch.override.locationBar', val);
 		}
-		return val;
+		if (!val)
+			return false;
+
+		return !searchbarInstance.active;
 	},
 	defaultOverrideLocationBar : true,
 	get searchbar()
