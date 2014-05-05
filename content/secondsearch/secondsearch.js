@@ -1177,6 +1177,15 @@ catch(e) {
 			).booleanValue;
 	},
  
+	isEventFiredOnMyPopup : function SSB_isEventFiredOnMyPopup(aEvent) 
+	{
+		return this.evaluateXPath(
+				'ancestor-or-self::*[local-name()="menupopup"][contains(@class, "secondsearch-popup")]',
+				aEvent.originalTarget,
+				XPathResult.BOOLEAN_TYPE
+			).booleanValue;
+	},
+ 
 	createSearchDNDObserver : function SSB_createSearchDNDObserver() 
 	{
 		return ({
@@ -1469,11 +1478,6 @@ catch(e) {
 	
 	initBase : function SSB_initBase() 
 	{
-		var self = this;
-		window.getSecondSearch = function() {
-			return self;
-		};
-
 		this.initBarWithDelay();
 
 		window.removeEventListener('load', this, false);

@@ -3,8 +3,10 @@ let { inherit } = Cu.import('resource://secondsearch-modules/inherit.jsm', {});
 
 function SecondSearchBrowser() 
 {
+	window.addEventListener('DOMContentLoaded', this, false);
 }
-SecondSearchBrowser.prototype = {
+SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
+	name : 'gSecondSearchBrowser',
 	
 	get currentURI() 
 	{
@@ -109,26 +111,12 @@ SecondSearchBrowser.prototype = {
 		return val;
 	},
 	defaultReuseBlankTab : true,
- 
-	get overrideLocationBar() 
-	{
-		var val = this.getPref('secondsearch.override.locationBar');
-		if (val === null) {
-			val = this.defaultOverrideLocationBar;
-			this.setPref('secondsearch.override.locationBar', val);
-		}
-		return val;
-	},
-	defaultOverrideLocationBar : true,
   
 /* elements */ 
 	
 	get searchbar() 
 	{
-		var bar = document.getElementsByTagName('searchbar');
-		return (bar && bar.length) ? bar[0] :
-			this.overrideLocationBar ? document.getElementById('urlbar') :
-			null ;
+		return null;
 	},
  
 	get textbox() 
@@ -507,10 +495,10 @@ SecondSearchBrowser.prototype = {
 				));
 				eval('search.doSearch = '+search.doSearch.toSource().replace(
 					'{',
-					'$& window.getSecondSearch().readyToSearch();'
+					'$& window.' + this.name + '.readyToSearch();'
 				).replace(
 					/(\}\)?)$/,
-					'window.getSecondSearch().searchDone(); $1'
+					'window.' + this.name + '.searchDone(); $1'
 				));
 				search.__secondsearch__doSearch = search.doSearch;
 				search.doSearch = this.doSearchbarSearch;
@@ -524,8 +512,8 @@ SecondSearchBrowser.prototype = {
 				eval('window.TMP_SearchLoadURL = '+window.TMP_SearchLoadURL.toSource().replace(
 					'var submission = searchbar.currentEngine',
 					'var overrideEngine = null;' +
-					'if (window.getSecondSearch().selectedEngine) {' +
-					'  overrideEngine = window.getSecondSearch().getSearchEngineFromName(window.getSecondSearch().selectedEngine.name);' +
+					'if (window.' + this.name + '.selectedEngine) {' +
+					'  overrideEngine = window.' + this.name + '.getSearchEngineFromName(window.' + this.name + '.selectedEngine.name);' +
 					'};' +
 					'var submission = (overrideEngine || searchbar.currentEngine)'
 				));
@@ -537,7 +525,7 @@ SecondSearchBrowser.prototype = {
 				eval('textbox.onDrop = '+textbox.onDrop.toSource().replace(
 					'{',
 					'{' +
-					'  var ss = window.getSecondSearch();' +
+					'  var ss = window.' + this.name + ';' +
 					'  ss.droppedURI = null;' +
 					'  var showSecondSearch = false;' +
 					'  if ((typeof aXferData == "undefined" ? ' +
@@ -723,9 +711,21 @@ SecondSearchBrowser.prototype = {
 				this.initBarWithDelay();
 				return;
 
+			case 'popupshowing':
+			case 'popuphiding':
+				if (!this.isEventFiredOnMyPopup(aEvent)) {
+					this.destroyBar();
+					return;
+				}
+				break;
+
 			case 'popupshown':
-				this.initBarWithDelay();
-				return;
+			case 'popuphidden':
+				if (!this.isEventFiredOnMyPopup(aEvent)) {
+					this.initBarWithDelay();
+					return;
+				}
+				break;
 		}
 		return this.handleEventBase(aEvent);
 	},
@@ -1615,13 +1615,6 @@ SecondSearchBrowser.prototype = {
 			default:
 				return;
 
-			case 'secondsearch.override.locationBar':
-				var search = document.getElementsByTagName('searchbar');
-				var locationbar = document.getElementById('urlbar');
-				if ((!search || !search.length) && locationbar)
-					this.destroyBar(locationbar);
-				return;
-
 			case 'secondsearch.popup.position':
 				this.textbox.disableAutoComplete = (this.popupPosition == 1);
 				return;
@@ -1666,21 +1659,18 @@ SecondSearchBrowser.prototype = {
 		window.addEventListener('beforecustomization', this, false);
 		window.addEventListener('aftercustomization', this, false);
 
-		eval('window.openUILinkIn = '+window.openUILinkIn.toSource().replace(
-			'{',
-			'{' +
-			'  if (SecondSearch.checkToDoSearch.apply(SecondSearch, arguments))' +
-			'    return;'
-		));
-
 		if ('CustomizableUI' in window) { // Firefox 29 and later (Australis)
 			CustomizableUI.addListener(this);
 			[
 				document.getElementById('widget-overflow'),
 				document.getElementById('PanelUI-popup')
 			].forEach(function(aPanel) {
-				if (aPanel)
+				if (aPanel) {
 					aPanel.addEventListener('popupshown', this, false);
+					aPanel.addEventListener('popupshowing', this, false);
+					aPanel.addEventListener('popuphidden', this, false);
+					aPanel.addEventListener('popuphiding', this, false);
+				}
 			}, this);
 		}
 
@@ -1709,8 +1699,12 @@ SecondSearchBrowser.prototype = {
 				document.getElementById('widget-overflow'),
 				document.getElementById('PanelUI-popup')
 			].forEach(function(aPanel) {
-				if (aPanel)
+				if (aPanel) {
 					aPanel.removeEventListener('popupshown', this, false);
+					aPanel.removeEventListener('popupshowing', this, false);
+					aPanel.removeEventListener('popuphidden', this, false);
+					aPanel.removeEventListener('popuphiding', this, false);
+				}
 			}, this);
 		}
 
@@ -1721,11 +1715,67 @@ SecondSearchBrowser.prototype = {
 		}
 	}
   
-}; 
+}); 
   
-SecondSearchBrowser.prototype.__proto__ = SecondSearchBase.prototype; 
-var SecondSearch = window.SecondSearch = new SecondSearchBrowser();
+function SecondSearchSearchbar()
+{
+	SecondSearchBrowser.call(this);
+}
+SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
+	name : 'gSecondSearchSearchbar',
+	get searchbar()
+	{
+		var container = document.getElementById('search-container');
+		if (container)
+			return container.firstChild;
+		var bar = document.getElementsByTagName('searchbar');
+		return (bar && bar.length) ? bar[0] : null ;
+	}
+});
 
-window.addEventListener('DOMContentLoaded', SecondSearch, false);
+function SecondSearchLocationbar()
+{
+	SecondSearchBrowser.call(this);
+}
+SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
+	name : 'gSecondSearchLocationbar',
+	get overrideLocationbar() 
+	{
+		var val = this.getPref('secondsearch.override.locationBar');
+		if (val === null) {
+			val = this.defaultOverrideLocationBar;
+			this.setPref('secondsearch.override.locationBar', val);
+		}
+		return val;
+	},
+	defaultOverrideLocationBar : true,
+	get searchbar()
+	{
+		return this.overrideLocationbar ?
+			document.getElementById('urlbar') :
+			null ;
+	}
+});
+
+var searchbarInstance = new SecondSearchSearchbar(); 
+window[searchbarInstance.name] = searchbarInstance;
+
+var locationbarInstance = new SecondSearchLocationbar();
+window[locationbarInstance.name] = locationbarInstance;
+
+window.SecondSearch = searchbarInstance;
+window.getSecondSearch = function() {
+	return searchbarInstance;
+};
+
+window.addEventListener('load', function onLoad() {
+	window.removeEventListener('load', onLoad, false);
+	eval('window.openUILinkIn = '+window.openUILinkIn.toSource().replace(
+		'{',
+		'{' +
+		'  if (' + searchbarInstance.name + '.checkToDoSearch.apply(' + searchbarInstance.name + ', arguments))' +
+		'    return;'
+	));
+}, false);
  
 })();
