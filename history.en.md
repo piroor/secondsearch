@@ -2,6 +2,7 @@
 
  - master/HEAD
    * Works correctly after overflow/underflow the toolbar, on Australis.
+   * Works on both location bar and search bar if one of them is in the menu panel, on Australis.
  - 0.7.2014050201
    * Works on Nightly 32.0a1.
    * Modified: "jar" archive is no longer included.
