@@ -7,6 +7,7 @@ function SecondSearchBrowser()
 }
 SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	name : 'gSecondSearchBrowser',
+	toolbarItemId : null,
 	
 	get currentURI() 
 	{
@@ -639,24 +640,21 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	// for Firefox 29 and later (Australis)
 	onWidgetBeforeDOMChange : function SSBrowser_onWidgetBeforeDOMChange(aNode, aNextNode, aContainer, aIsRemoval) 
 	{
-		if (aNode.id == 'urlbar-container' ||
-			aNode.id == 'search-container')
+		if (aNode.id == this.toolbarItemId)
 			this.destroyBar();
 	},
  
 	// for Firefox 29 and later (Australis)
 	onWidgetAfterDOMChange : function SSBrowser_onWidgetAfterDOMChange(aNode, aNextNode, aContainer, aWasRemoval) 
 	{
-		if (aNode.id == 'urlbar-container' ||
-			aNode.id == 'search-container')
+		if (aNode.id == this.toolbarItemId)
 			this.initBarWithDelay();
 	},
  
 	// for Firefox 29 and later (Australis)
 	onWidgetOverflow : function SSBrowser_onWidgetOverflow(aNode, aContainer) 
 	{
-		if (aNode.id == 'urlbar-container' ||
-			aNode.id == 'search-container') {
+		if (aNode.id == this.toolbarItemId) {
 			this.destroyBar();
 			this.initBarWithDelay();
 		}
@@ -665,8 +663,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	// for Firefox 29 and later (Australis)
 	onWidgetUnderflow : function SSBrowser_onWidgetUnderflow(aNode, aContainer) 
 	{
-		if (aNode.id == 'urlbar-container' ||
-			aNode.id == 'search-container') {
+		if (aNode.id == this.toolbarItemId) {
 			this.destroyBar();
 			this.initBarWithDelay();
 		}
@@ -1720,11 +1717,13 @@ function SecondSearchSearchbar()
 }
 SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchSearchbar',
+	toolbarItemId : 'search-container',
 	get searchbar()
 	{
-		var container = document.getElementById('search-container');
+		var container = document.getElementById(this.toolbarItemId);
 		if (container)
 			return container.firstChild;
+
 		var bar = document.getElementsByTagName('searchbar');
 		return (bar && bar.length) ? bar[0] : null ;
 	}
@@ -1736,6 +1735,7 @@ function SecondSearchLocationbar()
 }
 SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchLocationbar',
+	toolbarItemId : 'urlbar-container',
 	get active() 
 	{
 		var val = this.getPref('secondsearch.override.locationBar');
