@@ -650,6 +650,42 @@ SecondSearchBrowser.prototype = {
 		else
 			return this.__secondsearch__onKeyPress(aEvent);
 	},
+ 
+	// for Firefox 29 and later (Australis)
+	onWidgetBeforeDOMChange : function SSBrowser_onWidgetBeforeDOMChange(aNode, aNextNode, aContainer, aIsRemoval) 
+	{
+		if (aNode.id == 'urlbar-container' ||
+			aNode.id == 'search-container')
+			this.destroyBar();
+	},
+ 
+	// for Firefox 29 and later (Australis)
+	onWidgetAfterDOMChange : function SSBrowser_onWidgetAfterDOMChange(aNode, aNextNode, aContainer, aWasRemoval) 
+	{
+		if (aNode.id == 'urlbar-container' ||
+			aNode.id == 'search-container')
+			this.initBarWithDelay();
+	},
+ 
+	// for Firefox 29 and later (Australis)
+	onWidgetOverflow : function SSBrowser_onWidgetOverflow(aNode, aContainer) 
+	{
+		if (aNode.id == 'urlbar-container' ||
+			aNode.id == 'search-container') {
+			this.destroyBar();
+			this.initBarWithDelay();
+		}
+	},
+ 
+	// for Firefox 29 and later (Australis)
+	onWidgetUnderflow : function SSBrowser_onWidgetUnderflow(aNode, aContainer) 
+	{
+		if (aNode.id == 'urlbar-container' ||
+			aNode.id == 'search-container') {
+			this.destroyBar();
+			this.initBarWithDelay();
+		}
+	},
   
 	destroyBar : function SSBrowser_destroyBar(aBar) 
 	{
@@ -675,12 +711,21 @@ SecondSearchBrowser.prototype = {
 		switch (aEvent.type)
 		{
 			case 'DOMContentLoaded':
-				return this.preInit();
-			case 'beforecustomization':
-				return this.destroyBar();
-			case 'aftercustomization':
-				return this.initBarWithDelay();
+				this.preInit()
+				return;
 
+			case 'beforecustomization':
+				this.destroyBar();
+				return;
+
+			case 'aftercustomization':
+				this.destroyBar();
+				this.initBarWithDelay();
+				return;
+
+			case 'popupshown':
+				this.initBarWithDelay();
+				return;
 		}
 		return this.handleEventBase(aEvent);
 	},
@@ -1628,6 +1673,17 @@ SecondSearchBrowser.prototype = {
 			'    return;'
 		));
 
+		if ('CustomizableUI' in window) { // Firefox 29 and later (Australis)
+			CustomizableUI.addListener(this);
+			[
+				document.getElementById('widget-overflow'),
+				document.getElementById('PanelUI-popup')
+			].forEach(function(aPanel) {
+				if (aPanel)
+					aPanel.addEventListener('popupshown', this, false);
+			}, this);
+		}
+
 		window.setTimeout(function(aSelf) {
 			aSelf.delayedInit();
 		}, 100, this);
@@ -1646,6 +1702,17 @@ SecondSearchBrowser.prototype = {
 
 		window.removeEventListener('beforecustomization', this, false);
 		window.removeEventListener('aftercustomization', this, false);
+
+		if ('CustomizableUI' in window) { // Firefox 29 and later (Australis)
+			CustomizableUI.removeListener(this);
+			[
+				document.getElementById('widget-overflow'),
+				document.getElementById('PanelUI-popup')
+			].forEach(function(aPanel) {
+				if (aPanel)
+					aPanel.removeEventListener('popupshown', this, false);
+			}, this);
+		}
 
 		for (var i in this._statements)
 		{

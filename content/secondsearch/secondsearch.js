@@ -800,11 +800,12 @@ catch(e) {
 	initBarBase : function SSB_initBarBase() 
 	{
 		var search = this.searchbar;
-		if (!search || search.secondsearchInitialized) return false;
+		var textbox = this.textbox;
+		if (!search || search.secondsearchInitialized || !textbox)
+			return false;
 
 		search.secondsearchInitialized = true;
 
-		var textbox = this.textbox;
 		textbox.addEventListener('input',    this, true);
 		textbox.addEventListener('keypress', this, true);
 		textbox.addEventListener('blur',     this, false);
@@ -845,8 +846,10 @@ catch(e) {
 	
 	destroyBarBase : function SSB_destroyBarBase(aBar) 
 	{
-		var search = aBar || this.searchbar;
-		if (!search || !search.secondsearchInitialized) return false;;
+		var search = this.searchbar;
+		var textbox = this.textbox;
+		if (!search || !search.secondsearchInitialized || !textbox)
+			return false;
 
 		search.secondsearchInitialized = false;
 
