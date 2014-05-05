@@ -1738,17 +1738,10 @@ SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	toolbarItemId : 'urlbar-container',
 	get active()
 	{
-		var val = this.getPref('secondsearch.override.locationBar');
-		if (val === null) {
-			val = this.defaultOverrideLocationBar;
-			this.setPref('secondsearch.override.locationBar', val);
-		}
-		if (!val)
+		if (!this.getPref('secondsearch.override.locationBar'))
 			return false;
-
 		return !searchbarInstance.active;
 	},
-	defaultOverrideLocationBar : true,
 	get searchbar()
 	{
 		return document.getElementById('urlbar');
