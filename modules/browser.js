@@ -61,7 +61,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		return searchbar && this.evaluateXPath(
 				'ancestor::*[(local-name()="panel" and @panelopen="true") or local-name()="toolbar"]',
 				searchbar,
-				XPathResult.BOOLEAN_TYPE
+				Ci.nsIDOMXPathResult.BOOLEAN_TYPE
 			).booleanValue;
 	},
  
