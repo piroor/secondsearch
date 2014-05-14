@@ -1255,7 +1255,7 @@ catch(e) {
 			var popup = this.getPopup(aEvent);
 			var now = Date.now();
 
-			this.window.setTimeout(function(aSelf) { // do after dragleave
+			this.owner.window.setTimeout(function(aSelf) { // do after dragleave
 				if (popup.hideTimer) {
 					aSelf.window.clearTimeout(popup.hideTimer);
 					popup.hideTimer = null;
