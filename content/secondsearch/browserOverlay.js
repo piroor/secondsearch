@@ -1,5 +1,6 @@
 (function() {
 let { inherit } = Cu.import('resource://secondsearch-modules/inherit.jsm', {});
+let { SecondSearchBase } = Cu.import('resource://secondsearch-modules/base.js', {});
 
 function SecondSearchBrowser(aWindow) 
 {

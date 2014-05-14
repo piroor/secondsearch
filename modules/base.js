@@ -1,3 +1,8 @@
+var EXPORTED_SYMBOLS = ['SecondSearchBase'];
+
+var Cc = Components.classes;
+var Ci = Components.interfaces;
+
 function SecondSearchBase(aWindow) 
 {
 	this.window = aWindow;
