@@ -1707,7 +1707,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
   
 function SecondSearchSearchbar(aWindow)
 {
-	SecondSearchBrowser.call(this, arguments);
+	SecondSearchBrowser.apply(this, arguments);
 }
 SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchSearchbar',
@@ -1732,7 +1732,7 @@ SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 
 function SecondSearchLocationbar(aWindow)
 {
-	SecondSearchBrowser.call(this, arguments);
+	SecondSearchBrowser.apply(this, arguments);
 }
 SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchLocationbar',
