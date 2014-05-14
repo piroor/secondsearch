@@ -66,7 +66,7 @@ var SecondSearchWindowHelper = {
 				));
 				search.__secondsearch__doSearch = search.doSearch;
 				search.doSearch = aService.doSearchbarSearch;
-				search._popup.addEventListener('command', this, true);
+				search._popup.addEventListener('command', aService, true);
 			}
 
 			// old Tab Mix Plus, only Firefox 2?
