@@ -23,7 +23,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		var newTabPref = this.openintab;
 		// old Tab Mix Plus
-		if ('TM_init' in window) {
+		if ('TM_init' in this.window) {
 			var TMPPref = this.getPref('extensions.tabmix.opentabfor.search');
 			if (TMPPref !== null) newTabPref = TMPPref;
 		}
@@ -34,7 +34,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					(aEvent.type.indexOf('key') == 0 && aEvent.altKey) ||
 					(aEvent.type == 'click' && aEvent.button == 1)
 				);
-		var shouldRecycle = this.reuseBlankTab && (window.isBlankPageURL ? window.isBlankPageURL(this.currentURI) : (this.currentURI == 'about:blank'));
+		var shouldRecycle = this.reuseBlankTab && (this.window.isBlankPageURL ? this.window.isBlankPageURL(this.currentURI) : (this.currentURI == 'about:blank'));
 
 		// "foreground" and "background" are specified by Tab Utilities.
 		// https://addons.mozilla.org/firefox/addon/tab-utilities/
@@ -142,7 +142,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
  
 	get allMenuItem() 
 	{
-		return document.getElementById('secondsearch_popup_all');
+		return this.document.getElementById('secondsearch_popup_all');
 	},
  
 	get engineButton() 
@@ -150,8 +150,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		var bar = this.searchbar;
 		return bar ? (
 				bar.searchButton ||
-				document.getElementById('page-proxy-stack') || /* location bar */
-				document.getElementById('identity-box') /* location bar, Firefox 16 and later */
+				this.document.getElementById('page-proxy-stack') || /* location bar */
+				this.document.getElementById('identity-box') /* location bar, Firefox 16 and later */
 			) : null ;
 	},
  
@@ -197,7 +197,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		if (keywords.length) {
 			if (items.length)
-				items.push(document.createElement('menuseparator'));
+				items.push(this.document.createElement('menuseparator'));
 			items = items.concat(
 				keywords.map(function(aEngine) {
 					return this.createItemForEngine(aEngine);
@@ -207,8 +207,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		if (shouldLoadAsURI) {
 			if (items.length)
-				items.unshift(document.createElement('menuseparator'));
-			var item = document.createElement('menuitem');
+				items.unshift(this.document.createElement('menuseparator'));
+			var item = this.document.createElement('menuitem');
 			item.setAttribute('label', popup.getAttribute('labelLoadAsURI'));
 			item.setAttribute('engineId', this.kLOAD_AS_URI);
 			items.unshift(item);
@@ -218,7 +218,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			items[0].setAttribute('_moz-menuactive', 'true');
 
 
-		var range = document.createRange();
+		var range = this.document.createRange();
 		range.selectNodeContents(popup);
 		if (popup.hasChildNodes()) {
 			if (popup.firstChild.localName == 'menu') {
@@ -239,7 +239,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			range.collapse(true);
 		}
 
-		var fragment = document.createDocumentFragment();
+		var fragment = this.document.createDocumentFragment();
 		items.forEach(function(aItem) {
 			fragment.appendChild(aItem);
 		});
@@ -249,7 +249,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	
 	createItemForEngine : function SSBrowser_createItemForEngine(aEngine, aLabel) 
 	{
-		var item = document.createElement('menuitem');
+		var item = this.document.createElement('menuitem');
 		item.setAttribute('label', aLabel || aEngine.name);
 		item.setAttribute('engineId', aEngine.id);
 		item.setAttribute('class', 'menuitem-iconic searchbar-engine-menuitem');
@@ -321,16 +321,16 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		/* create a dummy element, because Firefox forgets image data
 		   from the memory if no more element shows the image. */
 		var id = 'secondsearch_cached_icon_'+encodeURIComponent(aKey);
-		var oldCache = document.getElementById(id);
+		var oldCache = this.document.getElementById(id);
 		if (oldCache) {
 			if (oldCache.getAttribute('src') == aURI) return;
 			oldCache.parentNode.removeChild(oldCache);
 		}
 
-		var cache = document.createElement('image');
+		var cache = this.document.createElement('image');
 		cache.setAttribute('id', id);
 		cache.setAttribute('src', aURI);
-		document.getElementById('secondsearch_cached_icons').appendChild(cache);
+		this.document.getElementById('secondsearch_cached_icons').appendChild(cache);
 	},
  
 	initRecentEngines : function SSBrowser_initRecentEngines(aPopup) 
@@ -355,7 +355,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			}
 		}
 
-		var range = document.createRange();
+		var range = this.document.createRange();
 		range.selectNodeContents(popup);
 		if (popup.firstChild.localName == 'menu') {
 			range.setStartAfter(popup.firstChild);
@@ -375,10 +375,10 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		}
 
 		var template = popup.getAttribute('labelTemplate');
-		var fragment = document.createDocumentFragment();
+		var fragment = this.document.createDocumentFragment();
 		engines.forEach(function(aEngine) {
 			if (!aEngine) {
-				fragment.appendChild(document.createElement('menuseparator'));
+				fragment.appendChild(this.document.createElement('menuseparator'));
 				return;
 			}
 			fragment.appendChild(this.createItemForEngine(
@@ -477,21 +477,21 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 				// compatibility for Searchbar Autosizer
 				// https://addons.mozilla.org/firefox/addon/searchbar-autosizer/
-				if ('autosizer' in window && autosizer.originalHandleSearchCommand) {
+				if ('autosizer' in this.window && autosizer.originalHandleSearchCommand) {
 					target = 'autosizer.originalHandleSearchCommand';
 					func = autosizer.originalHandleSearchCommand;
 				}
 
 				// compatibility for Tab Control
 				// https://addons.mozilla.org/firefox/addon/tab-control/
-				if ('gTabControl' in window && gTabControl.origHandleSearchCommand) {
+				if ('gTabControl' in this.window && gTabControl.origHandleSearchCommand) {
 					target = 'gTabControl.origHandleSearchCommand';
 					func = gTabControl.origHandleSearchCommand;
 				}
 
 				// compatibility for SearchLoad Options
 				// https://addons.mozilla.org/firefox/addon/searchload-options/
-				if ('esteban_torres' in window &&
+				if ('esteban_torres' in this.window &&
 					'searchLoad_Options' in esteban_torres &&
 					esteban_torres.searchLoad_Options.MOZhandleSearch) {
 					target = 'esteban_torres.searchLoad_Options.MOZhandleSearch';
@@ -519,8 +519,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 			// old Tab Mix Plus, only Firefox 2?
 			if ('handleSearchCommand' in search &&
-				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
-				window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
+				'TMP_SearchLoadURL' in this.window && !this.window.__secondsearch__TMP_SearchLoadURL) {
+				this.window.__secondsearch__TMP_SearchLoadURL = this.window.TMP_SearchLoadURL;
 				eval('window.TMP_SearchLoadURL = '+window.TMP_SearchLoadURL.toSource().replace(
 					'var submission = searchbar.currentEngine',
 					'var overrideEngine = null;' +
@@ -565,7 +565,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			}
 		}
 
-		window.setTimeout(function(aSelf) {
+		this.window.setTimeout(function(aSelf) {
 			aSelf.testOpenPopup();
 		}, 1000, this);
 	},
@@ -576,7 +576,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		this.popup.style.opacity = 0;
 		this.popup.openPopupAtScreen(0, 0, false);
 		var popup = this.allMenuItem .firstChild;
-		window.setTimeout(function(aSelf) {
+		this.window.setTimeout(function(aSelf) {
 			popup.style.opacity = 0;
 			popup.openPopupAtScreen(0, 0, false);
 			popup.hidePopup();
@@ -741,7 +741,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="button" or @class="search-go-container"]',
 				aEvent.originalTarget,
-				XPathResult.FIRST_ORDERED_NODE_TYPE
+				Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue;
 	},
  
@@ -779,8 +779,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		}
 		if (
 			(
-				'GSuggest' in window &&
-				GSuggest.getCurrentItem()
+				'GSuggest' in this.window &&
+				this.window.GSuggest.getCurrentItem()
 			) ||
 			textbox.popup.selectedIndex > -1
 			)
@@ -790,7 +790,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
  
 	onOperationEnterPre : function SSBrowser_onOperationEnterPre(aEvent) 
 	{
-		if ('GSuggest' in window) GSuggest.hideSuggestPopup();
+		if ('GSuggest' in this.window) this.window.GSuggest.hideSuggestPopup();
 	},
  
 	onOperationEnter : function SSBrowser_onOperationEnter(aCurrentItem, aEvent) 
@@ -861,7 +861,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		}
 
 		this.selectedEngine = null;
-		window.setTimeout(function(aSelf) {
+		this.window.setTimeout(function(aSelf) {
 			aSelf.doingSearch = false;
 			aSelf.clearAfterSearch();
 		}, 1, this);
@@ -873,18 +873,18 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	},
 	_getShortcutOrURI : function SSBrowser__getShortcutOrURI(aURI, aPostData) 
 	{
-		if ('getShortcutOrURL' in window) // too old Firefox
-			return getShortcutOrURL(aURI, aPostData);
+		if ('getShortcutOrURL' in this.window) // too old Firefox
+			return this.window.getShortcutOrURL(aURI, aPostData);
 
-		if ('getShortcutOrURI' in window) // Firefox 24 and older
-			return getShortcutOrURI(aURI, aPostData);
+		if ('getShortcutOrURI' in this.window) // Firefox 24 and older
+			return this.window.getShortcutOrURI(aURI, aPostData);
 
 		aPostData = aPostData || {};
 
 		var done = false;
-		if (getShortcutOrURIAndPostData.length == 2) {
+		if (this.window.getShortcutOrURIAndPostData.length == 2) {
 			// Firefox 31 and later, after https://bugzilla.mozilla.org/show_bug.cgi?id=989984
-			getShortcutOrURIAndPostData(aURI, function(aData) {
+			this.window.getShortcutOrURIAndPostData(aURI, function(aData) {
 				aURI = aData.url;
 				done = true;
 			});
@@ -892,8 +892,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		else {
 			// Firefox 25-30
 			let Task = this._Task;
+			let self = this;
 			Task.spawn(function() {
-				var data = yield getShortcutOrURIAndPostData(aURI);
+				var data = yield self.window.getShortcutOrURIAndPostData(aURI);
 				aURI = data.url;
 				done = true;
 			});
@@ -921,7 +922,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	loadForSearch : function SSBrowser_loadForSearch(aURI, aPostData, aEvent, aTerm) 
 	{
 		var inBackground = false;
-		if ('TM_init' in window) { // Tab Mix Plus
+		if ('TM_init' in this.window) { // Tab Mix Plus
 			inBackground = this.getPref('extensions.tabmix.loadSearchInBackground');
 		}
 		else { // Firefox native
@@ -932,12 +933,12 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		if (this.canOpenNewTab(aURI, null, aEvent)) {
 			// for Tree Style Tab
 			if (
-				'TreeStyleTabService' in window &&
-				'readyToOpenChildTab' in TreeStyleTabService &&
-				'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
-				TreeStyleTabService.shouldOpenSearchResultAsChild(aTerm)
+				'TreeStyleTabService' in this.window &&
+				'readyToOpenChildTab' in this.window.TreeStyleTabService &&
+				'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
+				this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(aTerm)
 				)
-				TreeStyleTabService.readyToOpenChildTab();
+				this.window.TreeStyleTabService.readyToOpenChildTab();
 
 			b.contentWindow.focus();
 
@@ -948,8 +949,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			var t = b.loadOneTab(aURI, null, null, aPostData, false, true);
 			if (!inBackground)
 				b.selectedTab = t;
-			if (gURLBar)
-				gURLBar.value = aURI;
+			if (this.window.gURLBar)
+				this.window.gURLBar.value = aURI;
 		}
 		else {
 			b.webNavigation.loadURI(aURI, Ci.LOAD_FLAGS_NONE, null, aPostData, null);
@@ -963,7 +964,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
   
 	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEvent, aOverride) 
 	{
-		var ss = window.getSecondSearch();
+		var ss = this.window.getSecondSearch();
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
@@ -989,17 +990,17 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 				// for Tree Style Tab
 				if (
-					'TreeStyleTabService' in window &&
-					'readyToOpenChildTab' in TreeStyleTabService &&
-					'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
-					TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
+					'TreeStyleTabService' in this.window &&
+					'readyToOpenChildTab' in this.window.TreeStyleTabService &&
+					'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
+					this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
 					)
-					TreeStyleTabService.readyToOpenChildTab();
+					this.window.TreeStyleTabService.readyToOpenChildTab();
 
 				if (!loadInBackground) b.contentWindow.focus();
 				b.loadOneTab(url, null, null, postData, loadInBackground, false);
-				if (gURLBar && !loadInBackground)
-					gURLBar.value = url;
+				if (this.window.gURLBar && !loadInBackground)
+					this.window.gURLBar.value = url;
 			}
 			else {
 				b.webNavigation.loadURI(url, Ci.nsIWebNavigation.LOAD_FLAGS_NONE, null, postData, null);
@@ -1023,21 +1024,21 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			// for Tree Style Tab
 			if (
 				newTabAction &&
-				'TreeStyleTabService' in window &&
-				'readyToOpenChildTab' in TreeStyleTabService &&
-				'shouldOpenSearchResultAsChild' in TreeStyleTabService &&
-				TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
+				'TreeStyleTabService' in this.window &&
+				'readyToOpenChildTab' in this.window.TreeStyleTabService &&
+				'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
+				this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
 				)
-				TreeStyleTabService.readyToOpenChildTab();
+				this.window.TreeStyleTabService.readyToOpenChildTab();
 
 			let retVal = this.__secondsearch__doSearch(aData, aWhere);
 			ss.clearAfterSearch();
 			ss.revertAutoFill();
 
 			// for Tree Style Tab
-			if ('TreeStyleTabService' in window &&
-				'stopToOpenChildTab' in TreeStyleTabService)
-				TreeStyleTabService.stopToOpenChildTab();
+			if ('TreeStyleTabService' in this.window &&
+				'stopToOpenChildTab' in this.window.TreeStyleTabService)
+				this.window.TreeStyleTabService.stopToOpenChildTab();
 
 			return retVal;
 		}
@@ -1052,7 +1053,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			if (
 				b.localName != 'tabbrowser' ||
 				(// Tab Mix Plus
-					'TM_init' in window &&
+					'TM_init' in this.window &&
 					(
 						('isBlankNotBusyTab' in b && b.isBlankNotBusyTab(b.selectedTab)) ||
 						!b.selectedTab.hasAttribute('locked')
@@ -1620,7 +1621,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					!this.getPref('secondsearch.keyword.updating')) {
 					this.setPref('secondsearch.keyword.updating', true);
 					this.initKeywords(true);
-					window.setTimeout(function(aSelf) {
+					this.window.setTimeout(function(aSelf) {
 						aSelf.setPref('secondsearch.keyword.updating', false);
 					}, 100, this);
 				}
@@ -1632,13 +1633,13 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	
 	preInit : function SSBrowser_preInit() 
 	{
-		window.removeEventListener('DOMContentLoaded', this, false);
-		window.addEventListener('load', this, false);
+		this.window.removeEventListener('DOMContentLoaded', this, false);
+		this.window.addEventListener('load', this, false);
 
 		// compatibility for Tab Control
 		// https://addons.mozilla.org/firefox/addon/tab-control/
-		if ('gTabControl' in window && gTabControl.handleSearchCommand) {
-			eval('gTabControl.handleSearchCommand = '+gTabControl.handleSearchCommand.toSource().replace(
+		if ('gTabControl' in this.window && this.window.gTabControl.handleSearchCommand) {
+			eval('gTabControl.handleSearchCommand = '+this.window.gTabControl.handleSearchCommand.toSource().replace(
 				')',
 				', aOverride)'
 			).replace(
@@ -1652,21 +1653,21 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	{
 		this.initBase();
 
-		window.addEventListener('beforecustomization', this, false);
-		window.addEventListener('aftercustomization', this, false);
+		this.window.addEventListener('beforecustomization', this, false);
+		this.window.addEventListener('aftercustomization', this, false);
 
-		if ('CustomizableUI' in window) { // Firefox 29 and later (Australis)
-			CustomizableUI.addListener(this);
+		if ('CustomizableUI' in this.window) { // Firefox 29 and later (Australis)
+			this.window.CustomizableUI.addListener(this);
 			[
-				document.getElementById('widget-overflow'),
-				document.getElementById('PanelUI-popup')
+				this.document.getElementById('widget-overflow'),
+				this.document.getElementById('PanelUI-popup')
 			].forEach(function(aPanel) {
 				if (aPanel)
 					aPanel.addEventListener('popupshowing', this, false);
 			}, this);
 		}
 
-		window.setTimeout(function(aSelf) {
+		this.window.setTimeout(function(aSelf) {
 			aSelf.delayedInit();
 		}, 100, this);
 	},
@@ -1682,14 +1683,14 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		this.destroyBase();
 		this.endObserveKeyword();
 
-		window.removeEventListener('beforecustomization', this, false);
-		window.removeEventListener('aftercustomization', this, false);
+		this.window.removeEventListener('beforecustomization', this, false);
+		this.window.removeEventListener('aftercustomization', this, false);
 
-		if ('CustomizableUI' in window) { // Firefox 29 and later (Australis)
-			CustomizableUI.removeListener(this);
+		if ('CustomizableUI' in this.window) { // Firefox 29 and later (Australis)
+			this.window.CustomizableUI.removeListener(this);
 			[
-				document.getElementById('widget-overflow'),
-				document.getElementById('PanelUI-popup')
+				this.document.getElementById('widget-overflow'),
+				this.document.getElementById('PanelUI-popup')
 			].forEach(function(aPanel) {
 				if (aPanel)
 					aPanel.removeEventListener('popupshowing', this, false);
@@ -1721,11 +1722,11 @@ SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	},
 	get searchbar()
 	{
-		var container = document.getElementById(this.toolbarItemId);
+		var container = this.document.getElementById(this.toolbarItemId);
 		if (container)
 			return container.firstChild;
 
-		var bar = document.getElementsByTagName('searchbar');
+		var bar = this.document.getElementsByTagName('searchbar');
 		return (bar && bar.length) ? bar[0] : null ;
 	}
 });
@@ -1745,7 +1746,7 @@ SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	},
 	get searchbar()
 	{
-		return document.getElementById('urlbar');
+		return this.document.getElementById('urlbar');
 	}
 });
 
