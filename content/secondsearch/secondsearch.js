@@ -363,7 +363,7 @@ SecondSearchBase.prototype = {
 				aEvent.stopPropagation();
 				aEvent.preventDefault();
 
-				var range = this.document.createRange();
+				var range = this.owner.document.createRange();
 				range.selectNodeContents(this.popup);
 				this.dummy.appendChild(range.cloneContents());
 				range.detach();
