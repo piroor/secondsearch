@@ -1,5 +1,6 @@
-function SecondSearchBase() 
+function SecondSearchBase(aWindow) 
 {
+	this.window = aWindow;
 }
 SecondSearchBase.prototype = {
 	active : true,
@@ -103,9 +104,14 @@ SecondSearchBase.prototype = {
   
 /* elements */ 
 	
+	get document()
+	{
+		return this.window.document;
+	},
+ 
 	get browser() 
 	{
-		return 'SplitBrowser' in window ? (SplitBrowser.browserForSearch || SplitBrowser.activeBrowser) : window.gBrowser ; // document.getElementById('content') ;
+		return this.window.gBrowser;
 	},
  
 	get searchbar() 
@@ -148,20 +154,20 @@ SecondSearchBase.prototype = {
   
 	get popup() 
 	{
-		return document.getElementById('secondsearch_popup');
+		return this.document.getElementById('secondsearch_popup');
 	},
  
 	get popupDummy() 
 	{
-		return document.getElementById('secondsearch_popup_dummy');
+		return this.document.getElementById('secondsearch_popup_dummy');
 	},
  
 	evaluateXPath : function SSB_evaluateXPath(aExpression, aContextNode, aType) 
 	{
 		aExpression  = aExpression || '';
-		aContextNode = aContextNode || document.documentElement;
+		aContextNode = aContextNode || this.document.documentElement;
 
-		const type       = aType || XPathResult.ORDERED_NODE_SNAPSHOT_TYPE;
+		const type       = aType || Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE;
 		const resolver   = {
 			lookupNamespaceURI : function(aPrefix)
 			{
@@ -180,7 +186,7 @@ SecondSearchBase.prototype = {
 		var lastActive = null;
 		while (popup)
 		{
-			active = this.evaluateXPath('child::*[@_moz-menuactive="true"]', popup, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue;
+			active = this.evaluateXPath('child::*[@_moz-menuactive="true"]', popup, Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue;
 			if (!active) return lastActive;
 			if (active.localName == 'menuitem') return active;
 			lastActive = active;
@@ -200,14 +206,14 @@ SecondSearchBase.prototype = {
 
 		var bar = this.searchbar;
 		if (aReason == this.SHOWN_BY_CONTEXT) {
-			document.popupNode = this.engineButton;
+			this.document.popupNode = this.engineButton;
 			if ('openPopupAtScreen' in popup)
 				popup.openPopupAtScreen(aX, aY, true, aEvent);
 			else
 				popup.showPopup(
 					bar,
-					aX - document.documentElement.boxObject.screenX,
-					aY - document.documentElement.boxObject.screenY,
+					aX - this.document.documentElement.boxObject.screenX,
+					aY - this.document.documentElement.boxObject.screenY,
 					'menupopup',
 					null,
 					null
@@ -236,11 +242,11 @@ SecondSearchBase.prototype = {
 		var self = this;
 
 		// Don't override document.popupNode, because it blocks the context menu on the content area!
-		// document.popupNode = bar;
+		// this.document.popupNode = bar;
 
 		var anchorNode = this.canFitPopupToSearchField ? bar : this.engineButton ;
 		var anchorBox = anchorNode.boxObject;
-		var rootBox = document.documentElement.boxObject;
+		var rootBox = this.document.documentElement.boxObject;
 		var popupStatus = 'position:'+pos+'\n'+this.getPopupStatus(popup, true);
 		if (
 			popup[this.kLAST_STATUS] == popupStatus &&
@@ -277,7 +283,7 @@ SecondSearchBase.prototype = {
 
 		var delta = 8;
 		var anchorBox = anchorNode.boxObject;
-		var rootBox = document.documentElement.boxObject;
+		var rootBox = this.document.documentElement.boxObject;
 
 		var controller = {
 			owner : this,
@@ -357,7 +363,7 @@ SecondSearchBase.prototype = {
 				aEvent.stopPropagation();
 				aEvent.preventDefault();
 
-				var range = document.createRange();
+				var range = this.document.createRange();
 				range.selectNodeContents(this.popup);
 				this.dummy.appendChild(range.cloneContents());
 				range.detach();
@@ -468,7 +474,7 @@ SecondSearchBase.prototype = {
 	{
 		var popup = this.popupDummy;
 		popup.hidePopup();
-		var range = document.createRange();
+		var range = this.document.createRange();
 		range.selectNodeContents(popup);
 		range.deleteContents();
 		range.detach();
@@ -482,7 +488,7 @@ SecondSearchBase.prototype = {
 	hideSecondSearch : function SSB_hideSecondSearch(aWithDelay) 
 	{
 		if (aWithDelay) {
-			window.setTimeout(function(aSelf) {
+			this.window.setTimeout(function(aSelf) {
 				aSelf.hideSecondSearch();
 			}, 0, this);
 			return;
@@ -569,7 +575,7 @@ try{
 				aEvent.stopPropagation();
 				aEvent.preventDefault();
 				if (this.autoShowTimer) {
-					window.clearTimeout(this.autoShowTimer);
+					this.window.clearTimeout(this.autoShowTimer);
 					this.autoShowTimer = null;
 				}
 				return false;
@@ -608,7 +614,7 @@ try{
 					return false;
 				}
 				if (this.autoHideTimer) {
-					window.clearTimeout(this.autoHideTimer);
+					this.window.clearTimeout(this.autoHideTimer);
 					this.autoHideTimer = null;
 				}
 
@@ -675,7 +681,7 @@ try{
 					current.removeAttribute('_moz-menuactive');
 					current.parentNode.hidePopup();
 					current.parentNode.shown = false;
-					window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+					this.window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
 						aMenu.setAttribute('_moz-menuactive', true);
 						aSelf.disableAutoFill();
 					}, 0, current.parentNode.parentNode, this);
@@ -713,7 +719,7 @@ catch(e) {
 			node = this.evaluateXPath(
 				axis+'::*['+condition+'][1]',
 				aCurrent,
-				XPathResult.FIRST_ORDERED_NODE_TYPE
+				Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue;
 		}
 		catch(e) {
@@ -759,7 +765,7 @@ catch(e) {
 
 		this.stopClearAfterSearch();
 
-		this.clearAfterSearchTimer = window.setTimeout(function(aSelf) {
+		this.clearAfterSearchTimer = this.window.setTimeout(function(aSelf) {
 			aSelf.clearTextBox();
 			aSelf.clearAfterSearchTimer = null;
 		}, this.clearDelay, this);
@@ -767,7 +773,7 @@ catch(e) {
 	stopClearAfterSearch : function SSB_stopClearAfterSearch()
 	{
 		if (this.clearAfterSearchTimer)
-			window.clearTimeout(this.clearAfterSearchTimer);
+			this.window.clearTimeout(this.clearAfterSearchTimer);
 	},
 	clearAfterSearchTimer : null,
 	canClearAfterSearch : true,
@@ -826,16 +832,16 @@ catch(e) {
 
 		textbox.addEventListener('drop', this, true);
 
-		window.addEventListener('focus', this.focusEventListener, true);
-		window.addEventListener('blur',  this.focusEventListener, true);
-		window.addEventListener('click', this.focusEventListener, true);
+		this.window.addEventListener('focus', this.focusEventListener, true);
+		this.window.addEventListener('blur',  this.focusEventListener, true);
+		this.window.addEventListener('click', this.focusEventListener, true);
 
 		return true;
 	},
 	initBarWithDelay : function SSB_initBarWithDelay()
 	{
 		// initialize with delay for other addons modifying "doSearch" method (ex. Tab Mix Plus)
-		window.setTimeout(function(aSelf) {
+		this.window.setTimeout(function(aSelf) {
 			aSelf.initBar();
 		}, 100, this);
 	},
@@ -874,9 +880,9 @@ catch(e) {
 
 		textbox.removeEventListener('drop', this, true);
 
-		window.removeEventListener('focus', this.focusEventListener, true);
-		window.removeEventListener('blur',  this.focusEventListener, true);
-		window.removeEventListener('click', this.focusEventListener, true);
+		this.window.removeEventListener('focus', this.focusEventListener, true);
+		this.window.removeEventListener('blur',  this.focusEventListener, true);
+		this.window.removeEventListener('click', this.focusEventListener, true);
 
 		this.focusEventListener.destroy();
 		this.focusEventListener = null;
@@ -954,7 +960,7 @@ catch(e) {
 			case 'contextmenu':
 				if (!this.active)
 					return;
-				window.setTimeout(function(aSelf, aX, aY) {
+				this.window.setTimeout(function(aSelf, aX, aY) {
 					aSelf.showSecondSearch(aSelf.SHOWN_BY_CONTEXT, aX, aY, aEvent);
 				}, 0, this, aEvent.screenX, aEvent.screenY);
 				aEvent.preventDefault();
@@ -995,7 +1001,7 @@ catch(e) {
 					current.removeAttribute('_moz-menuactive');
 		}
 		if (this.autoHideTimer) {
-			window.clearTimeout(this.autoHideTimer);
+			this.window.clearTimeout(this.autoHideTimer);
 			this.autoHideTimer = null;
 		}
 
@@ -1003,8 +1009,8 @@ catch(e) {
 			this.autoShowInput) {
 			var delay = this.delay;
 			if (delay) {
-				if (this.autoShowTimer) window.clearTimeout(this.autoShowTimer);
-				this.autoShowTimer = window.setTimeout(function(aSelf) {
+				if (this.autoShowTimer) this.window.clearTimeout(this.autoShowTimer);
+				this.autoShowTimer = this.window.setTimeout(function(aSelf) {
 					aSelf.showPopupOnInput();
 				}, delay, this);
 			}
@@ -1019,7 +1025,7 @@ catch(e) {
 	{
 		if (!this.searchterm) return;
 		this.showSecondSearch(this.SHOWN_BY_INPUT);
-		this.autoHideTimer = window.setTimeout(function(aSelf) {
+		this.autoHideTimer = this.window.setTimeout(function(aSelf) {
 			aSelf.hideSecondSearch();
 		}, this.timeout, this);
 		this.autoShowTimer = null;
@@ -1070,7 +1076,7 @@ catch(e) {
 			popups[i].shownBy = 0;
 		}
 
-		window.setTimeout(function(aSelf) {
+		this.window.setTimeout(function(aSelf) {
 			var activeItems = aSelf.evaluateXPath('descendant::*[@_moz-menuactive="true"]', popup);
 			for (var i = 0, maxi = activeItems.snapshotLength; i < maxi; i++)
 			{
@@ -1096,7 +1102,7 @@ catch(e) {
 				handleEvent : function(aEvent)
 				{
 					var node = aEvent.originalTarget || aEvent.target;
-					if (node.ownerDocument == document) {
+					if (node.ownerDocument == this.owner.document) {
 						while (node.parentNode)
 						{
 							if (node == this.owner.textbox || node == this.owner.popup)
@@ -1105,7 +1111,7 @@ catch(e) {
 						}
 					}
 
-					window.setTimeout(function(aOwner) {
+					this.owner.window.setTimeout(function(aOwner) {
 						if (!aOwner.textBoxFocused)
 							aOwner.hideSecondSearch();
 
@@ -1168,7 +1174,7 @@ catch(e) {
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
 				this.currentDragSession.sourceNode,
-				XPathResult.FIRST_ORDERED_NODE_TYPE
+				Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue == this.textbox.inputField
 	},
  
@@ -1177,7 +1183,7 @@ catch(e) {
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="input"]',
 				aEvent.originalTarget,
-				XPathResult.FIRST_ORDERED_NODE_TYPE
+				Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE
 			).singleNodeValue == this.textbox.inputField;
 	},
  
@@ -1186,7 +1192,7 @@ catch(e) {
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="autorepeatbutton"]',
 				aEvent.originalTarget,
-				XPathResult.BOOLEAN_TYPE
+				Ci.nsIDOMXPathResult.BOOLEAN_TYPE
 			).booleanValue;
 	},
  
@@ -1195,7 +1201,7 @@ catch(e) {
 		return this.evaluateXPath(
 				'ancestor-or-self::*[local-name()="menupopup"][contains(@class, "secondsearch-popup")]',
 				aEvent.originalTarget,
-				XPathResult.BOOLEAN_TYPE
+				Ci.nsIDOMXPathResult.BOOLEAN_TYPE
 			).booleanValue;
 	},
  
@@ -1244,14 +1250,14 @@ catch(e) {
 			var popup = this.getPopup(aEvent);
 			var now = Date.now();
 
-			window.setTimeout(function(aSelf) { // do after dragleave
+			this.window.setTimeout(function(aSelf) { // do after dragleave
 				if (popup.hideTimer) {
-					window.clearTimeout(popup.hideTimer);
+					aSelf.window.clearTimeout(popup.hideTimer);
 					popup.hideTimer = null;
 				}
-				window.clearTimeout(popup.showTimer);
+				aSelf.window.clearTimeout(popup.showTimer);
 				if (aEvent.target == aSelf.owner.currentDragSession.sourceNode) return;
-				popup.showTimer = window.setTimeout(function(aOwner) {
+				popup.showTimer = aSelf.window.setTimeout(function(aOwner) {
 					if (popup == aOwner.popup)
 						aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
 					else {
@@ -1276,8 +1282,8 @@ catch(e) {
 			var popup = this.getPopup(aEvent);
 			var now = Date.now();
 
-			window.clearTimeout(popup.hideTimer);
-			popup.hideTimer = window.setTimeout(function(aSelf) {
+			this.owner.window.clearTimeout(popup.hideTimer);
+			popup.hideTimer = this.owner.window.setTimeout(function(aSelf) {
 				if (aSelf.showTimer > aSelf.hideTimer) return;
 				if (popup == aSelf.owner.popup)
 					aSelf.owner.hideSecondSearch();
@@ -1296,7 +1302,7 @@ catch(e) {
 				return;
 
 			if (ss.isEventFiredOnAutoRepeatButton(aEvent)) {
-				let event = document.createEvent('XULCommandEvents');
+				let event = this.owner.document.createEvent('XULCommandEvents');
 				event.initCommandEvent('command', true, true, aEvent.view, 0, aEvent.ctrlKey, aEvent.altKey, aEvent.shiftKey, aEvent.metaKey, aEvent);
 				aEvent.originalTarget.dispatchEvent(event);
 				return;
@@ -1352,7 +1358,7 @@ catch(e) {
 			textbox.value = ss.getDroppedText(aEvent);
 			ss.onSearchTermDrop(aEvent);
 			ss.clearAfterSearch();
-			window.setTimeout(function() {
+			this.owner.window.setTimeout(function() {
 				ss.hideSecondSearch();
 				textbox.blur();
 			}, 0);
@@ -1493,8 +1499,8 @@ catch(e) {
 	{
 		this.initBarWithDelay();
 
-		window.removeEventListener('load', this, false);
-		window.addEventListener('unload', this, false);
+		this.window.removeEventListener('load', this, false);
+		this.window.addEventListener('unload', this, false);
 
 		var popup = this.popup;
 		popup.addEventListener('dragenter', this, false);
@@ -1516,7 +1522,7 @@ catch(e) {
 	destroyBase : function SSB_destroyBase() 
 	{
 		this.destroyBar();
-		window.removeEventListener('unload', this, false);
+		this.window.removeEventListener('unload', this, false);
 
 		var popup = this.popup;
 		popup.removeEventListener('dragenter', this, false);
@@ -1529,7 +1535,7 @@ catch(e) {
 		this.searchDNDObserver.destroy();
 		this.searchDNDObserver = null;
 
-		window.getSecondSearch = null;
+		this.window.getSecondSearch = null;
 	}
    
 }; 

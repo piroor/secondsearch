@@ -1,9 +1,10 @@
 (function() {
 let { inherit } = Cu.import('resource://secondsearch-modules/inherit.jsm', {});
 
-function SecondSearchBrowser() 
+function SecondSearchBrowser(aWindow) 
 {
-	window.addEventListener('DOMContentLoaded', this, false);
+	this.window = aWindow;
+	this.window.addEventListener('DOMContentLoaded', this, false);
 }
 SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	name : 'gSecondSearchBrowser',
@@ -1704,9 +1705,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
   
 }); 
   
-function SecondSearchSearchbar()
+function SecondSearchSearchbar(aWindow)
 {
-	SecondSearchBrowser.call(this);
+	SecondSearchBrowser.call(this, arguments);
 }
 SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchSearchbar',
@@ -1729,9 +1730,9 @@ SecondSearchSearchbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	}
 });
 
-function SecondSearchLocationbar()
+function SecondSearchLocationbar(aWindow)
 {
-	SecondSearchBrowser.call(this);
+	SecondSearchBrowser.call(this, arguments);
 }
 SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	name : 'gSecondSearchLocationbar',
@@ -1748,10 +1749,10 @@ SecondSearchLocationbar.prototype = inherit(SecondSearchBrowser.prototype, {
 	}
 });
 
-var searchbarInstance = new SecondSearchSearchbar(); 
+var searchbarInstance = new SecondSearchSearchbar(window); 
 window[searchbarInstance.name] = searchbarInstance;
 
-var locationbarInstance = new SecondSearchLocationbar();
+var locationbarInstance = new SecondSearchLocationbar(window);
 window[locationbarInstance.name] = locationbarInstance;
 
 window.SecondSearch = searchbarInstance;
