@@ -4,7 +4,6 @@
 <overlay id="secondsearch-overlay"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script type="application/javascript" src="chrome://secondsearch/content/windowHelper.js"/>
 <script type="application/javascript" src="chrome://secondsearch/content/browserOverlay.js"/>
 
 <popupset id="mainPopupSet">
