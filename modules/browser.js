@@ -879,15 +879,14 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
   
 	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEvent, aOverride) 
 	{
-		var ss = this.window.getSecondSearch();
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
 
-		var b = ss.browser;
+		var b = this.browser;
 		if (aOverride) {
-			let engine = ss.selectedEngine || ss.getRecentEngines()[0];
-			engine = ss.getSearchEngineFromName(engine.name);
+			let engine = this.selectedEngine || this.getRecentEngines()[0];
+			engine = this.getSearchEngineFromName(engine.name);
 			if (!engine) return;
 
 			let postData = null;
@@ -897,10 +896,10 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				url = submission.uri.spec;
 				postData = submission.postData;
 			}
-			let loadInBackground = ss.loadInBackground;
-			if (ss.canOpenNewTab(url, aWhere, aEvent)) {
+			let loadInBackground = this.loadInBackground;
+			if (this.canOpenNewTab(url, aWhere, aEvent)) {
 				// for location bar
-				if (b.userTypedValue == ss.searchterm)
+				if (b.userTypedValue == this.searchterm)
 					b.userTypedValue = null;
 
 				// for Tree Style Tab
@@ -908,7 +907,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					'TreeStyleTabService' in this.window &&
 					'readyToOpenChildTab' in this.window.TreeStyleTabService &&
 					'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
-					this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
+					this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(this.searchterm)
 					)
 					this.window.TreeStyleTabService.readyToOpenChildTab();
 
@@ -922,17 +921,17 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			}
 
 			b.contentWindow.focus();
-			ss.revertAutoFill();
+			this.revertAutoFill();
 			return;
 		}
 		else {
 			// "foreground" and "background" are specified by Tab Utilities.
 			// https://addons.mozilla.org/firefox/addon/tab-utilities/
 			let newTabAction = /^tab|^(foreground|background)$/.test(String(aWhere));
-			if (ss.canOpenNewTab(null, !aEvent ? aWhere : null , aEvent) != newTabAction) {
+			if (this.canOpenNewTab(null, !aEvent ? aWhere : null , aEvent) != newTabAction) {
 				aWhere = newTabAction ?
 							'current' :
-							(aWhere == 'background' || ss.loadInBackground ? 'tabshifted' : 'tab' );
+							(aWhere == 'background' || this.loadInBackground ? 'tabshifted' : 'tab' );
 				newTabAction = !newTabAction;
 			}
 
@@ -942,13 +941,13 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				'TreeStyleTabService' in this.window &&
 				'readyToOpenChildTab' in this.window.TreeStyleTabService &&
 				'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
-				this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(ss.searchterm)
+				this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(this.searchterm)
 				)
 				this.window.TreeStyleTabService.readyToOpenChildTab();
 
-			let retVal = this.__secondsearch__doSearch(aData, aWhere);
-			ss.clearAfterSearch();
-			ss.revertAutoFill();
+			let retVal = this.searchbar.__secondsearch__doSearch(aData, aWhere);
+			this.clearAfterSearch();
+			this.revertAutoFill();
 
 			// for Tree Style Tab
 			if ('TreeStyleTabService' in this.window &&

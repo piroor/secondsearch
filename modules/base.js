@@ -1257,12 +1257,12 @@ catch(e) {
 
 			this.owner.window.setTimeout(function(aSelf) { // do after dragleave
 				if (popup.hideTimer) {
-					aSelf.window.clearTimeout(popup.hideTimer);
+					aSelf.owner.window.clearTimeout(popup.hideTimer);
 					popup.hideTimer = null;
 				}
-				aSelf.window.clearTimeout(popup.showTimer);
+				aSelf.owner.window.clearTimeout(popup.showTimer);
 				if (aEvent.target == aSelf.owner.currentDragSession.sourceNode) return;
-				popup.showTimer = aSelf.window.setTimeout(function(aOwner) {
+				popup.showTimer = aSelf.owner.window.setTimeout(function(aOwner) {
 					if (popup == aOwner.popup)
 						aOwner.showSecondSearch(aOwner.SHOWN_BY_DRAGOVER);
 					else {

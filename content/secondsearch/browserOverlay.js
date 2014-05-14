@@ -65,7 +65,7 @@ var SecondSearchWindowHelper = {
 					accessor + '.searchDone(); $1'
 				));
 				search.__secondsearch__doSearch = search.doSearch;
-				search.doSearch = aService.doSearchbarSearch;
+				search.doSearch = aService.doSearchbarSearch.bind(aService);
 				search._popup.addEventListener('command', aService, true);
 			}
 
