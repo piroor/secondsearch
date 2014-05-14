@@ -19,7 +19,7 @@ var SecondSearchWindowHelper = {
 	initBar : function SSWH_initBar(aService)
 	{
 		var search = aService.searchbar;
-		var textbox = this.textbox;
+		var textbox = aService.textbox;
 		var accessor = 'window.SecondSearchWindowHelper.services.' + aService.name;
 
 		if (search.localName == 'searchbar') { // search bar

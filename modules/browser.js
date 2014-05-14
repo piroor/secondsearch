@@ -4,8 +4,9 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 var Cu = Components.utils;
 
-var { inherit } = Cu.import('resource://secondsearch-modules/inherit.jsm', {});
-var { SecondSearchBase } = Cu.import('resource://secondsearch-modules/base.js', {});
+Cu.import('resource://secondsearch-modules/inherit.jsm');
+Cu.import('resource://secondsearch-modules/base.js');
+Cu.import('resource://gre/modules/Services.jsm');
 
 function SecondSearchBrowser(aWindow) 
 {
