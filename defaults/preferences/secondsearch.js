@@ -23,4 +23,8 @@ pref("secondsearch.keyword.updating", false);
 
 //pref("secondsearch.loadInBackground", false);
 
+// for compatibility with Private Tab
+// https://addons.mozilla.org/firefox/addon/private-tab/
+pref("secondsearch.openPrivateTab", false);
+
 pref("secondsearch.handle_dragdrop_only_on_button", false);

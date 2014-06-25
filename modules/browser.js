@@ -744,6 +744,15 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			retVal = false;
 		}
 		else {
+			// for compatibility with Private Tab
+			// https://addons.mozilla.org/firefox/addon/private-tab/
+			if (
+				'privateTab' in this.window &&
+				typeof this.window.privateTab.readyToOpenTab == 'function' &&
+				this.getPref('secondsearch.openPrivateTab')
+				)
+				this.window.privateTab.readyToOpenTab(true);
+
 			var current = this.getCurrentEngine();
 			if (!current || current.id != engine.id)
 				this.addEngineToRecentList(engine);
