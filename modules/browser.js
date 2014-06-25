@@ -487,7 +487,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	
 	testOpenPopup : function SSBrowser_testOpenPopup() 
 	{
-		// �h���b�O���̍ŏ��̃��j���[�W�J�ɉ��̂����s����̂ŁA���̎��_�ň�x���s���Ă���
+		// ドラッグ中の最初のメニュー展開に何故か失敗するので、この時点で一度試行しておく
 		this.popup.style.opacity = 0;
 		this.popup.openPopupAtScreen(0, 0, false);
 		var popup = this.allMenuItem .firstChild;
