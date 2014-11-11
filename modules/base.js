@@ -1044,7 +1044,7 @@ catch(e) {
 
 //		if (aEvent.target.popupBoxObject &&
 //			'setConsumeRollupEvent' in aEvent.target.popupBoxObject)
-//			aEvent.target.popupBoxObject.setConsumeRollupEvent(Ci.nsIPopupBoxObject.ROLLUP_NO_CONSUME);
+//			aEvent.target.popupBoxObject.setConsumeRollupEvent(aEvent.target.popupBoxObject.ROLLUP_NO_CONSUME);
 
 		if (aEvent.target != this.popup) return;
 
