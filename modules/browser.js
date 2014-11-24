@@ -780,7 +780,18 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				this.loadForSearch(uri, (postData.value || null), aEvent, this.searchterm);
 			}
 			else if (isSearchBar) {
-				retVal = bar.handleSearchCommand(aEvent, true);
+				if (bar.handleSearchCommand.length <= 2) {
+					// Firefox 33 and older versions
+					// See:
+					//   https://bugzilla.mozilla.org/show_bug.cgi?id=1103326
+					//   https://bugzilla.mozilla.org/show_bug.cgi?id=1088660
+					//   https://hg.mozilla.org/releases/mozilla-beta/rev/35496f35f0d1
+					retVal = bar.handleSearchCommand(aEvent, true);
+				}
+				else {
+					engine = this.getSearchEngineFromName(engine.name);
+					retVal = bar.handleSearchCommand(aEvent, engine, true);
+				}
 			}
 		}
 
@@ -886,21 +897,34 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	selectedEngine : null, 
 	doingSearch : false,
   
-	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEvent, aOverride) 
+	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEngine, aEvent, aOverride) 
 	{
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
+		if (!(aEngine instanceof Ci.nsISearchEngine)) {
+			// Firefox 33 and older versions
+			// See:
+			//   https://bugzilla.mozilla.org/show_bug.cgi?id=1103326
+			//   https://bugzilla.mozilla.org/show_bug.cgi?id=1088660
+			//   https://hg.mozilla.org/releases/mozilla-beta/rev/35496f35f0d1
+			aOverride = aEvent;
+			aEvent    = aEngine;
+			aEngine   = null;
+		}
 
 		var b = this.browser;
 		if (aOverride) {
-			let engine = this.selectedEngine || this.getRecentEngines()[0];
-			engine = this.getSearchEngineFromName(engine.name);
-			if (!engine) return;
+			if (!aEngine) {
+				let engine = this.selectedEngine || this.getRecentEngines()[0];
+				aEngine = this.getSearchEngineFromName(engine.name);
+				if (!aEngine)
+					return;
+			}
 
 			let postData = null;
 			let url = 'about:blank';
-			let submission = engine.getSubmission(aData, null);
+			let submission = aEngine.getSubmission(aData, null);
 			if (submission) {
 				url = submission.uri.spec;
 				postData = submission.postData;
@@ -954,7 +978,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				)
 				this.window.TreeStyleTabService.readyToOpenChildTab();
 
-			let retVal = this.searchbar.__secondsearch__doSearch(aData, aWhere);
+			let retVal = this.searchbar.__secondsearch__doSearch(aData, aWhere, aEngine);
 			this.clearAfterSearch();
 			this.revertAutoFill();
 
