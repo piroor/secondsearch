@@ -875,7 +875,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				)
 				this.window.TreeStyleTabService.readyToOpenChildTab();
 
-			b.contentWindow.focus();
+			(b.contentWindow || b).focus();
 
 			// for location bar
 			if (b.userTypedValue == this.searchterm)
@@ -891,7 +891,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			b.webNavigation.loadURI(aURI, Ci.LOAD_FLAGS_NONE, null, aPostData, null);
 		}
 
-		b.contentWindow.focus();
+		(b.contentWindow || b).focus();
 	},
  
 	selectedEngine : null, 
@@ -944,7 +944,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					)
 					this.window.TreeStyleTabService.readyToOpenChildTab();
 
-				if (!loadInBackground) b.contentWindow.focus();
+				if (!loadInBackground)
+					(b.contentWindow || b).focus();
 				b.loadOneTab(url, null, null, postData, loadInBackground, false);
 				if (this.window.gURLBar && !loadInBackground)
 					this.window.gURLBar.value = url;
@@ -953,7 +954,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				b.webNavigation.loadURI(url, Ci.nsIWebNavigation.LOAD_FLAGS_NONE, null, postData, null);
 			}
 
-			b.contentWindow.focus();
+			(b.contentWindow || b).focus();
 			this.revertAutoFill();
 			return;
 		}
@@ -1044,7 +1045,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				break;
 		}
 		if (!this.loadInBackground)
-			b.contentWindow.focus();
+			(b.contentWindow || b).focus();
 
 		return true;
 	},
