@@ -11,7 +11,8 @@
                    em:homepageURL="http://piro.sakura.ne.jp/xul/_secondsearch.html.en"
                    em:optionsURL="chrome://secondsearch/content/config.xul"
                    em:iconURL="chrome://secondsearch/content/icon.png"
-                   em:type="2">
+                   em:type="2"
+                   em:multiprocessCompatible="true">
 
 
     <em:updateURL>http://piro.sakura.ne.jp/xul/update.rdf</em:updateURL>
