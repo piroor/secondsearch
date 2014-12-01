@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * Works correctly on Firefox 34 and later (after [bug 1088660: the "one for search" feature](https://bugzilla.mozilla.org/show_bug.cgi?id=1088660).)
  - 0.7.2014050501
    * Works correctly after overflow/underflow the toolbar, on Australis.
    * Works on both location bar and search bar if one of them is in the menu panel, on Australis.
