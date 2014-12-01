@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.8.2014120201
    * Works on Nightly 37.0a1.
    * Drop support for Firefox 30 and older versions
    * Works correctly on the multi-process mode (E10S).
