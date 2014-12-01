@@ -1,7 +1,9 @@
 # 更新履歴
 
  - master/HEAD
+   * 実装の大部分をJavaScriptコードモジュール化した
    * Firefox 34以降で動作するよう修正（[bug 1088660「one for search」](https://bugzilla.mozilla.org/show_bug.cgi?id=1088660)が導入されて以降のバージョンに対応）
+   * [Private Tab](https://addons.mozilla.org/firefox/addon/private-tab/)との互換性を向上
  - 0.7.2014050501
    * Australisにおいて、ツールバーのオーバーフロー・アンダーフローが発生した後でも正常に動作するようにした
    * Australisにおいて、ロケーションバーと検索バーのどちらかがメニューパネルの中にある場合はどちらでも動作するようにした

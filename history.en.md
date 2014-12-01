@@ -1,7 +1,9 @@
 # History
 
  - master/HEAD
+   * Most implementations are migrated to JavaScript code modules.
    * Works correctly on Firefox 34 and later (after [bug 1088660: the "one for search" feature](https://bugzilla.mozilla.org/show_bug.cgi?id=1088660).)
+   * Better compatibility with the [Private Tab](https://addons.mozilla.org/firefox/addon/private-tab/) addon.
  - 0.7.2014050501
    * Works correctly after overflow/underflow the toolbar, on Australis.
    * Works on both location bar and search bar if one of them is in the menu panel, on Australis.
