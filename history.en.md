@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+   * Works on Nightly 37.0a1.
+   * Drop support for Firefox 30 and older versions
+   * Works correctly on the multi-process mode (E10S).
    * Most implementations are migrated to JavaScript code modules.
    * Works correctly on Firefox 34 and later (after [bug 1088660: the "one for search" feature](https://bugzilla.mozilla.org/show_bug.cgi?id=1088660).)
    * Better compatibility with the [Private Tab](https://addons.mozilla.org/firefox/addon/private-tab/) addon.

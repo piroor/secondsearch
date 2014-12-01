@@ -1,6 +1,9 @@
 # 更新履歴
 
  - master/HEAD
+   * Nightly 37.0a1に対応
+   * Firefox 30およびそれ以前のバージョンへの対応を終了
+   * マルチプロセスモード（E10S）に対応
    * 実装の大部分をJavaScriptコードモジュール化した
    * Firefox 34以降で動作するよう修正（[bug 1088660「one for search」](https://bugzilla.mozilla.org/show_bug.cgi?id=1088660)が導入されて以降のバージョンに対応）
    * [Private Tab](https://addons.mozilla.org/firefox/addon/private-tab/)との互換性を向上
