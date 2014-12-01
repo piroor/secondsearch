@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+   * Search by the default engine works correctly.
+     (On Firefox 33, unexpected engine was used, and Firefox 34 couldn't do search.)
  - 0.8.2014120201
    * Works on Nightly 37.0a1.
    * Drop support for Firefox 30 and older versions

@@ -902,7 +902,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
-		if (!(aEngine instanceof Ci.nsISearchEngine)) {
+		if (!(aEngine instanceof Ci.nsISearchEngine) &&
+			aEngine instanceof Ci.nsIDOMEvent) {
 			// Firefox 33 and older versions
 			// See:
 			//   https://bugzilla.mozilla.org/show_bug.cgi?id=1103326
