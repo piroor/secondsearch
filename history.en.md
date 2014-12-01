@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 0.8.2014120202
    * Search by the default engine works correctly.
      (On Firefox 33, unexpected engine was used, and Firefox 34 couldn't do search.)
  - 0.8.2014120201
