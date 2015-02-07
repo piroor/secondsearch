@@ -163,6 +163,15 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			) : null ;
 	},
  
+	get nativeSelectedItem() 
+	{
+		let list = this.document.getAnonymousElementByAttribute(this.textbox.popup, 'anonid', 'search-panel-one-offs');
+		if (list)
+			return list.querySelector('button[selected="true"]');
+
+		return null;
+	},
+ 
 	get canClearAfterSearch() 
 	{
 		return this.searchbar.localName == 'searchbar';
@@ -540,7 +549,11 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		if (
 			(
-				(this.textbox.popup.selectedIndex < 0 && normalOpenKeys) ||
+				(
+					this.textbox.popup.selectedIndex < 0 &&
+					!this.nativeSelectedItem &&
+					normalOpenKeys
+				) ||
 				shiftedOpenKeys
 			) ||
 			(
@@ -669,7 +682,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			this.addEngineToRecentList(current);
 	},
  
-	onOperationPre : function SSBrowser_onOperationPre(aEvent) 
+	canOperate : function SSBrowser_canOperate(aEvent) 
 	{
 		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
 		var textbox = this.textbox;
@@ -697,7 +710,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				'GSuggest' in this.window &&
 				this.window.GSuggest.getCurrentItem()
 			) ||
-			textbox.popup.selectedIndex > -1
+			textbox.popup.selectedIndex > -1 ||
+			this.nativeSelectedItem
 			)
 			return false;
 		return true;

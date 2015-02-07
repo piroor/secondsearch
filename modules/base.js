@@ -171,6 +171,11 @@ SecondSearchBase.prototype = {
 		return this.document.getElementById('secondsearch_popup_dummy');
 	},
  
+	get nativeSelectedItem() 
+	{
+		return null;
+	},
+ 
 	evaluateXPath : function SSB_evaluateXPath(aExpression, aContextNode, aType) 
 	{
 		aExpression  = aExpression || '';
@@ -519,7 +524,7 @@ SecondSearchBase.prototype = {
 	{
 try{
 		var popup = this.popup;
-		if (!this.onOperationPre(aEvent))
+		if (!this.canOperate(aEvent))
 			return true;
 
 		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
@@ -654,12 +659,9 @@ try{
 					this.textbox.popup.hidePopup();
 
 					// on Firefox 35, "one off search" button having "selected" attribute is unexpectedly detected as the selected engine even if the popup is closed.
-					let list = this.document.getAnonymousElementByAttribute(this.textbox.popup, 'anonid', 'search-panel-one-offs');
-					if (list) {
-						let button = list.querySelector('button[selected="true"]');
-						if (button)
-							button.removeAttribute('selected');
-					}
+					let selectedItem = this.nativeSelectedItem;
+					if (selectedItem)
+						selectedItem.removeAttribute('selected');
 				}
 				catch(e) {
 				}
@@ -716,7 +718,7 @@ catch(e) {
 }
 	},
 	
-	onOperationPre : function SSB_onOperationPre(aEvent) 
+	canOperate : function SSB_canOperate(aEvent) 
 	{
 		return true;
 	},
