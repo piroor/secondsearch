@@ -12,6 +12,7 @@ function SecondSearchBase(aWindow)
 }
 SecondSearchBase.prototype = {
 	active : true,
+	domain : 'extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.'
 	
 	SHOWN_BY_INPUT            : 1, 
 	SHOWN_BY_MANUAL_OPERATION : 2,
@@ -38,19 +39,19 @@ SecondSearchBase.prototype = {
 	
 	get delay() 
 	{
-		var val = this.getPref('secondsearch.popup.auto_show.delay');
+		var val = this.getPref(this.domain + 'popup.auto_show.delay');
 		return Math.max(0, val);
 	},
  
 	get clearDelay() 
 	{
-		var val = this.getPref('secondsearch.clear_after_search.delay');
+		var val = this.getPref(this.domain + 'clear_after_search.delay');
 		return Math.max(0, val);
 	},
  
 	get timeout() 
 	{
-		var val = this.getPref('secondsearch.timeout');
+		var val = this.getPref(this.domain + 'timeout');
 		return Math.max(0, val);
 	},
  
@@ -66,48 +67,48 @@ SecondSearchBase.prototype = {
 	
 	get popupTypeNormal() 
 	{
-		return this.getPref('secondsearch.popup.type');
+		return this.getPref(this.domain + 'popup.type');
 	},
  
 	get popupTypeDragdrop() 
 	{
-		return this.getPref('secondsearch.popup.type.dragdrop');
+		return this.getPref(this.domain + 'popup.type.dragdrop');
 	},
  
 	get popupTypeContext() 
 	{
-		return this.getPref('secondsearch.popup.type.context');
+		return this.getPref(this.domain + 'popup.type.context');
 	},
   
 	get popupPosition() 
 	{
-		return this.getPref('secondsearch.popup.position');
+		return this.getPref(this.domain + 'popup.position');
 	},
  
 	get autoShowInput() 
 	{
-		return this.getPref('secondsearch.popup.auto_show');
+		return this.getPref(this.domain + 'popup.auto_show');
 	},
  
 	get manualShowArrowKeys() 
 	{
-		return this.getPref('secondsearch.popup.manual_show.arrowKeys');
+		return this.getPref(this.domain + 'popup.manual_show.arrowKeys');
 	},
  
 	get autoShowDragdropMode() 
 	{
-		return this.getPref('secondsearch.popup.auto_show.dragdrop.mode');
+		return this.getPref(this.domain + 'popup.auto_show.dragdrop.mode');
 	},
  
 	get autoShowDragdropDelay() 
 	{
-		var val = this.getPref('secondsearch.popup.auto_show.dragdrop.delay');
+		var val = this.getPref(this.domain + 'popup.auto_show.dragdrop.delay');
 		return Math.max(0, val);
 	},
  
 	get handleDragdropOnlyOnButton() 
 	{
-		return this.getPref('secondsearch.handle_dragdrop_only_on_button');
+		return this.getPref(this.domain + 'handle_dragdrop_only_on_button');
 	},
   
 /* elements */ 
@@ -141,7 +142,7 @@ SecondSearchBase.prototype = {
 			value &&
 			this.autoFillEnabled &&
 			this.textbox.controller.input && // ignore results stored in inactive autocomplete controller (for drag and drop)
-			this.getPref('secondsearch.ignoreAutoFillResult')
+			this.getPref(this.domain + 'ignoreAutoFillResult')
 			) {
 			value = this.textbox.controller.searchString || value;
 		}
@@ -768,7 +769,7 @@ catch(e) {
 	clearAfterSearch : function SSB_clearAfterSearch() 
 	{
 		if (!this.canClearAfterSearch ||
-			!this.getPref('secondsearch.clear_after_search'))
+			!this.getPref(this.domain + 'clear_after_search'))
 			return;
 
 		this.stopClearAfterSearch();
@@ -1427,6 +1428,15 @@ catch(e) {
 	{
 		return prefs.removePrefListener(aObserver);
 	},
+
+	migratePrefs : function SSB_migratePrefs()
+	{
+		prefs.getDescendant('secondsearch.').forEach(function(aKey) {
+			var newKey = aKey.replace('secondsearch.', this.domain);
+			prefs.setPref(newKey, prefs.getPref(aKey));
+			prefs.clearPref(aKey);
+		}, this);
+	},
   
 /* initializing */ 
 	
@@ -1437,6 +1447,8 @@ catch(e) {
 	
 	initBase : function SSB_initBase() 
 	{
+		this.migratePrefs();
+
 		this.initBarWithDelay();
 
 		this.window.removeEventListener('load', this, false);
@@ -1451,7 +1463,7 @@ catch(e) {
 		popup.addEventListener('popuphiding', this, false);
 
 		if (this.popupTypeDragdrop == this.DRAGDROP_MODE_DRAGOVER)
-			this.setPref('secondsearch.popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
+			this.setPref(this.domain + 'popup.type.dragdrop', this.DRAGDROP_MODE_DROP);
 	},
   
 	destroy : function SSB_destroy() 
