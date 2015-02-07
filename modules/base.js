@@ -2,6 +2,9 @@ var EXPORTED_SYMBOLS = ['SecondSearchBase'];
 
 var Cc = Components.classes;
 var Ci = Components.interfaces;
+var Cu = Components.utils;
+
+Cu.import('resource://secondsearch-modules/prefs.js');
 
 function SecondSearchBase(aWindow) 
 {
@@ -1382,64 +1385,13 @@ catch(e) {
    
 /* prefs */ 
 	
-	get Prefs() 
-	{
-		if (!this.mPrefs)
-			this.mPrefs = Components
-					.classes['@mozilla.org/preferences-service;1']
-					.getService(Ci.nsIPrefService)
-					.getBranch(null);
-		return this.mPrefs;
-	},
-	mPrefs : null,
- 
 	getPref : function SSB_getPref(aKey) 
 	{
-		try {
-			switch (this.Prefs.getPrefType(aKey))
-			{
-				case this.Prefs.PREF_STRING:
-					return decodeURIComponent(escape(this.Prefs.getCharPref(aKey)));
-					break;
-				case this.Prefs.PREF_INT:
-					return this.Prefs.getIntPref(aKey);
-					break;
-				default:
-					return this.Prefs.getBoolPref(aKey);
-					break;
-			}
-		}
-		catch(e) {
-		}
-		return null;
+		return prefs.getPref(aKey);
 	},
- 
 	setPref : function SSB_setPref(aKey, aNewValue) 
 	{
-		var pref = this.Prefs ;
-		var type;
-		try {
-			type = typeof aNewValue;
-		}
-		catch(e) {
-			type = null;
-		}
-
-		switch (type)
-		{
-			case 'object':
-				aNewValue = uneval(aNewValue);
-			case 'string':
-				pref.setCharPref(aKey, unescape(encodeURIComponent(aNewValue)));
-				break;
-			case 'number':
-				pref.setIntPref(aKey, parseInt(aNewValue));
-				break;
-			default:
-				pref.setBoolPref(aKey, aNewValue);
-				break;
-		}
-		return true;
+		return prefs.setPref(aKey, aNewValue);
 	},
  
 	getArrayPref : function SSB_getArrayPref(aKey) 
@@ -1465,32 +1417,15 @@ catch(e) {
  
 	clearPref : function SSB_clearPref(aKey) 
 	{
-		try {
-			this.Prefs.clearUserPref(aKey);
-		}
-		catch(e) {
-		}
-		return;
+		return prefs.clearPref(aKey);
 	},
- 
 	addPrefListener : function SSB_addPrefListener(aObserver) 
 	{
-		try {
-			var pbi = this.Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-			pbi.addObserver(aObserver.domain, aObserver, false);
-		}
-		catch(e) {
-		}
+		return prefs.addPrefListener(aObserver);
 	},
- 
 	removePrefListener : function SSB_removePrefListener(aObserver) 
 	{
-		try {
-			var pbi = this.Prefs.QueryInterface(Ci.nsIPrefBranchInternal);
-			pbi.removeObserver(aObserver.domain, aObserver, false);
-		}
-		catch(e) {
-		}
+		return prefs.removePrefListener(aObserver);
 	},
   
 /* initializing */ 
