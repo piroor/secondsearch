@@ -197,9 +197,11 @@ SecondSearchBase.prototype = {
 		{
 			active = this.evaluateXPath('child::*[@_moz-menuactive="true"]', popup, Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue;
 			if (!active) return lastActive;
-			if (active.localName == 'menuitem') return active;
+			if (active.localName == 'menuitem')
+				return active;
 			lastActive = active;
-			if (!aDig || !active.firstChild.shown) return lastActive;
+			if (!aDig || !active.firstChild.shown)
+				return lastActive;
 			popup = active.firstChild;
 		}
 	},
