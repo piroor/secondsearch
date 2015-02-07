@@ -16,18 +16,18 @@
 <prefpane id="prefpane-general" label="&config.tab.general;">
 	<preferences>
 		<preference id="secondsearch.popup.type"
-			name="secondsearch.popup.type"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.type"
 			type="int"/>
 		<preference id="secondsearch.recentengines.num"
-			name="secondsearch.recentengines.num"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.recentengines.num"
 			type="int"/>
 
 		<preference id="secondsearch.popup.position"
-			name="secondsearch.popup.position"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.position"
 			type="int"/>
 
 		<preference id="secondsearch.override.locationBar"
-			name="secondsearch.override.locationBar"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.override.locationBar"
 			type="bool"/>
 	</preferences>
 
@@ -88,13 +88,13 @@
 	">
 	<preferences>
 		<preference id="secondsearch.popup.auto_show"
-			name="secondsearch.popup.auto_show"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.auto_show"
 			type="bool"/>
 		<preference id="secondsearch.popup.manual_show.arrowKeys"
-			name="secondsearch.popup.manual_show.arrowKeys"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.manual_show.arrowKeys"
 			type="int"/>
 		<preference id="secondsearch.popup.auto_show.dragdrop.mode"
-			name="secondsearch.popup.auto_show.dragdrop.mode"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.auto_show.dragdrop.mode"
 			type="int"/>
 	</preferences>
 
@@ -138,11 +138,11 @@
 			type="bool"
 			onchange="window.setTimeout(updateTabRadio, 100)"/>
 		<preference id="secondsearch.loadInBackground"
-			name="secondsearch.loadInBackground"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.loadInBackground"
 			type="bool"
 			onchange="window.setTimeout(updateTabRadio, 100)"/>
 		<preference id="secondsearch.reuse_blank_tab"
-			name="secondsearch.reuse_blank_tab"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.reuse_blank_tab"
 			type="bool"/>
 	</preferences>
 
@@ -168,33 +168,33 @@
 <prefpane id="prefpane-advanced" label="&config.tab.advanced;">
 	<preferences>
 		<preference id="secondsearch.keyword.show"
-			name="secondsearch.keyword.show"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.keyword.show"
 			type="bool"/>
 		<preference id="secondsearch.switch.blank_input"
-			name="secondsearch.switch.blank_input"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.switch.blank_input"
 			type="bool"/>
 		<preference id="secondsearch.clear_after_search"
-			name="secondsearch.clear_after_search"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.clear_after_search"
 			type="bool"/>
 		<preference id="secondsearch.clear_after_search.delay"
-			name="secondsearch.clear_after_search.delay"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.clear_after_search.delay"
 			type="int"/>
 		<preference id="secondsearch.handle_dragdrop_only_on_button"
-			name="secondsearch.handle_dragdrop_only_on_button"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.handle_dragdrop_only_on_button"
 			type="bool"/>
 		<preference id="secondsearch.popup.type.context"
-			name="secondsearch.popup.type.context"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.type.context"
 			type="int"/>
 		<preference id="secondsearch.popup.type.dragdrop"
-			name="secondsearch.popup.type.dragdrop"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.type.dragdrop"
 			type="int"/>
 
 		<preference id="secondsearch.keyword.cache"
-			name="secondsearch.keyword.cache"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.keyword.cache"
 			instantApply="true"
 			type="string"/>
 		<preference id="secondsearch.keyword.cache.count"
-			name="secondsearch.keyword.cache.count"
+			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.keyword.cache.count"
 			instantApply="true"
 			type="int"/>
 	</preferences>
