@@ -12,7 +12,7 @@ function SecondSearchBase(aWindow)
 }
 SecondSearchBase.prototype = {
 	active : true,
-	domain : 'extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.'
+	domain : 'extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.'
 	
 	SHOWN_BY_INPUT            : 1, 
 	SHOWN_BY_MANUAL_OPERATION : 2,
