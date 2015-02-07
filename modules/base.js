@@ -649,9 +649,17 @@ try{
 					return true;
 				}
 
-				// in Firefox 3, autocomplete popup grabs user key inputs!!
+				// Autocomplete popup grabs user key inputs, so it must be closed while Second Search handles key events
 				try {
 					this.textbox.popup.hidePopup();
+
+					// on Firefox 35, "one off search" button having "selected" attribute is unexpectedly detected as the selected engine even if the popup is closed.
+					let list = this.document.getAnonymousElementByAttribute(this.textbox.popup, 'anonid', 'search-panel-one-offs');
+					if (list) {
+						let button = list.querySelector('button[selected="true"]');
+						if (button)
+							button.removeAttribute('selected');
+					}
 				}
 				catch(e) {
 				}
