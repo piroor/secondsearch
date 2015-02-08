@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 0.9.2015020801
+   * Made `eval()`-free.
+   * Better compatibility with new Web search UI on Firefox 35 (and later).
  - 0.8.2014120202
    * Search by the default engine works correctly.
      (On Firefox 33, unexpected engine was used, and Firefox 34 couldn't do search.)
