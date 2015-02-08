@@ -55,7 +55,7 @@ var SecondSearchWindowHelper = {
 						this.__secondsearch__showSecondSearch = (service.searchbar == this);
 					}
 
-					this.__secondsearch__commandHandled = false;
+					this.__secondsearch__commandHandled = null;
 					var retVal = this.__secondsearch__onDrop.apply(this, aArgs);
 
 					if (!this.__secondsearch__commandHandled &&
@@ -63,6 +63,7 @@ var SecondSearchWindowHelper = {
 						service.showSecondSearch(service.SHOWN_BY_DROP);
 					}
 
+					this.__secondsearch__commandHandled = null;
 					this.__secondsearch__showSecondSearch = false;
 					return retVal;
 				};
