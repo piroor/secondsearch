@@ -9,16 +9,16 @@ var SecondSearchWindowHelper = {
 	{
 		var search = aService.searchbar;
 		var textbox = aService.textbox;
-		var subject = window.SecondSearchWindowHelper.services[aService.name];
+		var service = window.SecondSearchWindowHelper.services[aService.name];
 		var accessor = 'window.SecondSearchWindowHelper.services.' + aService.name;
 
 		if (search.localName == 'searchbar') { // search bar
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
 				search.__secondsearch__original_doSearch = search.doSearch;
 				search.__secondsearch__doSearch = function(...aArgs) {
-					subject.readyToSearch();
+					service.readyToSearch();
 					var retVal = search.__secondsearch__original_doSearch.apply(this, aArgs);
-					subject.searchDone();
+					service.searchDone();
 					return retVal;
 				};
 				search.doSearch = aService.doSearchbarSearch.bind(aService);
@@ -42,33 +42,43 @@ var SecondSearchWindowHelper = {
 		else { // location bar
 			if (textbox.onDrop &&
 				!textbox.__secondsearch__updated) {
-				eval('textbox.onDrop = '+textbox.onDrop.toSource().replace(
-					'{',
-					'{' +
-					'  var ss = ' + accessor + ';' +
-					'  ss.droppedURI = null;' +
-					'  var showSecondSearch = false;' +
-					'  if ((typeof aXferData == "undefined" ? ' +
-					'         ss.getDroppedText(aEvent) : ' +
-					'         aXferData.flavour.contentType == "text/unicode") &&' +
-					'    ss.autoShowDragdropMode == ss.DRAGDROP_MODE_DROP) {' +
-					'    showSecondSearch = (ss.searchbar == this);' +
-					'  }'
-				).replace(
-					'return;',
-					'if (showSecondSearch)' +
-					'  ss.showSecondSearch(ss.SHOWN_BY_DROP);' +
-					'$&'
-				).replace(
-					/((handleURLBarCommand|this\.handleCommand)\(\);)/,
-					'if (showSecondSearch) {' +
-					'  ss.droppedURI = this.value;' +
-					'  ss.showSecondSearch(ss.SHOWN_BY_DROP);' +
-					'}' +
-					'else {' +
-					'  $1;' +
-					'}'
-				));
+				textbox.__secondsearch__onDrop = textbox.onDrop;
+				textbox.onDrop = function(...aArgs) {
+					service.droppedURI = null;
+					this.__secondsearch__showSecondSearch = false;
+
+					var hasDroppedText = aArgs.length <= 1 ?
+							service.getDroppedText(aEvent) :
+							aXferData.flavour.contentType == "text/unicode" ;
+					if (hasDroppedText &&
+						service.autoShowDragdropMode == service.DRAGDROP_MODE_DROP) {
+						this.__secondsearch__showSecondSearch = (service.searchbar == this);
+					}
+
+					this.__secondsearch__commandHandled = false;
+					var retVal = this.__secondsearch__onDrop.apply(this, aArgs);
+
+					if (!this.__secondsearch__commandHandled &&
+						this.__secondsearch__showSecondSearch) {
+						service.showSecondSearch(service.SHOWN_BY_DROP);
+					}
+
+					this.__secondsearch__showSecondSearch = false;
+					return retVal;
+				};
+
+				textbox.__secondsearch__handleCommand = textbox.handleCommand;
+				textbox.handleCommand = function(...aArgs) {
+					this.__secondsearch__commandHandled = Date.now();
+					if (this.__secondsearch__showSecondSearch) {
+						service.droppedURI = this.value;
+						return undefined;
+					}
+					else {
+						return this.__secondsearch__handleCommand.apply(this, aArgs);
+					}
+				};
+
 				textbox.__secondsearch__updated = true;
 			}
 		}
@@ -93,8 +103,8 @@ window.addEventListener('load', function onLoad() {
 
 	window.__secondsearch__original_openUILinkIn = window.openUILinkIn;
 	window.openUILinkIn = function(...aArgs) {
-		var subject = window.SecondSearchWindowHelper.services[searchBar.name];
-		if (subject.checkToDoSearch.apply(subject, aArgs))
+		var service = window.SecondSearchWindowHelper.services[searchBar.name];
+		if (service.checkToDoSearch.apply(service, aArgs))
 			return;
 		return window.__secondsearch__original_openUILinkIn.apply(this, aArgs);
 	};
