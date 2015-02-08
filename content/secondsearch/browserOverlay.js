@@ -3,17 +3,6 @@ var SecondSearchWindowHelper = {
 
 	preInit : function SSWH_preInit()
 	{
-		// compatibility for Tab Control
-		// https://addons.mozilla.org/firefox/addon/tab-control/
-		if ('gTabControl' in window && gTabControl.handleSearchCommand) {
-			eval('gTabControl.handleSearchCommand = '+gTabControl.handleSearchCommand.toSource().replace(
-				')',
-				', aOverride)'
-			).replace(
-				'[aEvent]',
-				'[aEvent, aOverride]'
-			));
-		}
 	},
 
 	initBar : function SSWH_initBar(aService)
