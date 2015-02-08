@@ -24,20 +24,6 @@ var SecondSearchWindowHelper = {
 				search.doSearch = aService.doSearchbarSearch.bind(aService);
 				search._popup.addEventListener('command', aService, true);
 			}
-
-			// old Tab Mix Plus, only Firefox 2?
-			if ('handleSearchCommand' in search &&
-				'TMP_SearchLoadURL' in window && !window.__secondsearch__TMP_SearchLoadURL) {
-				window.__secondsearch__TMP_SearchLoadURL = window.TMP_SearchLoadURL;
-				eval('window.TMP_SearchLoadURL = '+window.TMP_SearchLoadURL.toSource().replace(
-					'var submission = searchbar.currentEngine',
-					'var overrideEngine = null;' +
-					'if (' + accessor + '.selectedEngine) {' +
-					'  overrideEngine = ' + accessor + '.getSearchEngineFromName(' + accessor + '.selectedEngine.name);' +
-					'};' +
-					'var submission = (overrideEngine || searchbar.currentEngine)'
-				));
-			}
 		}
 		else { // location bar
 			if (textbox.onDrop &&
