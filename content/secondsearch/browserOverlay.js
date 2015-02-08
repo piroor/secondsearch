@@ -132,15 +132,16 @@ window.getSecondSearch = function() {
 	return searchBar;
 };
 
-var accessor = 'window.SecondSearchWindowHelper.services.' + searchBar.name;
 window.addEventListener('load', function onLoad() {
 	window.removeEventListener('load', onLoad, false);
-	eval('window.openUILinkIn = '+window.openUILinkIn.toSource().replace(
-		'{',
-		'{' +
-		'  if (' + accessor + '.checkToDoSearch.apply(' + accessor + ', arguments))' +
-		'    return;'
-	));
+
+	window.__secondsearch__original_openUILinkIn = window.openUILinkIn;
+	window.openUILinkIn = function(...aArgs) {
+		var subject = window.SecondSearchWindowHelper.services[searchBar.name];
+		if (subject.checkToDoSearch.apply(subject, aArgs))
+			return;
+		return window.__secondsearch__original_openUILinkIn.apply(this, aArgs);
+	};
 }, false);
  
 })();
