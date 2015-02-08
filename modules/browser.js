@@ -794,18 +794,20 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				this.loadForSearch(uri, (postData.value || null), aEvent, this.searchterm);
 			}
 			else if (isSearchBar) {
-				if (bar.handleSearchCommand.length <= 2) {
+				this.handlingSearchCommandWithEngine = true;
+				if (bar.handleSearchCommand.length <= 1) {
 					// Firefox 33 and older versions
 					// See:
 					//   https://bugzilla.mozilla.org/show_bug.cgi?id=1103326
 					//   https://bugzilla.mozilla.org/show_bug.cgi?id=1088660
 					//   https://hg.mozilla.org/releases/mozilla-beta/rev/35496f35f0d1
-					retVal = bar.handleSearchCommand(aEvent, true);
+					retVal = bar.handleSearchCommand(aEvent);
 				}
 				else {
 					engine = this.getSearchEngineFromName(engine.name);
-					retVal = bar.handleSearchCommand(aEvent, engine, true);
+					retVal = bar.handleSearchCommand(aEvent, engine);
 				}
+				this.handlingSearchCommandWithEngine = false;
 			}
 		}
 
@@ -911,7 +913,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	selectedEngine : null, 
 	doingSearch : false,
   
-	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEngine, aEvent, aOverride) 
+	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEngine, aEvent) 
 	{
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
@@ -923,13 +925,12 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			//   https://bugzilla.mozilla.org/show_bug.cgi?id=1103326
 			//   https://bugzilla.mozilla.org/show_bug.cgi?id=1088660
 			//   https://hg.mozilla.org/releases/mozilla-beta/rev/35496f35f0d1
-			aOverride = aEvent;
 			aEvent    = aEngine;
 			aEngine   = null;
 		}
 
 		var b = this.browser;
-		if (aOverride) {
+		if (this.handlingSearchCommandWithEngine) {
 			if (!aEngine) {
 				let engine = this.selectedEngine || this.getRecentEngines()[0];
 				aEngine = this.getSearchEngineFromName(engine.name);

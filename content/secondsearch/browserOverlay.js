@@ -20,51 +20,18 @@ var SecondSearchWindowHelper = {
 	{
 		var search = aService.searchbar;
 		var textbox = aService.textbox;
+		var subject = window.SecondSearchWindowHelper.services[aService.name];
 		var accessor = 'window.SecondSearchWindowHelper.services.' + aService.name;
 
 		if (search.localName == 'searchbar') { // search bar
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
-				let target = 'search.handleSearchCommand';
-				let func = search.handleSearchCommand;
-
-				// compatibility for Searchbar Autosizer
-				// https://addons.mozilla.org/firefox/addon/searchbar-autosizer/
-				if ('autosizer' in window && autosizer.originalHandleSearchCommand) {
-					target = 'autosizer.originalHandleSearchCommand';
-					func = autosizer.originalHandleSearchCommand;
-				}
-
-				// compatibility for Tab Control
-				// https://addons.mozilla.org/firefox/addon/tab-control/
-				if ('gTabControl' in window && gTabControl.origHandleSearchCommand) {
-					target = 'gTabControl.origHandleSearchCommand';
-					func = gTabControl.origHandleSearchCommand;
-				}
-
-				// compatibility for SearchLoad Options
-				// https://addons.mozilla.org/firefox/addon/searchload-options/
-				if ('esteban_torres' in window &&
-					'searchLoad_Options' in esteban_torres &&
-					esteban_torres.searchLoad_Options.MOZhandleSearch) {
-					target = 'esteban_torres.searchLoad_Options.MOZhandleSearch';
-					func = esteban_torres.searchLoad_Options.MOZhandleSearch;
-				}
-
-				eval(target+' = '+func.toSource().replace(
-					')',
-					', aOverride)'
-				).replace(
-					/doSearch\(([^\)]+)\)/,
-					'doSearch($1, aEvent, aOverride)'
-				));
-				eval('search.doSearch = '+search.doSearch.toSource().replace(
-					'{',
-					'$& ' + accessor + '.readyToSearch();'
-				).replace(
-					/(\}\)?)$/,
-					accessor + '.searchDone(); $1'
-				));
-				search.__secondsearch__doSearch = search.doSearch;
+				search.__secondsearch__original_doSearch = search.doSearch;
+				search.__secondsearch__doSearch = function(...aArgs) {
+					subject.readyToSearch();
+					var retVal = search.__secondsearch__original_doSearch.apply(this, aArgs);
+					subject.searchDone();
+					return retVal;
+				};
 				search.doSearch = aService.doSearchbarSearch.bind(aService);
 				search._popup.addEventListener('command', aService, true);
 			}
