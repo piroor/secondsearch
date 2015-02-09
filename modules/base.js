@@ -849,7 +849,7 @@ catch(e) {
 		search.secondsearchInitialized = true;
 
 		textbox.addEventListener('input',    this, true);
-		textbox.addEventListener('keypress', this, true);
+		textbox.addEventListener('keyup',    this, true);
 		textbox.addEventListener('blur',     this, false);
 		textbox.addEventListener('focus',    this, true);
 
@@ -897,7 +897,7 @@ catch(e) {
 
 		var textbox = this.textbox;
 		textbox.removeEventListener('input',    this, true);
-		textbox.removeEventListener('keypress', this, true);
+		textbox.removeEventListener('keyup',    this, true);
 		textbox.removeEventListener('blur',     this, false);
 		textbox.removeEventListener('focus',    this, true);
 
@@ -952,7 +952,7 @@ catch(e) {
 				this.onInput(aEvent);
 				break;
 
-			case 'keypress':
+			case 'keyup':
 				if (!this.active)
 					return;
 				this.operateSecondSearch(aEvent);
