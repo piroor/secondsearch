@@ -523,17 +523,15 @@ SecondSearchBase.prototype = {
 	operateSecondSearch : function SSB_operateSecondSearch(aEvent) 
 	{
 try{
-		var popup = this.popup;
 		if (!this.canOperate(aEvent))
 			return true;
 
-		const nsIDOMKeyEvent = Ci.nsIDOMKeyEvent;
-
+		var popup = this.popup;
 		if (
 			popup.shown &&
 			(
-				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_ENTER ||
-				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RETURN
+				aEvent.keyCode == aEvent.DOM_VK_ENTER ||
+				aEvent.keyCode == aEvent.DOM_VK_RETURN
 			)
 			) {
 			let bar = this.searchbar;
@@ -565,11 +563,10 @@ try{
 			)
 			return true;
 
-		var isUpKey = false;
 		switch(aEvent.keyCode)
 		{
-			case nsIDOMKeyEvent.DOM_VK_DELETE:
-			case nsIDOMKeyEvent.DOM_VK_BACK_SPACE:
+			case aEvent.DOM_VK_DELETE:
+			case aEvent.DOM_VK_BACK_SPACE:
 				if (popup.shown) {
 					if (!this.searchterm) {
 						this.hideSecondSearch();
@@ -586,7 +583,7 @@ try{
 				}
 				return true;
 
-			case nsIDOMKeyEvent.DOM_VK_ESCAPE:
+			case aEvent.DOM_VK_ESCAPE:
 				this.hideSecondSearch();
 				aEvent.stopPropagation();
 				aEvent.preventDefault();
@@ -597,128 +594,142 @@ try{
 				return false;
 
 
-			case nsIDOMKeyEvent.DOM_VK_UP:
-				isUpKey = true;
-			case nsIDOMKeyEvent.DOM_VK_DOWN:
-				if (!popup.shown) {
-					if (aEvent.shiftKey ?
-							!(this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED) :
-							!(this.manualShowArrowKeys & this.ARROWKEYS_NORMAL)
-						) {
-						return true;
-					}
-					if (
-						!aEvent.shiftKey &&
-						(isUpKey ?
-							this.popupPosition != 0 :
-							this.popupPosition != 1
-						)
-						) {
-						return true;
-					}
+			case aEvent.DOM_VK_UP:
+			case aEvent.DOM_VK_DOWN:
+				return this.handleUpDownKey(aEvent);
 
-					this.showSecondSearch(this.SHOWN_BY_MANUAL_OPERATION);
+			case aEvent.DOM_VK_RIGHT:
+				return this.handleRightKey(aEvent);
 
-					let current = isUpKey ? this.getLastItem(popup) : this.getFirstItem(popup) ;
-					if (current) {
-						current.setAttribute('_moz-menuactive', true);
-						this.disableAutoFill();
-					}
-
-					aEvent.stopPropagation();
-					aEvent.preventDefault();
-					return false;
-				}
-				if (this.autoHideTimer) {
-					this.window.clearTimeout(this.autoHideTimer);
-					this.autoHideTimer = null;
-				}
-
-				let current = this.getCurrentItem(popup, true);
-				if (current) {
-					current.removeAttribute('_moz-menuactive');
-					current = this.getNextOrPrevItem(current, (isUpKey ? -1 : 1 ), current.parentNode != popup);
-				}
-				else {
-					let shifted = aEvent.shiftKey && (this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED);
-					current = isUpKey ?
-						 this.getLastItem(popup) :
-						 ((shifted || this.popupPosition == 1) ? this.getFirstItem(popup) : null );
-				}
-				if (current) {
-					current.setAttribute('_moz-menuactive', true);
-					this.disableAutoFill();
-				}
-				else {
-					this.revertAutoFill();
-					return true;
-				}
-
-				// Autocomplete popup grabs user key inputs, so it must be closed while Second Search handles key events
-				try {
-					this.textbox.popup.hidePopup();
-
-					// on Firefox 35, "one off search" button having "selected" attribute is unexpectedly detected as the selected engine even if the popup is closed.
-					let selectedItem = this.nativeSelectedItem;
-					if (selectedItem)
-						selectedItem.removeAttribute('selected');
-				}
-				catch(e) {
-				}
-
-				aEvent.stopPropagation();
-				aEvent.preventDefault();
-				return false;
-
-
-			case nsIDOMKeyEvent.DOM_VK_RIGHT:
-				if (!popup.shown)
-					return true;
-
-				let current = this.getCurrentItem(popup, true);
-				if (current && current.localName == 'menu') {
-					var popup = current.firstChild;
-					popup.showPopup();
-					popup.shown = true;
-					var current = this.getCurrentItem(popup);
-					if (current)
-						current.removeAttribute('_moz-menuactive');
-					if (popup.hasChildNodes()) {
-						popup.firstChild.setAttribute('_moz-menuactive', true);
-						this.disableAutoFill();
-					}
-					else {
-						this.revertAutoFill();
-					}
-					aEvent.stopPropagation();
-					aEvent.preventDefault();
-					return false;
-				}
-				return true;
-
-			case nsIDOMKeyEvent.DOM_VK_LEFT:
-				if (!popup.shown)
-					return true;
-
-				var current = this.getCurrentItem(popup, true);
-				if (current && current.parentNode != popup) {
-					current.removeAttribute('_moz-menuactive');
-					current.parentNode.hidePopup();
-					current.parentNode.shown = false;
-					this.window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
-						aMenu.setAttribute('_moz-menuactive', true);
-						aSelf.disableAutoFill();
-					}, 0, current.parentNode.parentNode, this);
-					aEvent.stopPropagation();
-					aEvent.preventDefault();
-					return false;
-				}
-				return true;
+			case aEvent.DOM_VK_LEFT:
+				return this.handleLeftKey(aEvent);
 		}
 }
 catch(e) {
 	dump(e+'\n');
 }
+	},
+	handleUpDownKey : function SSB_handleUpDownKey(aEvent)
+	{
+		var isUpKey = aEvent.keyCode == aEvent.DOM_VK_UP;
+		var popup = this.popup;
+		if (!popup.shown) {
+			if (aEvent.shiftKey ?
+					!(this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED) :
+					!(this.manualShowArrowKeys & this.ARROWKEYS_NORMAL)
+				) {
+				return true;
+			}
+			if (
+				!aEvent.shiftKey &&
+				(isUpKey ?
+					this.popupPosition != 0 :
+					this.popupPosition != 1
+				)
+				) {
+				return true;
+			}
+
+			this.showSecondSearch(this.SHOWN_BY_MANUAL_OPERATION);
+
+			let current = isUpKey ? this.getLastItem(popup) : this.getFirstItem(popup) ;
+			if (current) {
+				current.setAttribute('_moz-menuactive', true);
+				this.disableAutoFill();
+			}
+
+			aEvent.stopPropagation();
+			aEvent.preventDefault();
+			return false;
+		}
+		if (this.autoHideTimer) {
+			this.window.clearTimeout(this.autoHideTimer);
+			this.autoHideTimer = null;
+		}
+
+		let current = this.getCurrentItem(popup, true);
+		if (current) {
+			current.removeAttribute('_moz-menuactive');
+			current = this.getNextOrPrevItem(current, (isUpKey ? -1 : 1 ), current.parentNode != popup);
+		}
+		else {
+			let shifted = aEvent.shiftKey && (this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED);
+			current = isUpKey ?
+				 this.getLastItem(popup) :
+				 ((shifted || this.popupPosition == 1) ? this.getFirstItem(popup) : null );
+		}
+		if (current) {
+			current.setAttribute('_moz-menuactive', true);
+			this.disableAutoFill();
+		}
+		else {
+			this.revertAutoFill();
+			return true;
+		}
+
+		// Autocomplete popup grabs user key inputs, so it must be closed while Second Search handles key events
+		try {
+			this.textbox.popup.hidePopup();
+
+			// on Firefox 35, "one off search" button having "selected" attribute is unexpectedly detected as the selected engine even if the popup is closed.
+			let selectedItem = this.nativeSelectedItem;
+			if (selectedItem)
+				selectedItem.removeAttribute('selected');
+		}
+		catch(e) {
+		}
+
+		aEvent.stopPropagation();
+		aEvent.preventDefault();
+		return false;
+	},
+	handleRightKey : function SSB_handleRightKey(aEvent)
+	{
+		var popup = this.popup;
+		if (!popup.shown)
+			return true;
+
+		let current = this.getCurrentItem(popup, true);
+		if (current && current.localName == 'menu') {
+			let popup = current.firstChild;
+			popup.showPopup();
+			popup.shown = true;
+			let current = this.getCurrentItem(popup);
+			if (current)
+				current.removeAttribute('_moz-menuactive');
+			if (popup.hasChildNodes()) {
+				popup.firstChild.setAttribute('_moz-menuactive', true);
+				this.disableAutoFill();
+			}
+			else {
+				this.revertAutoFill();
+			}
+			aEvent.stopPropagation();
+			aEvent.preventDefault();
+			return false;
+		}
+		return true;
+	},
+	handleLeftKey : function SSB_handleLeftKey(aEvent)
+	{
+		var popup = this.popup;
+		if (!popup.shown)
+			return true;
+
+		var current = this.getCurrentItem(popup, true);
+		if (current && current.parentNode != popup) {
+			current.removeAttribute('_moz-menuactive');
+			current.parentNode.hidePopup();
+			current.parentNode.shown = false;
+			this.window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+				aMenu.setAttribute('_moz-menuactive', true);
+				aSelf.disableAutoFill();
+			}, 0, current.parentNode.parentNode, this);
+			aEvent.stopPropagation();
+			aEvent.preventDefault();
+			return false;
+		}
+		return true;
 	},
 	
 	canOperate : function SSB_canOperate(aEvent) 
