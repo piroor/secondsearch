@@ -697,7 +697,8 @@ try{
 				return true;
 
 			case nsIDOMKeyEvent.DOM_VK_LEFT:
-				if (!popup.shown) return true;
+				if (!popup.shown)
+					return true;
 
 				var current = this.getCurrentItem(popup, true);
 				if (current && current.parentNode != popup) {
