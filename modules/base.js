@@ -536,9 +536,9 @@ try{
 				aEvent.keyCode == nsIDOMKeyEvent.DOM_VK_RETURN
 			)
 			) {
-			var bar = this.searchbar;
+			let bar = this.searchbar;
 
-			var current = this.getCurrentItem(popup, true);
+			let current = this.getCurrentItem(popup, true);
 			if (current && current.localName == 'menu') {
 				if (current.firstChild.shown)
 					current = this.getCurrentItem(current.firstChild, true);
@@ -579,8 +579,8 @@ try{
 					}
 				}
 			default:
-				var popups = popup.getElementsByTagName('menupopup');
-				for (var i = popups.length-1; i > -1; i--)
+				let popups = popup.getElementsByTagName('menupopup');
+				for (let i = popups.length-1; i > -1; i--)
 				{
 					popups[i].hidePopup();
 				}
@@ -619,7 +619,7 @@ try{
 
 					this.showSecondSearch(this.SHOWN_BY_MANUAL_OPERATION);
 
-					var current = isUpKey ? this.getLastItem(popup) : this.getFirstItem(popup) ;
+					let current = isUpKey ? this.getLastItem(popup) : this.getFirstItem(popup) ;
 					if (current) {
 						current.setAttribute('_moz-menuactive', true);
 						this.disableAutoFill();
@@ -634,13 +634,13 @@ try{
 					this.autoHideTimer = null;
 				}
 
-				var current = this.getCurrentItem(popup, true);
+				let current = this.getCurrentItem(popup, true);
 				if (current) {
 					current.removeAttribute('_moz-menuactive');
 					current = this.getNextOrPrevItem(current, (isUpKey ? -1 : 1 ), current.parentNode != popup);
 				}
 				else {
-					var shifted = aEvent.shiftKey && (this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED);
+					let shifted = aEvent.shiftKey && (this.manualShowArrowKeys & this.ARROWKEYS_SHIFTED);
 					current = isUpKey ?
 						 this.getLastItem(popup) :
 						 ((shifted || this.popupPosition == 1) ? this.getFirstItem(popup) : null );
@@ -672,15 +672,17 @@ try{
 
 
 			case nsIDOMKeyEvent.DOM_VK_RIGHT:
-				if (!popup.shown) return true;
+				if (!popup.shown)
+					return true;
 
-				var current = this.getCurrentItem(popup, true);
+				let current = this.getCurrentItem(popup, true);
 				if (current && current.localName == 'menu') {
 					var popup = current.firstChild;
 					popup.showPopup();
 					popup.shown = true;
 					var current = this.getCurrentItem(popup);
-					if (current) current.removeAttribute('_moz-menuactive');
+					if (current)
+						current.removeAttribute('_moz-menuactive');
 					if (popup.hasChildNodes()) {
 						popup.firstChild.setAttribute('_moz-menuactive', true);
 						this.disableAutoFill();
