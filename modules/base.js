@@ -690,25 +690,25 @@ catch(e) {
 			return true;
 
 		let current = this.getCurrentItem(popup, true);
-		if (current && current.localName == 'menu') {
-			let subMenuPopup = current.firstChild;
-			subMenuPopup.showPopup();
-			subMenuPopup.shown = true;
-			let currentInSubmenu = this.getCurrentItem(subMenuPopup);
-			if (currentInSubmenu)
-				currentInSubmenu.removeAttribute('_moz-menuactive');
-			if (subMenuPopup.hasChildNodes()) {
-				subMenuPopup.firstChild.setAttribute('_moz-menuactive', true);
-				this.disableAutoFill();
-			}
-			else {
-				this.revertAutoFill();
-			}
-			aEvent.stopPropagation();
-			aEvent.preventDefault();
-			return false;
+		if (!current || current.localName != 'menu')
+			return true;
+
+		let subMenuPopup = current.firstChild;
+		subMenuPopup.showPopup();
+		subMenuPopup.shown = true;
+		let currentInSubmenu = this.getCurrentItem(subMenuPopup);
+		if (currentInSubmenu)
+			currentInSubmenu.removeAttribute('_moz-menuactive');
+		if (subMenuPopup.hasChildNodes()) {
+			subMenuPopup.firstChild.setAttribute('_moz-menuactive', true);
+			this.disableAutoFill();
 		}
-		return true;
+		else {
+			this.revertAutoFill();
+		}
+		aEvent.stopPropagation();
+		aEvent.preventDefault();
+		return false;
 	},
 	handleLeftKey : function SSB_handleLeftKey(aEvent)
 	{
@@ -717,19 +717,19 @@ catch(e) {
 			return true;
 
 		var current = this.getCurrentItem(popup, true);
-		if (current && current.parentNode != popup) {
-			current.removeAttribute('_moz-menuactive');
-			current.parentNode.hidePopup();
-			current.parentNode.shown = false;
-			this.window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
-				aMenu.setAttribute('_moz-menuactive', true);
-				aSelf.disableAutoFill();
-			}, 0, current.parentNode.parentNode, this);
-			aEvent.stopPropagation();
-			aEvent.preventDefault();
-			return false;
-		}
-		return true;
+		if (!current || current.parentNode == popup)
+			return true;
+
+		current.removeAttribute('_moz-menuactive');
+		current.parentNode.hidePopup();
+		current.parentNode.shown = false;
+		this.window.setTimeout(function(aMenu, aSelf) { // on Firefox 3, the parent "menu" element lose its focus after the submenu popup was hidden.
+			aMenu.setAttribute('_moz-menuactive', true);
+			aSelf.disableAutoFill();
+		}, 0, current.parentNode.parentNode, this);
+		aEvent.stopPropagation();
+		aEvent.preventDefault();
+		return false;
 	},
 	
 	canOperate : function SSB_canOperate(aEvent) 
