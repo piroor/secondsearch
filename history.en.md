@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 0.9.2015020901
+   * Move focus to Second Search's popup menu by the up arrow key correctly, on Linux. (regression)
  - 0.9.2015020801
    * Made `eval()`-free.
    * Better compatibility with new Web search UI on Firefox 35 (and later).
