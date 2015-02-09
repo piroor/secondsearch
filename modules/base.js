@@ -691,14 +691,14 @@ catch(e) {
 
 		let current = this.getCurrentItem(popup, true);
 		if (current && current.localName == 'menu') {
-			let popup = current.firstChild;
-			popup.showPopup();
-			popup.shown = true;
-			let current = this.getCurrentItem(popup);
-			if (current)
-				current.removeAttribute('_moz-menuactive');
-			if (popup.hasChildNodes()) {
-				popup.firstChild.setAttribute('_moz-menuactive', true);
+			let subMenuPopup = current.firstChild;
+			subMenuPopup.showPopup();
+			subMenuPopup.shown = true;
+			let currentInSubmenu = this.getCurrentItem(subMenuPopup);
+			if (currentInSubmenu)
+				currentInSubmenu.removeAttribute('_moz-menuactive');
+			if (subMenuPopup.hasChildNodes()) {
+				subMenuPopup.firstChild.setAttribute('_moz-menuactive', true);
 				this.disableAutoFill();
 			}
 			else {
