@@ -1367,7 +1367,11 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			var statement = this._getStatement(
 					'initKeywords',
 					'SELECT b.id FROM moz_bookmarks b'+
-					' JOIN moz_keywords k ON k.id = b.keyword_id'
+					' JOIN moz_keywords k ON '+
+					// for Firefox 39 and later (See: https://bugzilla.mozilla.org/show_bug.cgi?id=1125113)
+					'  k.place_id = b.fk' +
+					// for Firefox 38 and older
+					'  OR k.id = b.keyword_id'
 				);
 			try {
 				var data;
