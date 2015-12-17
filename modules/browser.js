@@ -1398,6 +1398,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				while (statement.executeStep())
 				{
 					data = this.newKeywordFromPlaces(statement.getDouble(0));
+					if (data.id in this.keywordsHash)
+						continue;
 					this.keywords.push(data);
 					this.keywordsHash[data.id] = data;
 				}
