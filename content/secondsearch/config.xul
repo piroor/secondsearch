@@ -188,15 +188,6 @@
 		<preference id="secondsearch.popup.type.dragdrop"
 			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.popup.type.dragdrop"
 			type="int"/>
-
-		<preference id="secondsearch.keyword.cache"
-			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.keyword.cache"
-			instantApply="true"
-			type="string"/>
-		<preference id="secondsearch.keyword.cache.count"
-			name="extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.keyword.cache.count"
-			instantApply="true"
-			type="int"/>
 	</preferences>
 
 	<checkbox id="secondsearch.keyword.show-check"
@@ -261,16 +252,7 @@
 
 
 	<button label="&config.initialize.keywords;"
-		oncommand="
-			setTextValue('secondsearch.keyword.cache-textbox', '');
-			setTextValue('secondsearch.keyword.cache.count-textbox', -1);
-		"/>
-	<box collapsed="true">
-		<textbox id="secondsearch.keyword.cache-textbox"
-			preference="secondsearch.keyword.cache"/>
-		<textbox id="secondsearch.keyword.cache.count-textbox"
-			preference="secondsearch.keyword.cache.count"/>
-	</box>
+		oncommand="clearKeywordsCache();"/>
 
 </prefpane>
 

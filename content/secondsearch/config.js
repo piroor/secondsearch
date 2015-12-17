@@ -36,11 +36,13 @@ function onUpdateTabRadio() {
 
 
 
-function setTextValue(aID, aValue)
+function clearKeywordsCache()
 {
-	var node = document.getElementById(aID);
-	node.value = aValue;
-	var event = document.createEvent('UIEvents');
-	event.initUIEvent('input', true, false, window, 0);
-	node.dispatchEvent(event);
+	let { Services } = Components.utils.import('resource://gre/modules/Services.jsm', {});
+	var file = Services.dirsvc.get('ProfD', Components.interfaces.nsIFile);
+	file.append('secondsearch-keywords.json');
+	if (file.exists()) {
+		file.remove(true);
+		Services.obs.notifyObservers(null, 'secondsearch:clear-cached-keywords', null);
+	}
 }

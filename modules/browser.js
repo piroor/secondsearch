@@ -6,6 +6,7 @@ var Cu = Components.utils;
 
 Cu.import('resource://secondsearch-modules/inherit.jsm');
 Cu.import('resource://secondsearch-modules/base.js');
+Cu.import('resource://secondsearch-modules/textIO.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
 
 function SecondSearchBrowser(aWindow) 
@@ -1327,14 +1328,23 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		this.placesObserver = null;
 	},
  
+	get keywordsCacheFile()
+	{
+		var file = Services.dirsvc.get('ProfD', Ci.nsIFile);
+		file.append('secondsearch-keywords.json');
+		return file;
+	},
+ 
 	initKeywords : function SSBrowser_initKeywords(aForceUpdate) 
 	{
 		this.keywords     = [];
 		this.keywordsHash = {};
 		if (!this.shouldShowKeywords) return;
 
-		var cachedKeywords = this.getPref(this.domain + 'keyword.cache');
-		if (cachedKeywords) {
+		var cachedKeywords;
+		var cachedKeywordsFile = this.keywordsCacheFile;
+		if (cachedKeywordsFile.exists()) { // already migrated
+			cachedKeywords = textIO.readFrom(cachedKeywordsFile, 'UTF-8');
 			try {
 				cachedKeywords = JSON.parse(cachedKeywords);
 			}
@@ -1343,14 +1353,24 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				aForceUpdate = true; // cache is broken!
 			}
 		}
+		else { // not migrated yet
+			cachedKeywords = this.getPref(this.domain + 'keyword.cache');
+			if (cachedKeywords) {
+				try {
+					cachedKeywords = JSON.parse(cachedKeywords);
+				}
+				catch(e) {
+					cachedKeywords = [];
+					aForceUpdate = true; // cache is broken!
+				}
+				this.clearPref(this.domain + 'keyword.cache');
+				this.clearPref(this.domain + 'keyword.cache.count');
+				textIO.writeTo(JSON.stringify(cachedKeywords), cachedKeywordsFile, 'UTF-8');
+			}
+		
+		}
 
-		var count = this.getPref(this.domain + 'keyword.cache.count');
-		if (
-			cachedKeywords &&
-			!aForceUpdate &&
-			count !== null &&
-			count != -1
-			) { // load cache
+		if (!aForceUpdate) { // load cache
 			var updated = false;
 			this.keywords = cachedKeywords;
 			this.keywords.forEach(function(aKeyword) {
@@ -1451,9 +1471,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	saveKeywordsCache : function SSBrowser_saveKeywordsCache() 
 	{
 		this.keywords.sort(function(aA, aB) { return aA.name > aB.name ? 1 : -1 });
-
-		this.setPref(this.domain + 'keyword.cache', JSON.stringify(this.keywords));
-		this.setPref(this.domain + 'keyword.cache.count', this.keywords.length);
+		textIO.writeTo(JSON.stringify(this.keywords), this.keywordsCacheFile, 'UTF-8');
 	},
  
 	get placesDB() 
@@ -1571,8 +1589,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	
 	observe : function SSBrowser_observe(aSubject, aTopic, aPrefName) 
 	{
-		if (aTopic != 'nsPref:changed') return;
-
+		switch (aTopic)
+		{
+			case 'nsPref:changed':
 		switch (aPrefName)
 		{
 			default:
@@ -1581,16 +1600,11 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			case this.domain + 'popup.position':
 				this.textbox.disableAutoComplete = (this.popupPosition == 1);
 				return;
+		}
+				return;
 
-			case this.domain + 'keyword.cache.count':
-				if (this.getPref(aPrefName) == -1 &&
-					!this.getPref(this.domain + 'keyword.updating')) {
-					this.setPref(this.domain + 'keyword.updating', true);
-					this.initKeywords(true);
-					this.window.setTimeout(function(aSelf) {
-						aSelf.setPref(this.domain + 'keyword.updating', false);
-					}, 100, this);
-				}
+			case 'secondsearch:clear-cached-keywords':
+				this.initKeywords(true);
 				return;
 		}
 	},
@@ -1623,6 +1637,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			}, this);
 		}
 
+		Services.obs.addObserver(this, 'secondsearch:clear-cached-keywords', false);
+
 		this.window.setTimeout(function(aSelf) {
 			aSelf.delayedInit();
 		}, 100, this);
@@ -1636,6 +1652,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
   
 	destroy : function SSBrowser_destroy() 
 	{
+		Services.obs.removeObserver(this, 'secondsearch:clear-cached-keywords');
+
 		this.destroyBase();
 		this.endObserveKeyword();
 
