@@ -298,12 +298,52 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			return Promise.resolve(defaultFaviconURI);
 
 		return new Promise((function(aResolve, aReject) {
-			this.FaviconService.getFaviconURLForPage(uri, function(aFaviconURI, aDataLength, aData, aMimeType) {
+			// step 1: find favicon just for the uri.
+			this.FaviconService.getFaviconURLForPage(uri, (function(aFaviconURI, aDataLength, aData, aMimeType) {
 				if (aFaviconURI)
-					aResolve('moz-anno:favicon:' + aFaviconURI.spec);
-				else
-					aResolve(defaultFaviconURI);
-			});
+					return aResolve('moz-anno:favicon:' + aFaviconURI.spec);
+
+				// step 2: find favicon from other uris with same host.
+				var reversedHost = uri.host.split('').reverse().join('');
+				var statement = this._getStatement(
+						'getFaviconForPage',
+						'SELECT f.url' +
+						'  FROM moz_favicons f' +
+						'       JOIN moz_places p ON p.favicon_id = f.id' +
+						' WHERE p.rev_host = ?1' +
+						' ORDER BY p.frecency'
+					);
+				statement.bindStringParameter(0, reversedHost+'.');
+
+				var faviconURI;
+				var pendingResult = statement.executeAsync({
+					handleCompletion : (function(aReason) {
+						statement.reset();
+						if (!faviconURI)
+							aResolve('');
+					}).bind(this),
+					handleError : (function(aError) {
+						pendingResult.cancel();
+						statement.reset();
+						if (!faviconURI)
+							aResolve('');
+					}).bind(this),
+					handleResult : (function(aResultSet) {
+						var row;
+						while (row = aResultSet.getNextRow())
+						{
+							faviconURI = row.getString(0);
+							if (!this.FaviconService.isFailedFavicon(this.makeURIFromSpec(faviconURI)))
+								break;
+						}
+						if (faviconURI) {
+							pendingResult.cancel();
+							statement.reset();
+							aResolve('moz-anno:favicon:' + faviconURI);
+						}
+					}).bind(this)
+				});
+			}).bind(this));
 		}).bind(this));
 	},
 	
