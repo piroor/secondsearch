@@ -8,6 +8,7 @@ Cu.import('resource://secondsearch-modules/inherit.jsm');
 Cu.import('resource://secondsearch-modules/base.js');
 Cu.import('resource://secondsearch-modules/textIO.jsm');
 Cu.import('resource://gre/modules/Services.jsm');
+Cu.import('resource://gre/modules/Promise.jsm');
 
 function SecondSearchBrowser(aWindow) 
 {
@@ -275,45 +276,35 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		if (aEngine.keyword)
 			item.setAttribute('keyword', aEngine.keyword);
 		if (aEngine.icon) {
-			item.setAttribute('src', aEngine.icon);
-			this.addIconCache(aEngine.id, aEngine.icon);
+			if (typeof aEngine.icon === 'string') {
+				item.setAttribute('src', aEngine.icon);
+				this.addIconCache(aEngine.id, aEngine.icon);
+			}
+			else {
+				aEngine.icon.then((function(aIconURI) {
+					item.setAttribute('src', aEngine.icon);
+					this.addIconCache(aEngine.id, aEngine.icon);
+				}).bind(this));
+			}
 		}
 		return item;
 	},
  
-	getFaviconForPage : function SSBrowser_getFaviconForPage(aURI) 
+	promisedFaviconForPage : function SSBrowser_promisedFaviconForPage(aURI) 
 	{
+		var defaultFaviconURI = this.FaviconService.defaultFavicon.spec;
 		var uri = this.makeURIFromSpec(aURI);
-		var revHost;
-		try {
-			revHost = uri.host.split('').reverse().join('');
-		}
-		catch(e) {
-		}
-		if (!revHost) return this.FaviconService.defaultFavicon.spec;
+		if (!uri.host)
+			return Promise.resolve(defaultFaviconURI);
 
-		var statement = this._getStatement(
-				'getFaviconForPage',
-				'SELECT f.url' +
-				'  FROM moz_favicons f' +
-				'       JOIN moz_places p ON p.favicon_id = f.id' +
-				' WHERE p.rev_host = ?1' +
-				' ORDER BY p.frecency'
-			);
-		var result;
-		try {
-			statement.bindStringParameter(0, revHost+'.');
-			while (statement.executeStep())
-			{
-				result = statement.getString(0);
-				if (!this.FaviconService.isFailedFavicon(this.makeURIFromSpec(result)))
-					break;
-			}
-		}
-		finally {
-			statement.reset();
-		}
-		return result ? 'moz-anno:favicon:'+result : '' ;
+		return new Promise((function(aResolve, aReject) {
+			this.FaviconService.getFaviconURLForPage(uri, function(aFaviconURI, aDataLength, aData, aMimeType) {
+				if (aFaviconURI)
+					aResolve('moz-anno:favicon:' + aFaviconURI.spec);
+				else
+					aResolve(defaultFaviconURI);
+			});
+		}).bind(this));
 	},
 	
 	makeURIFromSpec : function SSBrowser_makeURIFromSpec(aURI) 
@@ -1172,7 +1163,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
  
 	getEngineFromSearchEngine : function SSBrowser_getEngineFromSearchEngine(aEngine) 
 	{
-		if (!aEngine) return null;
+		if (!aEngine)
+			return null;
+
 		var engine = {
 				name    : aEngine.name,
 				icon    : (aEngine.iconURI ? aEngine.iconURI.spec : '' ),
@@ -1181,7 +1174,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			};
 		engine.id = 'search:'+engine.name;
 		if (!engine.icon)
-			engine.icon = this.getFaviconForPage(aEngine.uri);
+			engine.icon = this.promisedFaviconForPage(aEngine.uri);
 		return engine;
 	},
  
@@ -1371,20 +1364,30 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		}
 
 		if (!aForceUpdate) { // load cache
-			var updated = false;
+			let updated = false;
 			this.keywords = cachedKeywords;
+			let promises = [];
 			this.keywords.forEach(function(aKeyword) {
 				if (!aKeyword.icon) {
-					aKeyword.icon = this.getFaviconForPage(aKeyword.uri);
-					if (aKeyword.icon) updated = true;
+					promises.push(this.promisedFaviconForPage(aKeyword.uri)
+						.then(function(aFaviconURI) {
+							aKeyword.icon = aFaviconURI;
+							if (aKeyword.icon)
+								updated = true;
+						}));
 				}
 				this.keywordsHash[aKeyword.id] = aKeyword;
 			}, this);
-			if (updated)
-				this.saveKeywordsCache();
+			if (promises.length > 0) {
+				Promise.all(promises)
+					.then((function() {
+						if (updated)
+							this.saveKeywordsCache();
+					}).bind(this));
+			}
 		}
 		else {
-			var statement = this._getStatement(
+			let statement = this._getStatement(
 					'initKeywords',
 					'SELECT b.id FROM moz_bookmarks b'+
 					' JOIN moz_keywords k ON '+
@@ -1394,80 +1397,96 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					'  OR k.id = b.keyword_id'
 				);
 			try {
-				var data;
+				let promises = [];
 				while (statement.executeStep())
 				{
-					data = this.newKeywordFromPlaces(statement.getDouble(0));
-					if (data.id in this.keywordsHash)
-						continue;
-					this.keywords.push(data);
-					this.keywordsHash[data.id] = data;
+					promises.push(this.promisedNewKeywordFromPlaces(statement.getDouble(0)));
+				}
+				if (promises.length > 0) {
+					Promise.all(promises)
+						.then((function(aKeywords) {
+							aKeywords.forEach(function(aKeyword) {
+								if (aKeyword.id in this.keywordsHash)
+									return;
+								this.keywords.push(aKeyword);
+								this.keywordsHash[aKeyword.id] = aKeyword;
+							}, this);
+							this.saveKeywordsCache();
+						}).bind(this));
+				}
+				else {
+					this.saveKeywordsCache();
 				}
 			}
 			finally {
 				statement.reset();
 			}
-			this.saveKeywordsCache();
 		}
 	},
  
 	// SQLite based bookmarks 
 	
-	newKeywordFromPlaces : function SSBrowser_newKeywordFromPlaces(aId) 
+	promisedNewKeywordFromPlaces : function SSBrowser_promisedNewKeywordFromPlaces(aId) 
 	{
 		var uri = this.NavBMService.getBookmarkURI(aId);
-		return {
+		var keyword = {
 			id      : 'bookmark:'+aId,
 			name    : this.NavBMService.getItemTitle(aId),
-			icon    : this.getFaviconForPage(uri.spec),
 			uri     : uri.spec,
 			keyword : this.NavBMService.getKeywordForBookmark(aId)
 		};
+		return this.promisedFaviconForPage(uri.spec)
+			.then(function(aFaviconURI) {
+				keyword.icon = aFaviconURI;
+				return keyword;
+			});
 	},
  
 	updateKeywordFromPlaces : function SSBrowser_updateKeywordFromPlaces(aId, aMode) 
 	{
-		var data = this.newKeywordFromPlaces(aId);
-		var removedId = null;
+		this.promisedNewKeywordFromPlaces(aId)
+			.then((function(aNewKeyword) {
+				var removedId = null;
 
-		this.keywords.slice().some(function(aKeyword, aIndex) {
-			if (aKeyword.id != data.id)
-				return false;
+				this.keywords.slice().some(function(aKeyword, aIndex) {
+					if (aKeyword.id != aNewKeyword.id)
+						return false;
 
-			if (aMode == 'delete' ||
-				aMode == 'keyword') {
-				delete this.keywordsHash[aKeyword.id];
-				this.keywords.splice(aIndex, 1);
-				removedId = aKeyword.id;
-			}
-			if (aMode == 'keyword') {
-				this.keywords.push(data);
-				this.keywordsHash[data.id] = data;
-			}
-			if (aMode != 'delete') {
-				this.keywordsHash[data.id].id      = data.id;
-				this.keywordsHash[data.id].name    = data.name;
-				this.keywordsHash[data.id].icon    = data.icon;
-				this.keywordsHash[data.id].uri     = data.uri;
-				this.keywordsHash[data.id].keyword = data.keyword;
-			}
-			return true;
-		}, this);
+					if (aMode == 'delete' ||
+						aMode == 'keyword') {
+						delete this.keywordsHash[aKeyword.id];
+						this.keywords.splice(aIndex, 1);
+						removedId = aKeyword.id;
+					}
+					if (aMode == 'keyword') {
+						this.keywords.push(aNewKeyword);
+						this.keywordsHash[aNewKeyword.id] = aNewKeyword;
+					}
+					if (aMode != 'delete') {
+						this.keywordsHash[aNewKeyword.id].id      = aNewKeyword.id;
+						this.keywordsHash[aNewKeyword.id].name    = aNewKeyword.name;
+						this.keywordsHash[aNewKeyword.id].icon    = aNewKeyword.icon;
+						this.keywordsHash[aNewKeyword.id].uri     = aNewKeyword.uri;
+						this.keywordsHash[aNewKeyword.id].keyword = aNewKeyword.keyword;
+					}
+					return true;
+				}, this);
 
-		if (!removedId) {
-			if (aMode != 'delete') {
-				this.keywords.push(data);
-				this.keywordsHash[data.id] = data;
-			}
-		}
-		else {
-			this.removeAndAddRecentEngine(
-				removedId,
-				(aMode == 'delete' ? null : data.id )
-			);
-		}
+				if (!removedId) {
+					if (aMode != 'delete') {
+						this.keywords.push(aNewKeyword);
+						this.keywordsHash[aNewKeyword.id] = aNewKeyword;
+					}
+				}
+				else {
+					this.removeAndAddRecentEngine(
+						removedId,
+						(aMode == 'delete' ? null : aNewKeyword.id )
+					);
+				}
 
-		this.saveKeywordsCache();
+				this.saveKeywordsCache();
+			}).bind(this));
 	},
  
 	saveKeywordsCache : function SSBrowser_saveKeywordsCache() 
@@ -1510,7 +1529,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	{
 		if (!this._FaviconService) {
 			this._FaviconService = Cc['@mozilla.org/browser/favicon-service;1']
-						.getService(Ci.nsIFaviconService);
+						.getService(Ci.nsIFaviconService)
+						.QueryInterface(Ci.mozIAsyncFavicons);
 		}
 		return this._FaviconService;
 	},
