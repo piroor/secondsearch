@@ -1396,14 +1396,11 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					// for Firefox 38 and older
 					'  OR k.id = b.keyword_id'
 				);
-			try {
-				let promises = [];
-				while (statement.executeStep())
-				{
-					promises.push(this.promisedNewKeywordFromPlaces(statement.getDouble(0)));
-				}
-				if (promises.length > 0) {
-					Promise.all(promises)
+			let promisedKeywords = [];
+			let pendingResult = statement.executeAsync({
+				handleCompletion : (function(aReason) {
+					statement.reset();
+					Promise.all(promisedKeywords)
 						.then((function(aKeywords) {
 							aKeywords.forEach(function(aKeyword) {
 								if (aKeyword.id in this.keywordsHash)
@@ -1413,14 +1410,20 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 							}, this);
 							this.saveKeywordsCache();
 						}).bind(this));
-				}
-				else {
 					this.saveKeywordsCache();
-				}
-			}
-			finally {
-				statement.reset();
-			}
+				}).bind(this),
+				handleError : (function(aError) {
+					pendingResult.cancel();
+					statement.reset();
+				}).bind(this),
+				handleResult : (function(aResultSet) {
+					var row;
+					while (row = aResultSet.getNextRow())
+					{
+						promisedKeywords.push(this.promisedNewKeywordFromPlaces(row.getDouble(0)));
+					}
+				}).bind(this)
+			});
 		}
 	},
  
