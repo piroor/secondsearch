@@ -806,24 +806,31 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			var bar = this.searchbar;
 			var isSearchBar = 'handleSearchCommand' in bar;
 			if (engine.keyword || !isSearchBar) {
-				var postData = {};
-				var uri = engine.keyword ?
-					this._getShortcutOrURI(engine.keyword+' '+this.searchterm, postData) :
-					engine.uri;
-
-				if (!engine.keyword) {
-					var submission = this.getSearchEngineFromName(engine.name)
+				let doSearch = (function(aURI, aPostData) {
+					this.loadForSearch(aURI, (aPostData || null), aEvent, this.searchterm);
+				}).bind(this);
+				if (engine.keyword) {
+					// TODO: The callback (for Firefox 38 and older) should be
+					// migrated to a Promise (Firefox 39 and later).
+					let query = engine.keyword+' '+this.searchterm;
+					this.window.getShortcutOrURIAndPostData(query, (function(aData) {
+						doSearch(aData.url, aData.postData);
+					}).bind(this));
+					return retVal;
+				}
+				else {
+					let uri = engine.uri;
+					let postData = null;
+					let submission = this.getSearchEngineFromName(engine.name)
 							.getSubmission(this.searchterm, null);
 					if (submission) {
 						uri = submission.uri.spec;
-						postData.value = submission.postData;
+						postData = submission.postData;
 					}
+					if (!uri)
+						return retVal;
+					doSearch(uri, postData);
 				}
-
-				if (!uri)
-					return retVal;
-
-				this.loadForSearch(uri, (postData.value || null), aEvent, this.searchterm);
 			}
 			else if (isSearchBar) {
 				this.handlingSearchCommandWithEngine = true;
@@ -853,53 +860,6 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		this.revertAutoFill();
 
 		return retVal;
-	},
-	_getShortcutOrURI : function SSBrowser__getShortcutOrURI(aURI, aPostData) 
-	{
-		if ('getShortcutOrURL' in this.window) // too old Firefox
-			return this.window.getShortcutOrURL(aURI, aPostData);
-
-		if ('getShortcutOrURI' in this.window) // Firefox 24 and older
-			return this.window.getShortcutOrURI(aURI, aPostData);
-
-		aPostData = aPostData || {};
-
-		var done = false;
-		if (this.window.getShortcutOrURIAndPostData.length == 2) {
-			// Firefox 31 and later, after https://bugzilla.mozilla.org/show_bug.cgi?id=989984
-			this.window.getShortcutOrURIAndPostData(aURI, function(aData) {
-				aURI = aData.url;
-				done = true;
-			});
-		}
-		else {
-			// Firefox 25-30
-			let Task = this._Task;
-			let self = this;
-			Task.spawn(function() {
-				var data = yield self.window.getShortcutOrURIAndPostData(aURI);
-				aURI = data.url;
-				done = true;
-			});
-		}
-
-		// this should be rewritten in asynchronous style...
-		var thread = Cc['@mozilla.org/thread-manager;1'].getService().mainThread;
-		while (!done)
-		{
-			thread.processNextEvent(true);
-		}
-
-		return aURI;
-	},
-	get _Task()
-	{
-		if (!this.__Task) {
-			let TaskNS = {};
-			Cu.import('resource://gre/modules/Task.jsm', TaskNS);
-			this.__Task = TaskNS.Task;
-		}
-		return this.__Task;
 	},
 	
 	loadForSearch : function SSBrowser_loadForSearch(aURI, aPostData, aEvent, aTerm) 
