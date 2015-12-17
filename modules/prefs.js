@@ -51,7 +51,7 @@ if (typeof window == 'undefined' ||
 }
 
 (function() {
-	const currentRevision = 14;
+	const currentRevision = 15;
 
 	if (!('piro.sakura.ne.jp' in window)) window['piro.sakura.ne.jp'] = {};
 
@@ -178,29 +178,19 @@ if (typeof window == 'undefined' ||
 	 
 		getChildren : function(aRoot, aBranch) 
 		{
+			aRoot = aRoot.replace(/\.$/, '');
 			var foundChildren = {};
 			var possibleChildren = [];
-			var actualChildren = [];
 			this.getDescendant(aRoot, aBranch)
 					.forEach(function(aPrefstring) {
-						var name = aPrefstring.replace(aRoot, '');
-						if (name.charAt(0) == '.')
-							name = name.substring(1);
-						if (name.indexOf('.') < 0) {
-							if (!(aPrefstring in foundChildren)) {
-								actualChildren.push(aPrefstring);
-								foundChildren[aPrefstring] = true;
-							}
-						}
-						else {
-							let possibleChildKey = aRoot + name.split('.')[0];
+						var name = aPrefstring.replace(aRoot + '.', '');
+							let possibleChildKey = aRoot + '.' + name.split('.')[0];
 							if (possibleChildKey && !(possibleChildKey in foundChildren)) {
 								possibleChildren.push(possibleChildKey);
 								foundChildren[possibleChildKey] = true;
 							}
-						}
 					});
-			return possibleChildren.concat(actualChildren).sort();
+			return possibleChildren.sort();
 		},
 	 
 		addPrefListener : function(aObserver) 
