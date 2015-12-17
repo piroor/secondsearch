@@ -1592,15 +1592,15 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		switch (aTopic)
 		{
 			case 'nsPref:changed':
-		switch (aPrefName)
-		{
-			default:
-				return;
+				switch (aPrefName)
+				{
+					default:
+						return;
 
-			case this.domain + 'popup.position':
-				this.textbox.disableAutoComplete = (this.popupPosition == 1);
-				return;
-		}
+					case this.domain + 'popup.position':
+						this.textbox.disableAutoComplete = (this.popupPosition == 1);
+						return;
+				}
 				return;
 
 			case 'secondsearch:clear-cached-keywords':
