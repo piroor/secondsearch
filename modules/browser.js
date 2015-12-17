@@ -652,7 +652,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		this.engineButton.removeEventListener('contextmenu', this, true);
 
 		if ('handleSearchCommand' in search)
-			search._popup.removeEventListener('command', this, true);
+			(search._popup || search._textbox.popup).removeEventListener('command', this, true);
 
 		textbox.disableAutoComplete = false;
 	},
@@ -708,7 +708,10 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	onCommand : function SSBrowser_onCommand(aEvent) 
 	{
 		var node = aEvent.originalTarget || aEvent.target;
-		if (node.getAttribute('class').indexOf('addengine-item') < 0) return;
+		dump('NODE: '+node+'\n');
+		dump('    : '+node.getAttribute('class')+'\n'); // searchbar-engine-one-off-item
+		if (node.getAttribute('class').indexOf('addengine-item') < 0)
+			return;
 		var current = this.getCurrentEngine();
 		if (current)
 			this.addEngineToRecentList(current);

@@ -22,7 +22,7 @@ var SecondSearchWindowHelper = {
 					return retVal;
 				};
 				search.doSearch = aService.doSearchbarSearch.bind(aService);
-				search._popup.addEventListener('command', aService, true);
+				(search._popup || search._textbox.popup).addEventListener('command', aService, true);
 			}
 		}
 		else { // location bar
