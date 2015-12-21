@@ -708,13 +708,13 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	onCommand : function SSBrowser_onCommand(aEvent) 
 	{
 		var node = aEvent.originalTarget || aEvent.target;
-		dump('NODE: '+node+'\n');
-		dump('    : '+node.getAttribute('class')+'\n'); // searchbar-engine-one-off-item
-		if (node.getAttribute('class').indexOf('addengine-item') < 0)
-			return;
-		var current = this.getCurrentEngine();
+		if (node.className.indexOf('searchbar-engine-one-off-item') > -1) { // one-off search
+		}
+		else if (node.className.indexOf('addengine-item') > -1) { // legacy search
+		let current = this.getCurrentEngine();
 		if (current)
 			this.addEngineToRecentList(current);
+		}
 	},
  
 	canOperate : function SSBrowser_canOperate(aEvent) 
