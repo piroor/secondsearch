@@ -711,9 +711,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		if (node.className.indexOf('searchbar-engine-one-off-item') > -1) { // one-off search
 		}
 		else if (node.className.indexOf('addengine-item') > -1) { // legacy search
-		let current = this.getCurrentEngine();
-		if (current)
-			this.addEngineToRecentList(current);
+			let current = this.getCurrentEngine();
+			if (current)
+				this.addEngineToRecentList(current);
 		}
 	},
  
