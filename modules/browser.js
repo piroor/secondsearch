@@ -709,6 +709,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	{
 		var node = aEvent.originalTarget || aEvent.target;
 		if (node.className.indexOf('searchbar-engine-one-off-item') > -1) { // one-off search
+			let engine = this.getSearchEngineFromName(node.getAttribute('tooltiptext'));
+			if (engine)
+				this.addEngineToRecentList(engine);
 		}
 		else if (node.className.indexOf('addengine-item') > -1) { // legacy search
 			let current = this.getCurrentEngine();
@@ -1235,13 +1238,17 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
  
 	updateRecentList : function SSBrowser_updateRecentList(aOperation, aEngine) 
 	{
+		var recentId = aEngine.id;
+		if (!recentId)
+			recentId = 'search:' + aEngine.name;
+
 		var ids = this.getArrayPref(this.domain + 'recentengines.list');
 
 		var retVal;
-		var engines = [];
+		var updatedRecentIds = [];
 		ids.forEach(function(aId, aIndex) {
 			if (!aId) return;
-			if (aId == aEngine.id) {
+			if (aId == recentId) {
 				switch (aOperation)
 				{
 					case 'add':
@@ -1255,25 +1262,22 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			}
 			var engine = this.getEngineById(aId);
 			if (engine)
-				engines.push(engine);
+				updatedRecentIds.push(aId);
 		}, this);
 
 		if (aOperation == 'add')
-			engines.unshift(aEngine);
+			updatedRecentIds.unshift(recentId);
 
 		var history = this.historyNum;
 		if (history > -1) {
-			while (engines.length > history)
+			while (updatedRecentIds.length > history)
 			{
-				engines.pop();
+				updatedRecentIds.pop();
 			}
 		}
 
 		this.setArrayPref(this.domain + 'recentengines.list',
-			engines.map(function(aEngine) {
-				return aEngine.id;
-			})
-		);
+			updatedRecentIds);
 
 		return retVal;
 	},
