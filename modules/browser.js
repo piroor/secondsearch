@@ -548,6 +548,10 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			return false;
 		}
 		else {
+			if (this.textbox.selectedButton &&
+				this.textbox.selectedButton.engine) { // one-off search
+				this.addEngineToRecentList(this.textbox.selectedButton.engine);
+			}
 			var retVal = this.textbox.__secondsearch__onTextEntered(aEvent);
 			this.clearAfterSearch();
 			return retVal;
