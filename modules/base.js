@@ -522,9 +522,12 @@ SecondSearchBase.prototype = {
  
 	operateSecondSearch : function SSB_operateSecondSearch(aEvent) 
 	{
+		this.log('operateSecondSearch');
 try{
-		if (!this.canOperate(aEvent))
+		if (!this.canOperate(aEvent)) {
+			this.log(' => cannot operate.');
 			return true;
+		}
 
 		var popup = this.popup;
 		if (
@@ -543,6 +546,7 @@ try{
 				else
 					current = null;
 			}
+			this.log('  current item: '+current);
 			if (!current)  {
 				this.hideSecondSearch(aEvent);
 				this.clearAfterSearch();
