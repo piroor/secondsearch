@@ -748,14 +748,20 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			return true;
 		}
 		if (
-			(
-				'GSuggest' in this.window &&
-				this.window.GSuggest.getCurrentItem()
-			) ||
-			textbox.popup.selectedIndex > -1 ||
-			this.nativeSelectedItem
+			'GSuggest' in this.window &&
+			this.window.GSuggest.getCurrentItem()
 			)
 			return false;
+
+		if (textbox.popup.selectedIndex > -1) {
+			// "UnifiedComplete" introduced at Firefox 43 always
+			// highlights the first item in the autocomplete popup.
+			// We should ignore such a case.
+			if (textbox.popup.selectedIndex > 0 ||
+				!this.getPref('browser.urlbar.unifiedcomplete'))
+				return false;
+		}
+
 		return true;
 	},
  
