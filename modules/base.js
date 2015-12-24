@@ -1463,6 +1463,12 @@ catch(e) {
 			prefs.clearPref(aKey);
 		}, this);
 	},
+ 
+	log : function SSB_log(aMessage)
+	{
+		if (this.getPref(this.domain + 'debug'))
+			dump(aMessage+'\n');
+	},
   
 /* initializing */ 
 	

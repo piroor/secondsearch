@@ -773,6 +773,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	
 	doSearchBy : function SSBrowser_doSearchBy(aItem, aEvent) 
 	{
+		this.log('doSearchBy:\n' + (new Error()).stack);
 		if (!aItem.getAttribute('engineId'))
 			aItem.setAttribute('engineId', 'search:'+aItem.getAttribute('label'));
 
@@ -917,10 +918,12 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
   
 	doSearchbarSearch : function SSBrowser_doSearchbarSearch(aData, aWhere, aEngine, aEvent) 
 	{
+		this.log('doSearchbarSearch: ['+[aData, aWhere, aEngine, aEvent]+']\n' + (new Error()).stack);
 		if (!aWhere || typeof aWhere != 'string') {
 			aWhere = aWhere ? 'tab' : 'current ';
 		}
-		if (!(aEngine instanceof Ci.nsISearchEngine) &&
+		if (aEngine &&
+			!(aEngine instanceof Ci.nsISearchEngine) &&
 			aEngine instanceof Ci.nsIDOMEvent) {
 			// Firefox 33 and older versions
 			// See:

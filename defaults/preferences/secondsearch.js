@@ -19,7 +19,7 @@ pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.timeout",  
 pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.override.locationBar", true);
 pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.ignoreAutoFillResult", true);
 
-pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.keyword.updating", false);
+pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.debug", false);
 
 //pref("extensions.{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}.secondsearch.loadInBackground", false);
 
