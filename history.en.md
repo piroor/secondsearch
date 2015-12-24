@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 1.0.2015122401
    * Drop support for Firefox 37 and older versions.
    * Works correctly even if there is only the location bar with activated "UnifiedComplete" feautre on Firefox 43 and later.
    * The default search engine with POST method works correctly.
