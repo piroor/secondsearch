@@ -1013,12 +1013,27 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		}
 	},
  
-	checkToDoSearch : function SSBrowser_checkToDoSearch(aURI, aWhere, aAllowThirdPartyFixup, aPostData, aReferrerURI) 
+	checkToDoSearch : function SSBrowser_checkToDoSearch(aArgs) 
 	{
-		if (!this.doingSearch) return false;
+		if (!this.doingSearch)
+			return false;
 
+		var uri = aArgs[0];
+		var where = aArgs[1];
+		var allowThirdPartyFixup = aArgs[2];
+		var postData, referrerURI;
+		if (allowThirdPartyFixup && typeof allowThirdPartyFixup == 'object') {
+			let params = allowThirdPartyFixup;
+			allowThirdPartyFixup = params.allowThirdPartyFixup;
+			postData = params.postData;
+			referrerURI = params.referrerURI;
+		}
+		else {
+			postData = aArgs[3];
+			referrerURI = aArgs[4];
+		}
 		var b = this.browser;
-		if (!this.canOpenNewTab(aURI, aWhere)) {
+		if (!this.canOpenNewTab(uri, where)) {
 			if (
 				b.localName != 'tabbrowser' ||
 				(// Tab Mix Plus
@@ -1029,21 +1044,21 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					)
 				)
 				)
-				aWhere = 'current';
+				where = 'current';
 		}
 
 		var loadInBackground = this.loadInBackground;
-		switch (aWhere)
+		switch (where)
 		{
 			default:
 				b.webNavigation.loadURI(
-					aURI,
-					(aAllowThirdPartyFixup ?
+					uri,
+					(allowThirdPartyFixup ?
 						Ci.nsIWebNavigation.LOAD_FLAGS_ALLOW_THIRD_PARTY_FIXUP :
 						Ci.nsIWebNavigation.LOAD_FLAGS_NONE
 					),
-					aReferrerURI,
-					aPostData,
+					referrerURI,
+					postData,
 					null
 				);
 				break;
@@ -1056,12 +1071,12 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			case 'background':
 			case 'tab':
 				b.loadOneTab(
-					aURI,
-					aReferrerURI,
+					uri,
+					referrerURI,
 					null,
-					aPostData,
-					(aWhere == 'background') || loadInBackground,
-					aAllowThirdPartyFixup || false
+					postData,
+					(where == 'background') || loadInBackground,
+					allowThirdPartyFixup || false
 				);
 				break;
 		}

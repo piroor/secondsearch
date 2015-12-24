@@ -91,7 +91,7 @@ window.addEventListener('load', function onLoad() {
 	window.__secondsearch__original_openUILinkIn = window.openUILinkIn;
 	window.openUILinkIn = function(...aArgs) {
 		var service = window.SecondSearchWindowHelper.services[searchBar.name];
-		if (service.checkToDoSearch.apply(service, aArgs))
+		if (service.checkToDoSearch(aArgs))
 			return;
 		return window.__secondsearch__original_openUILinkIn.apply(this, aArgs);
 	};
