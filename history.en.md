@@ -1,6 +1,11 @@
 # History
 
  - master/HEAD
+   * The default search engine with POST method works correctly.
+   * Save chosen engine to the list of recently used engines for one-off search.
+   * Made synchronous API free around the Places SQLite database.
+   * The cache of bookmarks with smart keywords are now saved into a JSON file instead of a preference.
+   * Detect smart keywords of bookmarks correctly on Firefox 39 and later.
  - 0.9.2015020901
    * Move focus to Second Search's popup menu by the up arrow key correctly, on Linux. (regression)
  - 0.9.2015020801
