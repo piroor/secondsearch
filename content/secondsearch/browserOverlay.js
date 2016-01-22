@@ -16,8 +16,13 @@ var SecondSearchWindowHelper = {
 			if ('handleSearchCommand' in search && !search.__secondsearch__doSearch) {
 				search.__secondsearch__original_doSearch = search.doSearch;
 				search.__secondsearch__doSearch = function(...aArgs) {
+					try {
 					service.readyToSearch();
 					var retVal = search.__secondsearch__original_doSearch.apply(this, aArgs);
+					}
+					catch(e) {
+						Components.utils.reportError(e);
+					}
 					service.searchDone();
 					return retVal;
 				};

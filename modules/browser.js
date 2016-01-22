@@ -796,6 +796,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		var retVal;
 
+		try {
 		this.hideSecondSearch(true);
 
 		if (!this.searchterm &&
@@ -866,12 +867,16 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				this.handlingSearchCommandWithEngine = false;
 			}
 		}
+		}
+		catch(e) {
+			Components.utils.reportError(e);
+		}
 
 		this.selectedEngine = null;
-		this.window.setTimeout(function(aSelf) {
-			aSelf.doingSearch = false;
-			aSelf.clearAfterSearch();
-		}, 1, this);
+		this.window.setTimeout((function() {
+			this.doingSearch = false;
+			this.clearAfterSearch();
+		}).bind(this), 1);
 
 		this.clearAfterSearch();
 		this.revertAutoFill();
