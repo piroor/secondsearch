@@ -899,11 +899,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			// for Tree Style Tab
 			if (
 				'TreeStyleTabService' in this.window &&
-				'readyToOpenChildTab' in this.window.TreeStyleTabService &&
-				'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
-				this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(aTerm)
+				'onBeforeBrowserSearch' in this.window.TreeStyleTabService
 				)
-				this.window.TreeStyleTabService.readyToOpenChildTab();
+				this.window.TreeStyleTabService.onBeforeBrowserSearch(aTerm, true);
 
 			(b.contentWindow || b).focus();
 
@@ -970,11 +968,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				// for Tree Style Tab
 				if (
 					'TreeStyleTabService' in this.window &&
-					'readyToOpenChildTab' in this.window.TreeStyleTabService &&
-					'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
-					this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(this.searchterm)
+					'onBeforeBrowserSearch' in this.window.TreeStyleTabService
 					)
-					this.window.TreeStyleTabService.readyToOpenChildTab();
+					this.window.TreeStyleTabService.onBeforeBrowserSearch(this.searchterm, true);
 
 				if (!loadInBackground)
 					(b.contentWindow || b).focus();
@@ -1005,20 +1001,13 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			if (
 				newTabAction &&
 				'TreeStyleTabService' in this.window &&
-				'readyToOpenChildTab' in this.window.TreeStyleTabService &&
-				'shouldOpenSearchResultAsChild' in this.window.TreeStyleTabService &&
-				this.window.TreeStyleTabService.shouldOpenSearchResultAsChild(this.searchterm)
+				'onBeforeBrowserSearch' in this.window.TreeStyleTabService
 				)
-				this.window.TreeStyleTabService.readyToOpenChildTab();
+				this.window.TreeStyleTabService.onBeforeBrowserSearch(this.searchterm, true);
 
 			let retVal = this.searchbar.__secondsearch__doSearch(aData, aWhere, aEngine);
 			this.clearAfterSearch();
 			this.revertAutoFill();
-
-			// for Tree Style Tab
-			if ('TreeStyleTabService' in this.window &&
-				'stopToOpenChildTab' in this.window.TreeStyleTabService)
-				this.window.TreeStyleTabService.stopToOpenChildTab();
 
 			return retVal;
 		}
