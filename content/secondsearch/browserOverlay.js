@@ -17,13 +17,13 @@ var SecondSearchWindowHelper = {
 				search.__secondsearch__original_doSearch = search.doSearch;
 				search.__secondsearch__doSearch = function(...aArgs) {
 					try {
-					service.readyToSearch();
+					service.readyToSearch('searchbar.doSearch');
 					var retVal = search.__secondsearch__original_doSearch.apply(this, aArgs);
 					}
 					catch(e) {
 						Components.utils.reportError(e);
 					}
-					service.searchDone();
+					service.searchDone('searchbar.doSearch');
 					return retVal;
 				};
 				search.doSearch = aService.doSearchbarSearch.bind(aService);

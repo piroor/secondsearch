@@ -792,7 +792,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		var engine = this.getEngineById(engineId);
 		this.selectedEngine = engine;
-		this.doingSearch = true;
+		this.readyToSearch('doSearchBy');
 
 		var retVal;
 
@@ -874,7 +874,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		this.selectedEngine = null;
 		this.window.setTimeout((function() {
-			this.doingSearch = false;
+			this.searchDone('doSearchBy');
 			this.clearAfterSearch();
 		}).bind(this), 1);
 
@@ -1096,15 +1096,20 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 
 		return true;
 	},
-	readyToSearch : function SSBrowser_readyToSearch()
+	readyToSearch : function SSBrowser_readyToSearch(aContext)
 	{
+		this.lastReadyToSearchContext = aContext;
 		this.doingSearch = true;
 	},
-	searchDone : function SSBrowser_searchDone()
+	searchDone : function SSBrowser_searchDone(aContext)
 	{
+		this.lastSearchDoneContext = aContext;
 		this.doingSearch = false;
 	},
 	doingSearch : false,
+	// for debugging
+	lastReadyToSearchContext : null,
+	lastSearchDoneContext : null,
  
 	loadDroppedURI : function SSBrowser_loadDroppedURI() 
 	{
