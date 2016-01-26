@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+   * Better compatibility with recent Tree Style Tab.
+   * Don't detect newly opened tabs as search result tabs correctly, when any unknown exception raised while doing search.
  - 1.0.2015122401
    * Drop support for Firefox 37 and older versions.
    * Works correctly even if there is only the location bar with activated "UnifiedComplete" feautre on Firefox 43 and later.
