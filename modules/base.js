@@ -5,6 +5,7 @@ var Ci = Components.interfaces;
 var Cu = Components.utils;
 
 Cu.import('resource://secondsearch-modules/prefs.js');
+Cu.import('resource://gre/modules/Services.jsm');
 
 function SecondSearchBase(aWindow) 
 {
@@ -610,6 +611,7 @@ try{
 		}
 }
 catch(e) {
+	this.log(e);
 	dump(e+'\n');
 }
 	},
@@ -1090,7 +1092,7 @@ catch(e) {
 	
 	initPopup : function SSB_initPopup() 
 	{
-		dump('base-popup\n');
+		this.log('base-popup');
 	},
   
 	onPopupHiding : function SSB_onPopupHiding(aEvent) 
@@ -1470,8 +1472,10 @@ catch(e) {
  
 	log : function SSB_log(aMessage)
 	{
-		if (this.getPref(this.domain + 'debug'))
+		if (this.getPref(this.domain + 'debug')) {
 			dump(aMessage+'\n');
+			Services.console.logStringMessage(aMessage);
+		}
 	},
   
 /* initializing */ 

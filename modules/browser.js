@@ -1029,6 +1029,8 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		if (!this.doingSearch)
 			return false;
 
+		this.log('checkToDoSearch: search context = '+this.lastReadyToSearchContext);
+
 		var uri = aArgs[0];
 		var where = aArgs[1];
 		var allowThirdPartyFixup = aArgs[2];
@@ -1099,11 +1101,13 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	readyToSearch : function SSBrowser_readyToSearch(aContext)
 	{
 		this.lastReadyToSearchContext = aContext;
+		this.log('readyToSearch: context = '+aContext);
 		this.doingSearch = true;
 	},
 	searchDone : function SSBrowser_searchDone(aContext)
 	{
 		this.lastSearchDoneContext = aContext;
+		this.log('searchDone: context = '+aContext);
 		this.doingSearch = false;
 	},
 	doingSearch : false,
@@ -1593,9 +1597,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				},
 				onItemRemoved : function(aId, aContainer, aIndex)
 				{
-//dump('onItemRemoved '+aId+'\n');
-//var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-//dump('  keyword: '+keyword+'\n');
+					this.owner.log('onItemRemoved '+aId);
+					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
+					this.owner.log('  keyword: '+keyword);
 					var idString = 'bookmark:'+aId;
 					this.owner.keywords.some(function(aKeyword) {
 						if (aKeyword.id != idString) return false;
@@ -1605,9 +1609,9 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				},
 				onItemChanged : function(aId, aProperty, aIsAnnotation, aValue)
 				{
-//dump('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']\n');
+					this.owner.log('onItemChanged '+aId+' ['+aProperty+' = '+aValue+']');
 					var keyword = this.owner.NavBMService.getKeywordForBookmark(aId);
-//dump('  keyword: '+keyword+'\n');
+					this.owner.log('  keyword: '+keyword);
 					switch (aProperty)
 					{
 						case 'keyword':
