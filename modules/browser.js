@@ -848,6 +848,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 						doSearch(aData.url, aData.postData);
 						}
 						catch(e) {
+							this.log('Error on doSearchBy with keyword: '+e);
 							Components.utils.reportError(e);
 						}
 						onSearchFinish();
@@ -889,6 +890,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		}
 		}
 		catch(e) {
+			this.log('Error on doSearchBy: '+e);
 			Components.utils.reportError(e);
 		}
 
