@@ -794,6 +794,18 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 		this.selectedEngine = engine;
 		this.readyToSearch('doSearchBy');
 
+		var onSearchFinish = (function() {
+			this.selectedEngine = null;
+
+			this.window.setTimeout((function() {
+				this.searchDone('doSearchBy');
+				this.clearAfterSearch();
+			}).bind(this), 1);
+
+			this.clearAfterSearch();
+			this.revertAutoFill();
+		}).bind(this);
+
 		var retVal;
 
 		try {
@@ -833,6 +845,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					let query = engine.keyword+' '+this.searchterm;
 					this.window.getShortcutOrURIAndPostData(query, (function(aData) {
 						doSearch(aData.url, aData.postData);
+						onSearchFinish();
 					}).bind(this));
 					return retVal;
 				}
@@ -845,8 +858,10 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 						uri = submission.uri.spec;
 						postData = submission.postData;
 					}
-					if (!uri)
+					if (!uri) {
+						this.searchDone('doSearchBy');
 						return retVal;
+					}
 					doSearch(uri, postData);
 				}
 			}
@@ -872,14 +887,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			Components.utils.reportError(e);
 		}
 
-		this.selectedEngine = null;
-		this.window.setTimeout((function() {
-			this.searchDone('doSearchBy');
-			this.clearAfterSearch();
-		}).bind(this), 1);
-
-		this.clearAfterSearch();
-		this.revertAutoFill();
+		onSearchFinish();
 
 		return retVal;
 	},
