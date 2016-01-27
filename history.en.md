@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 1.0.2016012701
+   * Don't detect newly opened tabs as search result tabs, after a search with virtual search engines (form keyworded bookmarks).
  - 1.0.2016012601
    * Better compatibility with recent Tree Style Tab.
    * Don't detect newly opened tabs as search result tabs correctly, when any unknown exception raised while doing search.
