@@ -844,7 +844,12 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 					// migrated to a Promise (Firefox 39 and later).
 					let query = engine.keyword+' '+this.searchterm;
 					this.window.getShortcutOrURIAndPostData(query, (function(aData) {
+						try {
 						doSearch(aData.url, aData.postData);
+						}
+						catch(e) {
+							Components.utils.reportError(e);
+						}
 						onSearchFinish();
 					}).bind(this));
 					return retVal;
