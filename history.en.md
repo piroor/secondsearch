@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 1.0.2016020301
+   * Works correctly on clean environment.
  - 1.0.2016012701
    * Don't detect newly opened tabs as search result tabs, after a search with virtual search engines (form keyworded bookmarks).
  - 1.0.2016012601
