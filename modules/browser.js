@@ -1413,12 +1413,11 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				this.clearPref(this.domain + 'keyword.cache.count');
 				textIO.writeTo(JSON.stringify(cachedKeywords), cachedKeywordsFile, 'UTF-8');
 			}
-		
 		}
 
 		if (!aForceUpdate) { // load cache
 			let updated = false;
-			this.keywords = cachedKeywords;
+			this.keywords = cachedKeywords || [];
 			let promises = [];
 			this.keywords.forEach(function(aKeyword) {
 				if (!aKeyword.icon) {
