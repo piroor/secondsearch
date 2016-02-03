@@ -280,7 +280,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 				item.setAttribute('src', aEngine.icon);
 				this.addIconCache(aEngine.id, aEngine.icon);
 			}
-			else {
+			else if (typeof aEngine.icon.then == 'function') {
 				aEngine.icon.then((function(aIconURI) {
 					item.setAttribute('src', aEngine.icon);
 					this.addIconCache(aEngine.id, aEngine.icon);
