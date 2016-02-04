@@ -303,6 +303,7 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 			// no host URIs, invalid uris, no favicon search engines, etc.
 			this.log('Failed to get favicon for '+aURI);
 			this.log(e);
+			uri = null;
 		}
 		if (!uri)
 			return Promise.resolve(defaultFaviconURI);
