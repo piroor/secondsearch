@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 1.0.2016020401
+   * Works correctly for search engines with some missing information (ex. favicon).
  - 1.0.2016020301
    * Works correctly on clean environment.
  - 1.0.2016012701
