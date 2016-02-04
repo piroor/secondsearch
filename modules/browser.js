@@ -293,8 +293,18 @@ SecondSearchBrowser.prototype = inherit(SecondSearchBase.prototype, {
 	promisedFaviconForPage : function SSBrowser_promisedFaviconForPage(aURI) 
 	{
 		var defaultFaviconURI = this.FaviconService.defaultFavicon.spec;
-		var uri = this.makeURIFromSpec(aURI);
-		if (!uri.host)
+		var uri;
+		try {
+			uri = this.makeURIFromSpec(aURI);
+			if (!uri || !uri.host)
+				uri = null;
+		}
+		catch(e) {
+			// no host URIs, invalid uris, no favicon search engines, etc.
+			this.log('Failed to get favicon for '+aURI);
+			this.log(e);
+		}
+		if (!uri)
 			return Promise.resolve(defaultFaviconURI);
 
 		return new Promise((function(aResolve, aReject) {
