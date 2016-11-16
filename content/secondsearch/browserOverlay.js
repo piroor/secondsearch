@@ -18,7 +18,7 @@ var SecondSearchWindowHelper = {
 				search.__secondsearch__doSearch = function(...aArgs) {
 					try {
 					service.readyToSearch('searchbar.doSearch');
-					var retVal = search.__secondsearch__original_doSearch.apply(this, aArgs);
+					var retVal = search.__secondsearch__original_doSearch(...aArgs);
 					}
 					catch(e) {
 						Components.utils.reportError(e);
@@ -47,7 +47,7 @@ var SecondSearchWindowHelper = {
 					}
 
 					this.__secondsearch__commandHandled = null;
-					var retVal = this.__secondsearch__onDrop.apply(this, aArgs);
+					var retVal = this.__secondsearch__onDrop(...aArgs);
 
 					if (!this.__secondsearch__commandHandled &&
 						this.__secondsearch__showSecondSearch) {
@@ -67,7 +67,7 @@ var SecondSearchWindowHelper = {
 						return undefined;
 					}
 					else {
-						return this.__secondsearch__handleCommand.apply(this, aArgs);
+						return this.__secondsearch__handleCommand(...aArgs);
 					}
 				};
 
@@ -98,7 +98,7 @@ window.addEventListener('load', function onLoad() {
 		var service = window.SecondSearchWindowHelper.services[searchBar.name];
 		if (service.checkToDoSearch(aArgs))
 			return;
-		return window.__secondsearch__original_openUILinkIn.apply(this, aArgs);
+		return window.__secondsearch__original_openUILinkIn(...aArgs);
 	};
 }, false);
  
