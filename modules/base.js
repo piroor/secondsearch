@@ -467,7 +467,7 @@ SecondSearchBase.prototype = {
 	kLAST_STATUS   : '__secondsearch__framework__lastStatus',
 	getPopupStatus : function SSB_getPopupStatus(aPopupOrItemsArray, aIgnoreOrder)
 	{
-		var items = Array.slice(aPopupOrItemsArray.childNodes || aPopup)
+		var items = [...aPopupOrItemsArray.childNodes || aPopupOrItemsArray]
 				.map(function(aItem) {
 					if (!aItem) return '----';
 					if ('getAttribute' in aItem) {
