@@ -1,10 +1,10 @@
 /**
  * @fileOverview Plaintext File I/O Library for Firefox 3.5 or later
  * @author       ClearCode Inc.
- * @version      3
+ * @version      4
  *
  * @license
- *   The MIT License, Copyright (c) 2010 ClearCode Inc.
+ *   The MIT License, Copyright (c) 2010-2017 ClearCode Inc.
  * @url https://github.com/clear-code/js-codemodule-text-io
  */
 
@@ -28,7 +28,7 @@ if (typeof namespace == 'undefined') {
 
 var textIO;
 (function() {
-	const currentRevision = 3;
+	const currentRevision = 4;
 
 	var loadedRevision = 'textIO' in namespace ?
 			namespace.textIO.revision :
@@ -81,7 +81,7 @@ var textIO;
 				stream = channel.open();
 			}
 			catch(e) {
-				aFileOrURI = aFileOrURI.QueryInterface(Ci.nsILocalFile)
+				aFileOrURI = aFileOrURI.QueryInterface(Ci.nsIFile)
 				stream = Cc['@mozilla.org/network/file-input-stream;1']
 							.createInstance(Ci.nsIFileInputStream);
 				try {
