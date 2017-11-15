@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "version": "2.0.0",
+  "author": "YUKI \"Piro\" Hiroshi",
+  "description": "__MSG_extensionDescription__",
+  "permissions": [
+    "menus",
+    "storage"
+  ],
+  "icons": {
+    "32": "resources/icon.png"
+  },
+  "background": {
+    "scripts": [
+      "background/context-menu.js"
+    ]
+  },
+  "default_locale": "en",
+  "applications": {
+    "gecko": {
+      "id": "{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}",
+      "strict_min_version": "57.0"
+    }
+  }
+}

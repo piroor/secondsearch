@@ -1,0 +1,5 @@
+# from external
+common/Configs.js
+
+# include as a lint target.
+!.eslintrc.js
