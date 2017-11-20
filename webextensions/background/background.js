@@ -91,22 +91,22 @@ const SearchEngines = {
 
   onBookmarkChanged(aId, aChangeInfo) {
     if ('url' in aChangeInfo) {
-    if (aId in this.cachedEnginesById &&
-        !/%s/i.test(aChangeInfo.url)) {
-      log('engine is removed by changing URL: ', this.cachedEnginesById[aId]);
-      delete this.cachedEnginesById[aId];
-      this.updateCache();
-    }
-    else if (/%s/i.test(aChangeInfo.url)) {
-      (async () => {
-        let bookmark = await browser.bookmarks.get(aId);
-        if (Array.isArray(bookmark))
-          bookmark = bookmark[0];
-        log('engine is added by changing URL: ', bookmark);
-        this.cachedEnginesById[aId] = bookmark;
+      if (aId in this.cachedEnginesById &&
+          !/%s/i.test(aChangeInfo.url)) {
+        log('engine is removed by changing URL: ', this.cachedEnginesById[aId]);
+        delete this.cachedEnginesById[aId];
         this.updateCache();
-      })();
-    }
+      }
+      else if (/%s/i.test(aChangeInfo.url)) {
+        (async () => {
+          let bookmark = await browser.bookmarks.get(aId);
+          if (Array.isArray(bookmark))
+            bookmark = bookmark[0];
+          log('engine is added by changing URL: ', bookmark);
+          this.cachedEnginesById[aId] = bookmark;
+          this.updateCache();
+        })();
+      }
     }
     if ('title' in aChangeInfo &&
         aId in this.cachedEnginesById) {
