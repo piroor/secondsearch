@@ -95,15 +95,25 @@ function onKeyPress(aEvent) {
 }
 
 function onClick(aEvent) {
+  var engine = aEvent.target;
+  while (engine.nodeType != Node.ELEMENT_NODE || !engine.hasAttribute('data-id')) {
+    engine = engine.parentNode;
+  }
   switch (aEvent.button) {
     case 0:
       let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
       let openWindow = aEvent.shiftKey;
-      doSearch({ where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn });
+      doSearch({
+        where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn,
+        engine
+      });
       break;
 
     case 1:
-      doSearch({ where: kOPEN_IN_TAB });
+      doSearch({
+        where: kOPEN_IN_TAB,
+        engine
+      });
       break;
 
     default:
@@ -148,10 +158,10 @@ async function buildEngines() {
 }
 
 async function doSearch(aParams = {}) {
-  var item = getActiveEngine();
+  var item = aParams.engine || getActiveEngine();
   var url = item && item.getAttribute('data-url');
   if (!url)
-    url = 'https://www.google.com/?q=%s';
+    url = configs.defaultEngine;
   url = url.replace(/%s/gi, gField.value || '');
   switch (aParams.where) {
     case kOPEN_IN_TAB: {

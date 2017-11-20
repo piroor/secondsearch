@@ -58,5 +58,6 @@ configs = new Configs({
   cachedEnginesById: null,
   recentlyUsedEngines: [],
   defaultOpenIn: kOPEN_IN_TAB,
+  defaultEngine: 'https://www.google.com/?q=%s',
   debug: true
 });
