@@ -26,6 +26,11 @@ window.addEventListener('pageshow', async () => {
   gEngines.addEventListener('mousemove', onMouseMove);
   focusToField()
 
+  if (configs.clearFieldAfterSearch)
+    gField.value = '';
+  else
+    gField.value = configs.lastSearchTerm;
+
   gPageSelection = null;
   gCurrentTab = null;
   gLastOperatedBy = kOPERATED_BY_KEY;
@@ -202,6 +207,9 @@ async function doSearch(aParams = {}) {
       type: kCOMMAND_NOTIFY_SEARCH_ENGINE_USED,
       id:   item.getAttribute('data-id')
     });
-  gField.value = '';
+  if (configs.clearFieldAfterSearch)
+    gField.value = '';
+  else
+    configs.lastSearchTerm = gField.value;
   window.close();
 }

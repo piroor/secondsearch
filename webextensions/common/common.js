@@ -57,6 +57,8 @@ function clone(aOriginalObject, aExtraProperties) {
 configs = new Configs({
   cachedEnginesById: null,
   recentlyUsedEngines: [],
+  clearFieldAfterSearch: true,
+  lastSearchTerm: '',
   defaultOpenIn: kOPEN_IN_TAB,
   defaultEngine: 'https://www.google.com/?q=%s',
   focusDelay: 150,

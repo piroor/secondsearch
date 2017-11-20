@@ -111,6 +111,7 @@ const SearchEngines = {
 };
 
 configs.$loaded.then(() => {
+  configs.lastSearchTerm = '';
   browser.bookmarks.onCreated.addListener(SearchEngines.onBookmarkCreated.bind(SearchEngines));
   browser.bookmarks.onRemoved.addListener(SearchEngines.onBookmarkRemoved.bind(SearchEngines));
   browser.bookmarks.onChanged.addListener(SearchEngines.onBookmarkChanged.bind(SearchEngines));
