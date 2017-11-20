@@ -55,7 +55,7 @@ function onKeyPress(aEvent) {
     let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
     let openWindow = aEvent.shiftKey;
     doSearch({
-      where: openTab ? 'tab' : openWindow ? 'window' : 'current',
+      where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn,
       save:  true
     });
     return;
@@ -99,11 +99,11 @@ function onClick(aEvent) {
     case 0:
       let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
       let openWindow = aEvent.shiftKey;
-      doSearch({ where: openTab ? 'tab' : openWindow ? 'window' : 'current' });
+      doSearch({ where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn });
       break;
 
     case 1:
-      doSearch({ where: 'tab' });
+      doSearch({ where: kOPEN_IN_TAB });
       break;
 
     default:
@@ -154,7 +154,7 @@ async function doSearch(aParams = {}) {
     url = 'https://www.google.com/?q=%s';
   url = url.replace(/%s/gi, gField.value || '');
   switch (aParams.where) {
-    case 'tab': {
+    case kOPEN_IN_TAB: {
     let params = {
       active: true,
       url
@@ -165,7 +165,7 @@ async function doSearch(aParams = {}) {
     browser.tabs.create(params);
     }; break;
 
-    case 'window':
+    case kOPEN_IN_WINDOW:
     browser.windows.create({ url });
       break;
 

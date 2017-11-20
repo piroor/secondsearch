@@ -8,3 +8,7 @@
 const kCOMMAND_GET_SEARCH_ENGINES = 'secondsearch:get-search-engines';
 const kCOMMAND_NOTIFY_SEARCH_ENGINE_USED = 'secondsearch:search-engine-used';
 
+const kOPEN_IN_CURRENT = 0;
+const kOPEN_IN_TAB     = 1;
+const kOPEN_IN_WINDOW  = 2;
+

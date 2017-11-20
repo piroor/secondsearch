@@ -57,5 +57,6 @@ function clone(aOriginalObject, aExtraProperties) {
 configs = new Configs({
   cachedEnginesById: null,
   recentlyUsedEngines: [],
+  defaultOpenIn: kOPEN_IN_TAB,
   debug: true
 });
