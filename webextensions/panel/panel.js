@@ -8,6 +8,7 @@
 var gField;
 var gEngines;
 var gPageSelection;
+var gCurrentTab;
 
 window.addEventListener('DOMContentLoaded', async () => {
   gField = document.querySelector('#search-field');
@@ -20,18 +21,27 @@ window.addEventListener('pageshow', async () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
   focusToField()
 
-  let tab = browser.tabs.getCurrent();
+  gPageSelection = null;
+  gCurrentTab = null;
   try {
-    gPageSelection = await browser.tabs.executeScript(tab.id, { code: 'window.getSelection().toString()' });
+    gCurrentTab = (await browser.tabs.query({
+      currentWindow: true,
+      active: true
+    }))[0];
+    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: 'window.getSelection().toString()' });
+    if (Array.isArray(gPageSelection))
+      gPageSelection = gPageSelection.join('');
     gField.value = gPageSelection;
+    gField.select();
   }
   catch(e) {
+    // if it is a special tab, we cannot execute script.
+    //console.log(e);
   }
 }, { once: true });
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('keypress', onKeyPress, { capture: true });
-  gPageSelection = null;
 }, { once: true });
 
 
@@ -139,16 +149,16 @@ async function doSearch(aEvent) {
       active: true,
       url
     };
-    if (gPageSelection && gPageSelection == gField.value)
-      params.openerTabId = await (browser.tabs.getCurrent()).id;
+    if (gPageSelection &&
+        gPageSelection == gField.value)
+      params.openerTabId = gCurrentTab.id;
     browser.tabs.create(params);
   }
   else if (openWindow) {
     browser.windows.create({ url });
   }
   else {
-    let tab = await browser.tabs.getCurrent();
-    browser.tabs.update(tab.id, { url });
+    browser.tabs.update(gCurrentTab.id, { url });
   }
   gField.value = '';
   window.close();
