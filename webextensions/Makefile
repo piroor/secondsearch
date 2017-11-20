@@ -17,7 +17,7 @@ format:
 xpi: lint ../extlib/webextensions-lib-l10n/Configs.js ../extlib/webextensions-lib-l10n/l10n.js
 	cd .. && git submodule update
 	mkdir -p common
-	cp ../extlib/webextensions-lib-l10n/Configs.js common/
+	cp ../extlib/webextensions-lib-configs/Configs.js common/
 	cp ../extlib/webextensions-lib-l10n/l10n.js common/
 	rm -f ./*.xpi
 	zip -r -0 secondsearch-we.xpi manifest.json _locales common >/dev/null 2>/dev/null
