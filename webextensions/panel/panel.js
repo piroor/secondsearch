@@ -126,7 +126,7 @@ function favIconUrl(aURI) {
   return `https://www.google.com/s2/favicons?domain=${uriMatch[1]}`;
 }
 
-function doSearch(aEvent) {
+async function doSearch(aEvent) {
   var item = document.querySelector('li.active');
   var url = item && item.getAttribute('data-url');
   if (!url)
