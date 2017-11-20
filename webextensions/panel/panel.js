@@ -24,4 +24,10 @@ window.addEventListener('pagehide', () => {
 
 function onKeyPress(aEvent) {
   console.log('onKeyPress ', aEvent.keyCode);
+  if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE &&
+      !aEvent.altKey && &&
+      !aEvent.ctrlKey && &&
+      !aEvent.shiftKey && &&
+      !aEvent.metaKey)
+    window.close();
 }
