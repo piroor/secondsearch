@@ -26,21 +26,48 @@ window.addEventListener('pagehide', () => {
 
 
 function onKeyPress(aEvent) {
-  //console.log('onKeyPress ', aEvent.keyCode);
-  if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE &&
-      !aEvent.altKey &&
-      !aEvent.ctrlKey &&
-      !aEvent.shiftKey &&
-      !aEvent.metaKey) {
-    window.close();
-  }
-
-  var item = document.querySelector('li.active');
-
   if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
       aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
     doSearch(aEvent);
     return;
+  }
+
+  if (!aEvent.altKey &&
+      !aEvent.ctrlKey &&
+      !aEvent.shiftKey &&
+      !aEvent.metaKey) {
+    let activeItem = document.querySelector('li.active');
+    switch (aEvent.keyCode) {
+      case KeyEvent.DOM_VK_ESCAPE:
+        window.close();
+        return;
+
+      case KeyEvent.DOM_VK_LEFT:
+      case KeyEvent.DOM_VK_RIGHT:
+        if (activeItem)
+          activeItem.classList.remove('active');
+        return;
+
+      case KeyEvent.DOM_VK_UP:
+        if (activeItem) {
+          activeItem.classList.remove('active');
+          (activeItem.previousSibling || activeItem.parentNode.lastChild).classList.add('active');
+        }
+        else if (gEngines.hasChildNodes()) {
+          gEngines.lastChild.classList.add('active');
+        }
+        return;
+
+      case KeyEvent.DOM_VK_DOWN:
+        if (activeItem) {
+          activeItem.classList.remove('active');
+          (activeItem.nextSibling || activeItem.parentNode.firstChild).classList.add('active');
+        }
+        else if (gEngines.hasChildNodes()) {
+          gEngines.firstChild.classList.add('active');
+        }
+        return;
+    }
   }
 }
 
@@ -87,6 +114,7 @@ function favIconUrl(aURI) {
 }
 
 function doSearch(aEvent) {
+  var item = document.querySelector('li.active');
   var url = item && item.getAttribute('data-url');
   if (!url)
     url = 'https://www.google.com/?q=%s';
