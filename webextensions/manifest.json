@@ -5,6 +5,8 @@
   "author": "YUKI \"Piro\" Hiroshi",
   "description": "__MSG_extensionDescription__",
   "permissions": [
+    "https://www.google.com/s2/favicons?*",
+    "bookmarks",
     "storage"
   ],
   "icons": {

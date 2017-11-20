@@ -5,19 +5,60 @@
 */
 
 body {
+  background: Menu;
+  color: MenuText;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: nowrap;
+  line-height: 1;
 }
 
 #search-field-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: nowrap;
   margin: 0;
-  padding: 0;
+  padding: 0.25em;
 }
 
 #search-field {
   flex-grow: 1;
+  min-width: 10em;
+}
+
+#search-engines {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#search-engines li {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 0.25em 0.35em;
+}
+
+#search-engines li:hover {
+  background: Highlight;
+  color: HighlightText;
+}
+
+#search-engines li.active {
+  background: Highlight;
+  color: HighlightText;
+}
+
+.favicon {
+  max-height: 16px;
+  max-width: 16px;
+  width: 16px;
+}
+
+.label {
+  margin-left: 0.25em;
 }
