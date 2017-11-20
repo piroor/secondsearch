@@ -144,7 +144,7 @@ function focusToField() {
   setTimeout(() => {
     gField.focus();
     gField.select();
-  }, 100);
+  }, configs.focusDelay);
 }
 
 async function buildEngines() {

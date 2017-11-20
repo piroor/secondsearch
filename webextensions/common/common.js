@@ -59,5 +59,6 @@ configs = new Configs({
   recentlyUsedEngines: [],
   defaultOpenIn: kOPEN_IN_TAB,
   defaultEngine: 'https://www.google.com/?q=%s',
+  focusDelay: 150,
   debug: true
 });
