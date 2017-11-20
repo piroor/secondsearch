@@ -7,6 +7,7 @@
 
 var gField;
 var gEngines;
+var gPageSelection;
 
 window.addEventListener('DOMContentLoaded', async () => {
   gField = document.querySelector('#search-field');
@@ -15,13 +16,22 @@ window.addEventListener('DOMContentLoaded', async () => {
   focusToField();
 }, { once: true });
 
-window.addEventListener('pageshow', () => {
+window.addEventListener('pageshow', async () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
   focusToField()
+
+  let tab = browser.tabs.getCurrent();
+  try {
+    gPageSelection = await browser.tabs.executeScript(tab.id, { code: 'window.getSelection().toString()' });
+    gField.value = gPageSelection;
+  }
+  catch(e) {
+  }
 }, { once: true });
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('keypress', onKeyPress, { capture: true });
+  gPageSelection = null;
 }, { once: true });
 
 
@@ -74,7 +84,10 @@ function onKeyPress(aEvent) {
 
 function focusToField() {
   window.focus();
-  setTimeout(() => gField.focus(), 100);
+  setTimeout(() => {
+    gField.focus();
+    gField.select();
+  }, 100);
 }
 
 async function buildEngines() {
@@ -122,13 +135,19 @@ function doSearch(aEvent) {
   var openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
   var openWindow = aEvent.shiftKey;
   if (openTab) {
-    browser.tabs.create({ active: true, url });
+    let params = {
+      active: true,
+      url
+    };
+    if (gPageSelection && gPageSelection == gField.value)
+      params.openerTabId = await (browser.tabs.getCurrent()).id;
+    browser.tabs.create(params);
   }
   else if (openWindow) {
     browser.windows.create({ url });
   }
   else {
-    let tab = browser.tabs.getCurrent();
+    let tab = await browser.tabs.getCurrent();
     browser.tabs.update(tab.id, { url });
   }
   gField.value = '';
