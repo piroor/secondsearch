@@ -101,39 +101,27 @@ function focusToField() {
 }
 
 async function buildEngines() {
-  var bookmarks = await browser.bookmarks.search({ query: '%s' });
-  bookmarks.sort((aA, aB) => aA.title > aB.title);
+  var engines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
   var items = document.createDocumentFragment();
-  for (let bookmark of bookmarks) {
-    if (bookmark.type != 'bookmark' ||
-        !/%s/i.test(bookmark.url))
-      continue;
+  for (let engine of engines) {
     let item = document.createElement('li');
-    item.setAttribute('id', `search-engine-${bookmark.title}`);
-    item.setAttribute('data-url', bookmark.url);
+    item.setAttribute('id', `search-engine-${engine.title}`);
+    item.setAttribute('data-url', engine.url);
 
     let favicon = document.createElement('img');
     favicon.classList.add('favicon');
-    let iconURI = favIconUrl(bookmark.url);
-    if (iconURI)
-      favicon.setAttribute('src', iconURI);
+    if (engine.favIconUrl)
+      favicon.setAttribute('src', engine.favIconUrl);
     item.appendChild(favicon);
 
     let label = document.createElement('span');
     label.classList.add('label');
-    label.textContent = bookmark.title;
+    label.textContent = engine.title;
     item.appendChild(label);
 
     items.appendChild(item);
   }
   gEngines.appendChild(items);
-}
-
-function favIconUrl(aURI) {
-  var uriMatch = aURI.match(/^(\w+:\/\/[^\/]+)/);
-  if (!uriMatch)
-    return null;
-  return `https://www.google.com/s2/favicons?domain=${uriMatch[1]}`;
 }
 
 async function doSearch(aEvent) {
