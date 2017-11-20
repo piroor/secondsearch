@@ -26,13 +26,22 @@ window.addEventListener('pagehide', () => {
 
 
 function onKeyPress(aEvent) {
-  console.log('onKeyPress ', aEvent.keyCode);
+  //console.log('onKeyPress ', aEvent.keyCode);
   if (aEvent.keyCode == KeyEvent.DOM_VK_ESCAPE &&
       !aEvent.altKey &&
       !aEvent.ctrlKey &&
       !aEvent.shiftKey &&
-      !aEvent.metaKey)
+      !aEvent.metaKey) {
     window.close();
+  }
+
+  var item = document.querySelector('li.active');
+
+  if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
+      aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
+    doSearch(aEvent);
+    return;
+  }
 }
 
 
@@ -51,6 +60,7 @@ async function buildEngines() {
       continue;
     let item = document.createElement('li');
     item.setAttribute('id', `search-engine-${bookmark.title}`);
+    item.setAttribute('data-url', bookmark.url);
 
     let favicon = document.createElement('img');
     favicon.classList.add('favicon');
@@ -74,4 +84,25 @@ function favIconUrl(aURI) {
   if (!uriMatch)
     return null;
   return `https://www.google.com/s2/favicons?domain=${uriMatch[1]}`;
+}
+
+function doSearch(aEvent) {
+  var url = item && item.getAttribute('data-url');
+  if (!url)
+    url = 'https://www.google.com/?q=%s';
+  url = url.replace(/%s/gi, gField.value || '');
+  var openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
+  var openWindow = aEvent.shiftKey;
+  if (openTab) {
+    browser.tabs.create({ active: true, url });
+  }
+  else if (openWindow) {
+    browser.windows.create({ url });
+  }
+  else {
+    let tab = browser.tabs.getCurrent();
+    browser.tabs.update(tab.id, { url });
+  }
+  gField.value = '';
+  window.close();
 }
