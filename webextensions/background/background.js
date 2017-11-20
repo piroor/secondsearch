@@ -26,6 +26,7 @@ const SearchEngines = {
       engines.push(bookmark);
       this.cachedEnginesById[bookmark.id] = bookmark;
     }
+    configs.cachedEnginesById = this.cachedEnginesById;
     this.cachedEngines = engines;
     this.sort();
   },
@@ -38,6 +39,12 @@ const SearchEngines = {
   },
 
   sort() {
+    log('sort');
+    for (let id of Object.keys(this.cachedEnginesById)) {
+      let engine = this.cachedEnginesById[id];
+      engine._recentlyUsedIndex = this.recentlyUsedEngines.indexOf(id);
+    }
+    log('recentlyUsedEngines sorted');
     this.cachedEngines.sort((aA, aB) =>
       aA._recentlyUsedIndex < 0 && aB._recentlyUsedIndex > -1 ?
         1 :
@@ -45,27 +52,33 @@ const SearchEngines = {
           -1 :
           aA._recentlyUsedIndex - aB._recentlyUsedIndex ||
             aA.title > aB.title);
-    configs.cachedEngines = this.cachedEngines;
+    log('cachedEngines sorted');
   },
 
-  onUsed(aId) {
-    var index = this.recentlyUsedEngines.indexOf(aId);
-    if (index > -1)
-      this.recentlyUsedEngines.splice(index, 1);
-    this.recentlyUsedEngines.unshift(aId);
+  onUsed(aRecentlyUsedId) {
+    this.recentlyUsedEngines = this.recentlyUsedEngines.filter(aId => aId != aRecentlyUsedId);
+    this.recentlyUsedEngines.unshift(aRecentlyUsedId);
+    log('updated recently used engines: ', this.recentlyUsedEngines);
     configs.recentlyUsedEngines = this.recentlyUsedEngines;
-    this.recentlyUsedEngines.forEach((aId, aIndex) => {
-      this.cachedEnginesById[aId]._recentlyUsedIndex = aIndex;
-    });
     this.sort();
   }
 };
 
 configs.$loaded.then(() => {
-  SearchEngines.cachedEngines = configs.cachedEngines;
-  SearchEngines.recentlyUsedEngines = configs.recentlyUsedEngines;
-  if (!SearchEngines.cachedEngines)
+  if (!configs.cachedEnginesById) {
+    log('initial install');
     SearchEngines.reset();
+  }
+  else {
+    log('restore engines');
+    SearchEngines.cachedEnginesById = configs.cachedEnginesById || {};
+    SearchEngines.cachedEngines = [];
+    for (let id of Object.keys(SearchEngines.cachedEnginesById)) {
+      SearchEngines.cachedEngines.push(SearchEngines.cachedEnginesById[id]);
+    }
+    SearchEngines.recentlyUsedEngines = configs.recentlyUsedEngines || [];
+    SearchEngines.sort();
+  }
 });
 
 browser.runtime.onMessage.addListener((aMessage, aSender) => {
