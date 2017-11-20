@@ -3,5 +3,7 @@
   "extensionDescription": { "message": "" },
 
   "panelTitle": { "message": "Search with Keyword" },
-  "commandDescription": { "message": "Search with Keyword" }
+  "commandDescription": { "message": "Search with Keyword" },
+
+  "searchField.placeholder": { "message": "Search with Keyword" }
 }

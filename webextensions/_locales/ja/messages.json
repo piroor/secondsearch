@@ -3,5 +3,7 @@
   "extensionDescription": { "message": "" },
 
   "panelTitle": { "message": "キーワード検索" },
-  "commandDescription": { "message": "キーワード検索" }
+  "commandDescription": { "message": "キーワード検索" },
+
+  "searchField.placeholder": { "message": "キーワード検索" }
 }
