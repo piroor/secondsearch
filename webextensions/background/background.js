@@ -90,8 +90,7 @@ const SearchEngines = {
   },
 
   onBookmarkChanged(aId, aChangeInfo) {
-    if (!aChangeInfo.url)
-      return;
+    if ('url' in aChangeInfo) {
     if (aId in this.cachedEnginesById &&
         !/%s/i.test(aChangeInfo.url)) {
       log('engine is removed by changing URL: ', this.cachedEnginesById[aId]);
@@ -107,6 +106,12 @@ const SearchEngines = {
         this.cachedEnginesById[aId] = bookmark;
         this.updateCache();
       })();
+    }
+    }
+    if ('title' in aChangeInfo &&
+        aId in this.cachedEnginesById) {
+      this.cachedEnginesById[aId].title = aChangeInfo.title;
+      this.updateCache();
     }
   }
 };
