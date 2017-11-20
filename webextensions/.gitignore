@@ -1,6 +1,6 @@
 *.xpi
 **/Configs.js
-**/l10s.js
+**/l10n.js
 
 # node.js dependency
 node_modules/
