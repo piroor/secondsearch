@@ -10,7 +10,7 @@ gLogContext = 'BG';
 const SearchEngines = {
   cachedEngines: null,
   cachedEnginesById: null,
-  recentlyUsedEngines: null,
+  recentlyUsedEngines: [],
 
   reset: async function() {
     var bookmarks = await browser.bookmarks.search({ query: '%s' });
@@ -22,13 +22,12 @@ const SearchEngines = {
         continue;
       if (!bookmark.favIconUrl)
         bookmark.favIconUrl = this.buildFavIconURI(bookmark);
-      bookmark._recentlyUsedIndex = configs.cachedEngines.indexOf(bookmark.id);
+      bookmark._recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(bookmark.id);
       engines.push(bookmark);
       this.cachedEnginesById[bookmark.id] = bookmark;
     }
-    engines.sort((aA, aB) => aA.title > aB.title);
-    engines.sort((aA, aB) => aA._recentlyUsedIndex - aB._recentlyUsedIndex);
     this.cachedEngines = engines;
+    this.sort();
   },
 
   buildFavIconURI(aEngine) {
@@ -38,15 +37,27 @@ const SearchEngines = {
     return `https://www.google.com/s2/favicons?domain=${uriMatch[1]}`;
   },
 
+  sort() {
+    this.cachedEngines.sort((aA, aB) =>
+      aA._recentlyUsedIndex < 0 && aB._recentlyUsedIndex > -1 ?
+        1 :
+        aA._recentlyUsedIndex > -1 && aB._recentlyUsedIndex < 0 ?
+          -1 :
+          aA._recentlyUsedIndex - aB._recentlyUsedIndex ||
+            aA.title > aB.title);
+    configs.cachedEngines = this.cachedEngines;
+  },
+
   onUsed(aId) {
     var index = this.recentlyUsedEngines.indexOf(aId);
     if (index > -1)
       this.recentlyUsedEngines.splice(index, 1);
     this.recentlyUsedEngines.unshift(aId);
+    configs.recentlyUsedEngines = this.recentlyUsedEngines;
     this.recentlyUsedEngines.forEach((aId, aIndex) => {
       this.cachedEnginesById[aId]._recentlyUsedIndex = aIndex;
     });
-    this.cachedEngines.sort((aA, aB) => aA._recentlyUsedIndex - aB._recentlyUsedIndex);
+    this.sort();
   }
 };
 

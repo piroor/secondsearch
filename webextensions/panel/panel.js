@@ -149,7 +149,7 @@ async function doSearch(aEvent) {
     browser.tabs.update(gCurrentTab.id, { url });
   }
   if (item)
-    browser.runtime.sendMessag({
+    browser.runtime.sendMessage({
       type: kCOMMAND_NOTIFY_SEARCH_ENGINE_USED,
       id:   item.getAttribute('data-id')
     });
