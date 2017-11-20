@@ -5,6 +5,8 @@
 */
 'use strict';
 
+gLogContext = 'Panel';
+
 var gField;
 var gEngines;
 var gPageSelection;

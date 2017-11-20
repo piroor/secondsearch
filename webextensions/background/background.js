@@ -13,6 +13,7 @@ const SearchEngines = {
   recentlyUsedEngines: [],
 
   reset: async function() {
+    log('reset');
     var bookmarks = await browser.bookmarks.search({ query: '%s' });
     var engines = [];
     this.cachedEnginesById = {};
@@ -89,9 +90,11 @@ browser.runtime.onMessage.addListener((aMessage, aSender) => {
 
   switch (aMessage.type) {
     case kCOMMAND_GET_SEARCH_ENGINES:
+      log('get engines , SearchEngines.cachedEngines');
       return Promise.resolve(SearchEngines.cachedEngines);
 
     case kCOMMAND_NOTIFY_SEARCH_ENGINE_USED:
+      log(`on used ${aMessage.id}`);
       SearchEngines.onUsed(aMessage.id);
       break;
   }
