@@ -11,6 +11,7 @@ var gField;
 var gEngines;
 var gPageSelection;
 var gCurrentTab;
+var gLastOperatedBy = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
   gField = document.querySelector('#search-field');
@@ -22,10 +23,12 @@ window.addEventListener('DOMContentLoaded', async () => {
 window.addEventListener('pageshow', async () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
   gEngines.addEventListener('mouseup', onClick, { capture: true });
+  gEngines.addEventListener('mousemove', onMouseMove);
   focusToField()
 
   gPageSelection = null;
   gCurrentTab = null;
+  gLastOperatedBy = kOPERATED_BY_KEY;
   try {
     gCurrentTab = (await browser.tabs.query({
       currentWindow: true,
@@ -46,6 +49,7 @@ window.addEventListener('pageshow', async () => {
 window.addEventListener('pagehide', () => {
   document.removeEventListener('keypress', onKeyPress, { capture: true });
   gEngines.removeEventListener('mouseup', onClick, { capture: true });
+  gEngines.removeEventListener('mousemove', onMouseMove);
 }, { once: true });
 
 
@@ -54,9 +58,13 @@ function onKeyPress(aEvent) {
       aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
     let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
     let openWindow = aEvent.shiftKey;
+    let engine = null;
+    if (gLastOperatedBy == kOPERATED_BY_MOUSE || !getActiveEngine())
+      engine = document.querySelector('li:hover');
     doSearch({
       where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn,
-      save:  true
+      save:  true,
+      engine
     });
     return;
   }
@@ -72,6 +80,7 @@ function onKeyPress(aEvent) {
         return;
 
       case KeyEvent.DOM_VK_UP:
+        gLastOperatedBy = kOPERATED_BY_KEY;
         if (activeItem) {
           activeItem.classList.remove('active');
           (activeItem.previousSibling || activeItem.parentNode.lastChild).classList.add('active');
@@ -82,6 +91,7 @@ function onKeyPress(aEvent) {
         return;
 
       case KeyEvent.DOM_VK_DOWN:
+        gLastOperatedBy = kOPERATED_BY_KEY;
         if (activeItem) {
           activeItem.classList.remove('active');
           (activeItem.nextSibling || activeItem.parentNode.firstChild).classList.add('active');
@@ -119,6 +129,10 @@ function onClick(aEvent) {
     default:
       break;
   }
+}
+
+function onMouseMove(aEvent) {
+  gLastOperatedBy = kOPERATED_BY_MOUSE;
 }
 
 function getActiveEngine() {

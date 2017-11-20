@@ -12,3 +12,6 @@ const kOPEN_IN_CURRENT = 0;
 const kOPEN_IN_TAB     = 1;
 const kOPEN_IN_WINDOW  = 2;
 
+const kOPERATED_BY_KEY   = 0;
+const kOPERATED_BY_MOUSE = 1;
+
