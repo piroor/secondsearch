@@ -62,12 +62,6 @@ function onKeyPress(aEvent) {
         window.close();
         return;
 
-      case KeyEvent.DOM_VK_LEFT:
-      case KeyEvent.DOM_VK_RIGHT:
-        if (activeItem)
-          activeItem.classList.remove('active');
-        return;
-
       case KeyEvent.DOM_VK_UP:
         if (activeItem) {
           activeItem.classList.remove('active');
