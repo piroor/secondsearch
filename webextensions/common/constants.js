@@ -1,0 +1,10 @@
+/*
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
+'use strict';
+
+const kCOMMAND_GET_SEARCH_ENGINES = 'secondsearch:get-search-engines';
+const kCOMMAND_NOTIFY_SEARCH_ENGINE_USED = 'secondsearch:search-engine-used';
+
