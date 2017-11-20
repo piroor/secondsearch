@@ -9,10 +9,10 @@ var gField;
 
 window.addEventListener('DOMContentLoaded', () => {
   gField = document.querySelector('#search-field');
-  document.addEventListener('keypress', onKeyPress, { capture: true });
 }, { once: true });
 
 window.addEventListener('pageshow', () => {
+  document.addEventListener('keypress', onKeyPress, { capture: true });
   window.focus();
   setTimeout(() => gField.focus(), 100);
 }, { once: true });
