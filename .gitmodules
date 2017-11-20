@@ -7,3 +7,6 @@
 [submodule "extlib/webextensions-lib-configs"]
 	path = extlib/webextensions-lib-configs
 	url = https://github.com/piroor/webextensions-lib-configs.git
+[submodule "extlib/webextensions-lib-options"]
+	path = extlib/webextensions-lib-options
+	url = https://github.com/piroor/webextensions-lib-options.git

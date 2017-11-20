@@ -14,17 +14,21 @@ lint:
 format:
 	$(NPM_BIN_DIR)/eslint . --ext=.js –report-unused-disable-directives --fix
 
-xpi: lint ../extlib/webextensions-lib-l10n/Configs.js ../extlib/webextensions-lib-l10n/l10n.js
+xpi: lint ../extlib/webextensions-lib-l10n/Configs.js ../extlib/webextensions-lib-l10n/l10n.js ../extlib/webextensions-lib-options/Options.js
 	cd .. && git submodule update
 	mkdir -p common
 	cp ../extlib/webextensions-lib-configs/Configs.js common/
 	cp ../extlib/webextensions-lib-l10n/l10n.js common/
+	cp ../extlib/webextensions-lib-options/Options.js options/
 	rm -f ./*.xpi
-	zip -r -0 secondsearch-we.xpi manifest.json _locales common background panel resources >/dev/null 2>/dev/null
+	zip -r -0 secondsearch-we.xpi manifest.json _locales common background panel options resources >/dev/null 2>/dev/null
 
 ../extlib/webextensions-lib-l10n/Configs.js:
 	cd .. && git submodule update --init
 
 ../extlib/webextensions-lib-l10n/l10n.js:
+	cd .. && git submodule update --init
+
+../extlib/webextensions-lib-options/Options.js:
 	cd .. && git submodule update --init
 
