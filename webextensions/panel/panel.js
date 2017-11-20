@@ -105,7 +105,7 @@ async function buildEngines() {
   var items = document.createDocumentFragment();
   for (let engine of engines) {
     let item = document.createElement('li');
-    item.setAttribute('id', `search-engine-${engine.title}`);
+    item.setAttribute('data-id', engine.id);
     item.setAttribute('data-url', engine.url);
 
     let favicon = document.createElement('img');
@@ -148,6 +148,11 @@ async function doSearch(aEvent) {
   else {
     browser.tabs.update(gCurrentTab.id, { url });
   }
+  if (item)
+    browser.runtime.sendMessag({
+      type: kCOMMAND_NOTIFY_SEARCH_ENGINE_USED,
+      id:   item.getAttribute('data-id')
+    });
   gField.value = '';
   window.close();
 }
