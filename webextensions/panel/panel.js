@@ -21,6 +21,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 window.addEventListener('pageshow', async () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
+  gEngines.addEventListener('mouseup', onClick, { capture: true });
   focusToField()
 
   gPageSelection = null;
@@ -44,13 +45,19 @@ window.addEventListener('pageshow', async () => {
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('keypress', onKeyPress, { capture: true });
+  gEngines.removeEventListener('mouseup', onClick, { capture: true });
 }, { once: true });
 
 
 function onKeyPress(aEvent) {
   if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
       aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
-    doSearch(aEvent);
+    let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
+    let openWindow = aEvent.shiftKey;
+    doSearch({
+      where: openTab ? 'tab' : openWindow ? 'window' : 'current',
+      save:  true
+    });
     return;
   }
 
@@ -58,7 +65,7 @@ function onKeyPress(aEvent) {
       !aEvent.ctrlKey &&
       !aEvent.shiftKey &&
       !aEvent.metaKey) {
-    let activeItem = document.querySelector('li.active');
+    let activeItem = getActiveEngine();
     switch (aEvent.keyCode) {
       case KeyEvent.DOM_VK_ESCAPE:
         window.close();
@@ -87,6 +94,26 @@ function onKeyPress(aEvent) {
   }
 }
 
+function onClick(aEvent) {
+  switch (aEvent.button) {
+    case 0:
+      let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
+      let openWindow = aEvent.shiftKey;
+      doSearch({ where: openTab ? 'tab' : openWindow ? 'window' : 'current' });
+      break;
+
+    case 1:
+      doSearch({ where: 'tab' });
+      break;
+
+    default:
+      break;
+  }
+}
+
+function getActiveEngine() {
+  return document.querySelector('li.active');
+}
 
 function focusToField() {
   window.focus();
@@ -120,15 +147,14 @@ async function buildEngines() {
   gEngines.appendChild(items);
 }
 
-async function doSearch(aEvent) {
-  var item = document.querySelector('li.active');
+async function doSearch(aParams = {}) {
+  var item = getActiveEngine();
   var url = item && item.getAttribute('data-url');
   if (!url)
     url = 'https://www.google.com/?q=%s';
   url = url.replace(/%s/gi, gField.value || '');
-  var openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
-  var openWindow = aEvent.shiftKey;
-  if (openTab) {
+  switch (aParams.where) {
+    case 'tab': {
     let params = {
       active: true,
       url
@@ -137,14 +163,17 @@ async function doSearch(aEvent) {
         gPageSelection == gField.value)
       params.openerTabId = gCurrentTab.id;
     browser.tabs.create(params);
-  }
-  else if (openWindow) {
+    }; break;
+
+    case 'window':
     browser.windows.create({ url });
-  }
-  else {
+      break;
+
+    default:
     browser.tabs.update(gCurrentTab.id, { url });
+      break;
   }
-  if (item)
+  if (item && (aParams.save || gField.value))
     browser.runtime.sendMessage({
       type: kCOMMAND_NOTIFY_SEARCH_ENGINE_USED,
       id:   item.getAttribute('data-id')
