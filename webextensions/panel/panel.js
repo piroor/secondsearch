@@ -12,8 +12,9 @@ window.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
 }, { once: true });
 
-window.addEventListener('load', () => {
-  setTimeout(() => gField.focus(), 10);
+window.addEventListener('pageshow', () => {
+  window.focus();
+  setTimeout(() => gField.focus(), 100);
 }, { once: true });
 
 window.addEventListener('pagehide', () => {
