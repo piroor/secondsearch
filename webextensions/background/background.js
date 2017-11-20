@@ -36,7 +36,7 @@ const SearchEngines = {
     var uriMatch = aEngine.url.match(/^(\w+:\/\/[^\/]+)/);
     if (!uriMatch)
       return null;
-    return `https://www.google.com/s2/favicons?domain=${uriMatch[1]}`;
+    return configs.favIconProvider.replace(/%s/gi, uriMatch[1]);
   },
 
   updateCache() {

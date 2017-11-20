@@ -61,6 +61,7 @@ configs = new Configs({
   lastSearchTerm: '',
   defaultOpenIn: kOPEN_IN_TAB,
   defaultEngine: 'https://www.google.com/?q=%s',
+  favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
   focusDelay: 150,
   debug: false
 });
