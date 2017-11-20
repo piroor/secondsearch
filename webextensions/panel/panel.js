@@ -179,22 +179,22 @@ async function doSearch(aParams = {}) {
   url = url.replace(/%s/gi, gField.value || '');
   switch (aParams.where) {
     case kOPEN_IN_TAB: {
-    let params = {
-      active: true,
-      url
-    };
-    if (gPageSelection &&
-        gPageSelection == gField.value)
-      params.openerTabId = gCurrentTab.id;
-    browser.tabs.create(params);
+      let params = {
+        active: true,
+        url
+      };
+      if (gPageSelection &&
+          gPageSelection == gField.value)
+        params.openerTabId = gCurrentTab.id;
+      browser.tabs.create(params);
     }; break;
 
     case kOPEN_IN_WINDOW:
-    browser.windows.create({ url });
+      browser.windows.create({ url });
       break;
 
     default:
-    browser.tabs.update(gCurrentTab.id, { url });
+      browser.tabs.update(gCurrentTab.id, { url });
       break;
   }
   if (item && (aParams.save || gField.value))
