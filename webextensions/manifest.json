@@ -5,16 +5,18 @@
   "author": "YUKI \"Piro\" Hiroshi",
   "description": "__MSG_extensionDescription__",
   "permissions": [
-    "menus",
     "storage"
   ],
   "icons": {
     "32": "resources/icon.png"
   },
-  "background": {
-    "scripts": [
-      "background/context-menu.js"
-    ]
+  "browser_action": {
+    "default_title": "__MSG_panelTitle__",
+    "default_icon": {
+      "32": "resources/icon.png"
+    },
+    "browser_style": true,
+    "default_popup": "panel/panel.html"
   },
   "default_locale": "en",
   "applications": {

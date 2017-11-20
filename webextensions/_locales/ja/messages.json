@@ -1,4 +1,6 @@
 {
   "extensionName": { "message": "セカンドサーチ" },
-  "extensionDescription": { "message": "" }
+  "extensionDescription": { "message": "" },
+
+  "panelTitle": { "message": "キーワード検索" }
 }

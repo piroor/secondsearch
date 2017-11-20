@@ -1,4 +1,6 @@
 {
   "extensionName": { "message": "Second Search" },
-  "extensionDescription": { "message": "" }
+  "extensionDescription": { "message": "" },
+
+  "panelTitle": { "message": "Search with Keyword" }
 }
