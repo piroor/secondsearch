@@ -39,6 +39,14 @@ const SearchEngines = {
     return `https://www.google.com/s2/favicons?domain=${uriMatch[1]}`;
   },
 
+  updateCache() {
+    this.cachedEngines = [];
+    for (let id of Object.keys(this.cachedEnginesById)) {
+      this.cachedEngines.push(this.cachedEnginesById[id]);
+    }
+    SearchEngines.sort();
+  },
+
   sort() {
     log('sort');
     for (let id of Object.keys(this.cachedEnginesById)) {
@@ -62,10 +70,50 @@ const SearchEngines = {
     log('updated recently used engines: ', this.recentlyUsedEngines);
     configs.recentlyUsedEngines = this.recentlyUsedEngines;
     this.sort();
+  },
+
+  onBookmarkCreated(aId, aMayBeEngine) {
+    if (aMayBeEngine.type != 'bookmark' ||
+        !/%s/i.test(aMayBeEngine.url))
+      return;
+    log('new engine is added: ', aMayBeEngine);
+    this.cachedEnginesById[aId] = aMayBeEngine;
+    this.updateCache();
+  },
+
+  onBookmarkRemoved(aId, aRemoveInfo) {
+    if (aId in this.cachedEnginesById) {
+      log('engine is removed: ', this.cachedEnginesById[aId]);
+      delete this.cachedEnginesById[aId];
+      this.updateCache();
+    }
+  },
+
+  onBookmarkChanged(aId, aChangeInfo) {
+    if (!aChangeInfo.url)
+      return;
+    if (aId in this.cachedEnginesById &&
+        !/%s/i.test(aChangeInfo.url)) {
+      log('engine is removed by changing URL: ', this.cachedEnginesById[aId]);
+      delete this.cachedEnginesById[aId];
+      this.updateCache();
+    }
+    else if (/%s/i.test(aChangeInfo.url)) {
+      (async () => {
+        let bookmark = await browser.bookmarks.get(aId);
+        if (Array.isArray(bookmark))
+          bookmark = bookmark[0];
+        log('engine is added by changing URL: ', bookmark);
+        this.cachedEnginesById[aId] = bookmark;
+      })();
+    }
   }
 };
 
 configs.$loaded.then(() => {
+  browser.bookmarks.onCreated.addListener(SearchEngines.onBookmarkCreated.bind(SearchEngines));
+  browser.bookmarks.onRemoved.addListener(SearchEngines.onBookmarkRemoved.bind(SearchEngines));
+  browser.bookmarks.onChanged.addListener(SearchEngines.onBookmarkChanged.bind(SearchEngines));
   if (!configs.cachedEnginesById) {
     log('initial install');
     SearchEngines.reset();
@@ -73,12 +121,8 @@ configs.$loaded.then(() => {
   else {
     log('restore engines');
     SearchEngines.cachedEnginesById = configs.cachedEnginesById || {};
-    SearchEngines.cachedEngines = [];
-    for (let id of Object.keys(SearchEngines.cachedEnginesById)) {
-      SearchEngines.cachedEngines.push(SearchEngines.cachedEnginesById[id]);
-    }
     SearchEngines.recentlyUsedEngines = configs.recentlyUsedEngines || [];
-    SearchEngines.sort();
+    SearchEngines.updateCache();
   }
 });
 
