@@ -105,6 +105,7 @@ const SearchEngines = {
           bookmark = bookmark[0];
         log('engine is added by changing URL: ', bookmark);
         this.cachedEnginesById[aId] = bookmark;
+        this.updateCache();
       })();
     }
   }
