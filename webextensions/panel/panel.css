@@ -52,36 +52,21 @@ body {
   opacity: 1;
 }
 
-:root.no-engine #search-engines-container {
-  display: none;
-}
-
 #search-engines-container {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   margin: 0;
-  max-height: 15em;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
 }
 
-#search-engines-container.building {
+:root.no-engine #search-engines-container {
+  display: none;
+}
+
+:root.building #search-engines-container {
   visibility: hidden;
-}
-
-:root.by-name #search-engines-by-recently-used {
-  opacity: 0;
-  pointer-events: none:
-}
-
-#search-engines-by-name {
-  position: absolute;
-  left: var(--panel-width, 200%);
-}
-:root.by-name #search-engines-by-name {
-  left: 0;
 }
 
 .search-engines {
@@ -90,10 +75,28 @@ body {
   flex-wrap: nowrap;
   list-style: none;
   margin: 0;
+  max-height: 15em;
   max-width: var(--panel-width, 100%);
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 0;
   transition: left ease 0.15s,
               opacity ease 0.15s;
+}
+
+:root.by-name .search-engines#search-engines-by-recently-used {
+  opacity: 0;
+  pointer-events: none:
+}
+
+.search-engines#search-engines-by-name {
+  left: var(--panel-width, 200%);
+  opacity: 0;
+  position: absolute;
+}
+:root.by-name .search-engines#search-engines-by-name {
+  left: 0;
+  opacity: 1;
 }
 
 .search-engines li {

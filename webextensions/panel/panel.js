@@ -40,7 +40,7 @@ window.addEventListener('pageshow', async () => {
   gEnginesSwitchers.toRecentlyUsed.addEventListener('click', onSwitcherClick, { capture: true });
   gEnginesSwitchers.toAll.addEventListener('click', onSwitcherClick, { capture: true });
 
-  gContainer.classList.add('building');
+  document.documentElement.classList.add('building');
 
   if (configs.clearFieldAfterSearch)
     gField.value = '';
@@ -70,7 +70,7 @@ window.addEventListener('pageshow', async () => {
     --panel-width: ${gContainer.offsetWidth}px;
   }`;
 
-  gContainer.classList.remove('building');
+  document.documentElement.classList.remove('building');
   focusToField();
 }, { once: true });
 
