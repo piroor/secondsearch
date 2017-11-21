@@ -59,8 +59,8 @@ window.addEventListener('pageshow', async () => {
       }
       else {
         document.documentElement.classList.remove('no-engine');
-      buildEngines(recentlyUsedEngines, gRecentlyUsedEngines);
-      buildEngines(recentlyUsedEngines.sort((aA, aB) => aA.title > aB.title), gAllEngines);
+        buildEngines(recentlyUsedEngines, gRecentlyUsedEngines);
+        buildEngines(recentlyUsedEngines.sort((aA, aB) => aA.title > aB.title), gAllEngines);
       }
     })(),
     updateUIForCurrentTab()
