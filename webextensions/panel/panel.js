@@ -88,10 +88,13 @@ function onKeyPress(aEvent) {
         gLastOperatedBy = kOPERATED_BY_KEY;
         if (activeItem) {
           activeItem.classList.remove('active');
-          (activeItem.previousSibling || activeItem.parentNode.lastChild).classList.add('active');
+          let item = (activeItem.previousSibling || activeItem.parentNode.lastChild);
+          item.classList.add('active');
+          scrollToItem(item);
         }
         else if (gEngines.hasChildNodes()) {
           gEngines.lastChild.classList.add('active');
+          scrollToItem(gEngines.lastChild);
         }
         return;
 
@@ -99,10 +102,13 @@ function onKeyPress(aEvent) {
         gLastOperatedBy = kOPERATED_BY_KEY;
         if (activeItem) {
           activeItem.classList.remove('active');
-          (activeItem.nextSibling || activeItem.parentNode.firstChild).classList.add('active');
+          let item = (activeItem.nextSibling || activeItem.parentNode.firstChild);
+          item.classList.add('active');
+          scrollToItem(item);
         }
         else if (gEngines.hasChildNodes()) {
           gEngines.firstChild.classList.add('active');
+          scrollToItem(gEngines.firstChild);
         }
         return;
     }

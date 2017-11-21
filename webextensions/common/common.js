@@ -63,5 +63,6 @@ configs = new Configs({
   defaultEngine: 'https://www.google.com/?q=%s',
   favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
   focusDelay: 150,
+  smoothScrollDuration: 150,
   debug: false
 });

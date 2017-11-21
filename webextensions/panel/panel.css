@@ -32,6 +32,9 @@ body {
   flex-wrap: nowrap;
   list-style: none;
   margin: 0;
+  max-height: 15em;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding: 0;
 }
 
@@ -60,5 +63,8 @@ body {
 }
 
 .label {
+  flex-grow: 1;
   margin-left: 0.25em;
+  text-overflow: elipsis;
+  white-space: pre;
 }
