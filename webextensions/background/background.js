@@ -78,6 +78,9 @@ const SearchEngines = {
       return;
     log('new engine is added: ', aMayBeEngine);
     this.cachedEnginesById[aId] = aMayBeEngine;
+    if (!aMayBeEngine.favIconUrl)
+      aMayBeEngine.favIconUrl = this.buildFavIconURI(aMayBeEngine);
+    configs.cachedEnginesById = this.cachedEnginesById;
     this.updateCache();
   },
 
@@ -85,6 +88,7 @@ const SearchEngines = {
     if (aId in this.cachedEnginesById) {
       log('engine is removed: ', this.cachedEnginesById[aId]);
       delete this.cachedEnginesById[aId];
+      configs.cachedEnginesById = this.cachedEnginesById;
       this.updateCache();
     }
   },
@@ -95,6 +99,7 @@ const SearchEngines = {
           !/%s/i.test(aChangeInfo.url)) {
         log('engine is removed by changing URL: ', this.cachedEnginesById[aId]);
         delete this.cachedEnginesById[aId];
+        configs.cachedEnginesById = this.cachedEnginesById;
         this.updateCache();
       }
       else if (/%s/i.test(aChangeInfo.url)) {
@@ -104,6 +109,9 @@ const SearchEngines = {
             bookmark = bookmark[0];
           log('engine is added by changing URL: ', bookmark);
           this.cachedEnginesById[aId] = bookmark;
+          if (!bookmark.favIconUrl)
+            bookmark.favIconUrl = this.buildFavIconURI(bookmark);
+          configs.cachedEnginesById = this.cachedEnginesById;
           this.updateCache();
         })();
       }
@@ -111,6 +119,7 @@ const SearchEngines = {
     if ('title' in aChangeInfo &&
         aId in this.cachedEnginesById) {
       this.cachedEnginesById[aId].title = aChangeInfo.title;
+      configs.cachedEnginesById = this.cachedEnginesById;
       this.updateCache();
     }
   },
