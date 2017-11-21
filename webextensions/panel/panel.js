@@ -7,26 +7,33 @@
 
 gLogContext = 'Panel';
 
+var gStyleVariables;
 var gField;
 var gContainer;
-var gEngines;
+var gRecentlyUsedEngines;
+var gAllEngines;
+var gActiveEngines;
 var gPageSelection;
 var gCurrentTab;
 var gLastOperatedBy = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
+  gStyleVariables = document.querySelector('#variables');
+
   gField = document.querySelector('#search-field');
   gContainer = document.querySelector('#search-engines-container');
-  gEngines = document.querySelector('#search-engines');
-  await buildEngines();
-  focusToField();
+
+  gRecentlyUsedEngines = document.querySelector('#search-engines-by-recently-used');
+  gAllEngines          = document.querySelector('#search-engines-by-name');
+  gActiveEngines       = gRecentlyUsedEngines;
 }, { once: true });
 
 window.addEventListener('pageshow', async () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
-  gEngines.addEventListener('mouseup', onClick, { capture: true });
-  gEngines.addEventListener('mousemove', onMouseMove);
-  focusToField()
+  gContainer.addEventListener('mouseup', onClick, { capture: true });
+  gContainer.addEventListener('mousemove', onMouseMove);
+
+  gContainer.classList.add('building');
 
   if (configs.clearFieldAfterSearch)
     gField.value = '';
@@ -36,27 +43,28 @@ window.addEventListener('pageshow', async () => {
   gPageSelection = null;
   gCurrentTab = null;
   gLastOperatedBy = kOPERATED_BY_KEY;
-  try {
-    gCurrentTab = (await browser.tabs.query({
-      currentWindow: true,
-      active: true
-    }))[0];
-    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: 'window.getSelection().toString()' });
-    if (Array.isArray(gPageSelection))
-      gPageSelection = gPageSelection.join('');
-    gField.value = gPageSelection;
-    gField.select();
-  }
-  catch(e) {
-    // if it is a special tab, we cannot execute script.
-    //console.log(e);
-  }
+  
+  await Promise.all([
+    (async () => {
+      var recentlyUsedEngines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
+      buildEngines(recentlyUsedEngines, gRecentlyUsedEngines);
+      buildEngines(recentlyUsedEngines.sort((aA, aB) => aA.title > aB.title), gAllEngines);
+    })(),
+    updateUIForCurrentTab()
+  ]);
+
+  gStyleVariables.textContent = `:root {
+    --panel-width: ${gContainer.offsetWidth}px;
+  }`;
+
+  gContainer.classList.remove('building');
+  focusToField();
 }, { once: true });
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('keypress', onKeyPress, { capture: true });
-  gEngines.removeEventListener('mouseup', onClick, { capture: true });
-  gEngines.removeEventListener('mousemove', onMouseMove);
+  gContainer.removeEventListener('mouseup', onClick, { capture: true });
+  gContainer.removeEventListener('mousemove', onMouseMove);
 }, { once: true });
 
 
@@ -76,17 +84,40 @@ function onKeyPress(aEvent) {
     return;
   }
 
-  if (!aEvent.altKey &&
-      !aEvent.ctrlKey &&
-      !aEvent.shiftKey &&
-      !aEvent.metaKey) {
-    let activeItem = getActiveEngine();
+  var noModifiers = (
+    !aEvent.altKey &&
+    !aEvent.ctrlKey &&
+    !aEvent.shiftKey &&
+    !aEvent.metaKey
+  );
+    var activeItem = getActiveEngine();
     switch (aEvent.keyCode) {
       case KeyEvent.DOM_VK_ESCAPE:
-        window.close();
+        if (noModifiers)
+          window.close();
+        return;
+
+      case KeyEvent.DOM_VK_LEFT:
+        if (!aEvent.altKey &&
+            (aEvent.ctrlKey || aEvent.metaKey) &&
+            !aEvent.shiftKey) {
+          gContainer.classList.remove('by-name');
+          gActiveEngines = gRecentlyUsedEngines;
+        }
+        return;
+
+      case KeyEvent.DOM_VK_RIGHT:
+        if (!aEvent.altKey &&
+            (aEvent.ctrlKey || aEvent.metaKey) &&
+            !aEvent.shiftKey) {
+          gContainer.classList.add('by-name');
+          gActiveEngines = gAllEngines;
+        }
         return;
 
       case KeyEvent.DOM_VK_UP:
+        if (!noModifiers)
+          return;
         gLastOperatedBy = kOPERATED_BY_KEY;
         if (activeItem) {
           activeItem.classList.remove('active');
@@ -94,13 +125,15 @@ function onKeyPress(aEvent) {
           item.classList.add('active');
           scrollToItem(item);
         }
-        else if (gEngines.hasChildNodes()) {
-          gEngines.lastChild.classList.add('active');
-          scrollToItem(gEngines.lastChild);
+        else if (gActiveEngines.hasChildNodes()) {
+          gActiveEngines.lastChild.classList.add('active');
+          scrollToItem(gActiveEngines.lastChild);
         }
         return;
 
       case KeyEvent.DOM_VK_DOWN:
+        if (!noModifiers)
+          return;
         gLastOperatedBy = kOPERATED_BY_KEY;
         if (activeItem) {
           activeItem.classList.remove('active');
@@ -108,13 +141,12 @@ function onKeyPress(aEvent) {
           item.classList.add('active');
           scrollToItem(item);
         }
-        else if (gEngines.hasChildNodes()) {
-          gEngines.firstChild.classList.add('active');
-          scrollToItem(gEngines.firstChild);
+        else if (gActiveEngines.hasChildNodes()) {
+          gActiveEngines.firstChild.classList.add('active');
+          scrollToItem(gActiveEngines.firstChild);
         }
         return;
     }
-  }
 }
 
 function onClick(aEvent) {
@@ -149,7 +181,24 @@ function onMouseMove(aEvent) {
 }
 
 function getActiveEngine() {
-  return document.querySelector('li.active');
+  return gActiveEngines.querySelector('li.active');
+}
+
+async function updateUIForCurrentTab() {
+  try {
+    gCurrentTab = (await browser.tabs.query({
+      currentWindow: true,
+      active: true
+    }))[0];
+    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: 'window.getSelection().toString()' });
+    if (Array.isArray(gPageSelection))
+      gPageSelection = gPageSelection.join('');
+    gField.value = gPageSelection;
+  }
+  catch(e) {
+    // if it is a special tab, we cannot execute script.
+    //console.log(e);
+  }
 }
 
 function focusToField() {
@@ -160,10 +209,9 @@ function focusToField() {
   }, configs.focusDelay);
 }
 
-async function buildEngines() {
-  var engines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
+function buildEngines(aEngines, aContainer) {
   var items = document.createDocumentFragment();
-  for (let engine of engines) {
+  for (let engine of aEngines) {
     let item = document.createElement('li');
     item.setAttribute('data-id', engine.id);
     item.setAttribute('data-url', engine.url);
@@ -181,7 +229,7 @@ async function buildEngines() {
 
     items.appendChild(item);
   }
-  gEngines.appendChild(items);
+  aContainer.appendChild(items);
 }
 
 async function doSearch(aParams = {}) {

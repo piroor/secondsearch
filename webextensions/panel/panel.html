@@ -12,6 +12,7 @@
     <script type="application/javascript" src="panel.js"></script>
     <script type="application/javascript" src="scroll.js"></script>
     <link rel="stylesheet" type="text/css" href="panel.css"/>
+    <style type="text/css" id="variables"></style>
   </head>
   <body>
     <p id="search-field-container"><input id="search-field"
@@ -20,7 +21,10 @@
                                           autocomplete="on"
                                           placeholder="__MSG_searchField.placeholder__"></p>
     <div id="search-engines-container">
-    <ul id="search-engines"></ul>
+      <ul id="search-engines-by-recently-used"
+          class="search-engines"></ul>
+      <ul id="search-engines-by-name"
+          class="search-engines"></ul>
     </div>
   </body>
 </html>

@@ -32,32 +32,52 @@ body {
   max-height: 15em;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0;
+  position: relative;
 }
 
-#search-engines {
+#search-engines-container.building {
+  visibility: hidden;
+}
+
+#search-engines-container.by-name #search-engines-by-recently-used {
+  opacity: 0;
+  pointer-events: none:
+}
+
+#search-engines-by-name {
+  position: absolute;
+  left: var(--panel-width, 200%);
+}
+#search-engines-container.by-name #search-engines-by-name {
+  left: 0;
+}
+
+.search-engines {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   list-style: none;
   margin: 0;
+  max-width: var(--panel-width, 100%);
   padding: 0;
+  transition: left ease 0.15s,
+              opacity ease 0.15s;
 }
 
-#search-engines li {
+.search-engines li {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   margin: 0;
-  padding: 0.25em 0.35em;
+  padding: 0.25em 1.2em 0.25em 0.35em; /* right padding should be enough large to show scrollbar */
 }
 
-#search-engines li:hover {
+.search-engines li:hover {
   background: Highlight;
   color: HighlightText;
 }
 
-#search-engines li.active {
+.search-engines li.active {
   background: Highlight;
   color: HighlightText;
 }
@@ -65,12 +85,11 @@ body {
 .favicon {
   max-height: 16px;
   max-width: 16px;
-  width: 16px;
+  min-width: 16px;
 }
 
 .label {
   flex-grow: 1;
   margin-left: 0.25em;
-  text-overflow: elipsis;
-  white-space: pre;
+  white-space: nowrap;
 }
