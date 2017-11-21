@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.0.1 (2017.11.21)
+   * Use background and foreground color same to Photon. This is required to avoid ghost rendering with missing background color on some environment. (I confirmed on Windows 10.)
  - 2.0.0 (2017.11.21)
    * Rebuilt on WebExtensions, as a custom search field addon for bookmarks with keyword.
  - 1.0.2016020401
