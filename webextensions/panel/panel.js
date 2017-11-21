@@ -80,13 +80,11 @@ window.addEventListener('pagehide', () => {
 function onKeyPress(aEvent) {
   if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
       aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
-    let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
-    let openWindow = aEvent.shiftKey;
     let engine = null;
     if (gLastOperatedBy == kOPERATED_BY_MOUSE || !getActiveEngine())
       engine = document.querySelector('li:hover');
     doSearch({
-      where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn,
+      where: whereToOpenIn(aEvent),
       save:  true,
       engine
     });
@@ -156,6 +154,23 @@ function onKeyPress(aEvent) {
   }
 }
 
+function whereToOpenIn(aEvent) {
+  if (aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey)
+    return kOPEN_IN_TAB;
+
+  if (aEvent.shiftKey)
+    return kOPEN_IN_WINDOW;
+
+  if (configs.recycleBlankCurrentTab &&
+      configs.defaultOpenIn == kOPEN_IN_TAB &&
+      (gCurrentTab.url == 'about:blank' ||
+       (configs.recycleTabUrlPattern &&
+        new RegExp(configs.recycleTabUrlPattern).test(gCurrentTab.url))))
+    return kOPEN_IN_CURRENT;
+
+  return configs.defaultOpenIn;
+}
+
 function onEngineClick(aEvent) {
   var engine = aEvent.target;
   while (engine.nodeType != Node.ELEMENT_NODE || !engine.hasAttribute('data-id')) {
@@ -163,10 +178,8 @@ function onEngineClick(aEvent) {
   }
   switch (aEvent.button) {
     case 0:
-      let openTab = aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey;
-      let openWindow = aEvent.shiftKey;
       doSearch({
-        where: openTab ? kOPEN_IN_TAB : openWindow ? kOPEN_IN_WINDOW : configs.defaultOpenIn,
+        where: whereToOpenIn(aEvent),
         engine
       });
       break;
