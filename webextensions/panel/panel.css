@@ -24,15 +24,23 @@ body {
   min-width: 10em;
 }
 
+#search-engines-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  margin: 0;
+  max-height: 15em;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 0;
+}
+
 #search-engines {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   list-style: none;
   margin: 0;
-  max-height: 15em;
-  overflow-x: hidden;
-  overflow-y: auto;
   padding: 0;
 }
 

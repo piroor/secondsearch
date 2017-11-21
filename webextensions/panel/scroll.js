@@ -11,11 +11,11 @@ function scrollTo(aParams = {}) {
     return smoothScrollTo(aParams);
 
   if (aParams.engine)
-    gEngines.scrollTop += calculateScrollDeltaForItem(aParams.engine);
+    gContainer.scrollTop += calculateScrollDeltaForItem(aParams.engine);
   else if (typeof aParams.position == 'number')
-    gEngines.scrollTop = aParams.position;
+    gContainer.scrollTop = aParams.position;
   else if (typeof aParams.delta == 'number')
-    gEngines.scrollTop += aParams.delta;
+    gContainer.scrollTop += aParams.delta;
   else
     throw new Error('No parameter to indicate scroll position');
 }
@@ -27,7 +27,7 @@ function cancelRunningScroll() {
 
 function calculateScrollDeltaForItem(aItem) {
   var itemRect      = aItem.getBoundingClientRect();
-  var containerRect = gEngines.getBoundingClientRect();
+  var containerRect = gContainer.getBoundingClientRect();
   var offset        = smoothScrollTo.currentOffset;
   var delta         = 0;
   if (containerRect.bottom < itemRect.bottom + offset) { // should scroll down
@@ -50,7 +50,7 @@ async function smoothScrollTo(aParams = {}) {
 
   smoothScrollTo.stopped = false;
 
-  var startPosition = gEngines.scrollTop;
+  var startPosition = gContainer.scrollTop;
   var delta, endPosition;
   if (aParams.tab) {
     delta       = calculateScrollDeltaForItem(aParams.tab);
@@ -134,7 +134,7 @@ async function scrollToItem(aItem, aOptions = {}) {
     return;
 
   scrollTo(clone(aOptions, {
-    position: gEngines.scrollTop + calculateScrollDeltaForItem(aItem)
+    position: gContainer.scrollTop + calculateScrollDeltaForItem(aItem)
   }));
 }
 

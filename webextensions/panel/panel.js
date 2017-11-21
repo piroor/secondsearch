@@ -8,6 +8,7 @@
 gLogContext = 'Panel';
 
 var gField;
+var gContainer;
 var gEngines;
 var gPageSelection;
 var gCurrentTab;
@@ -15,6 +16,7 @@ var gLastOperatedBy = null;
 
 window.addEventListener('DOMContentLoaded', async () => {
   gField = document.querySelector('#search-field');
+  gContainer = document.querySelector('#search-engines-container');
   gEngines = document.querySelector('#search-engines');
   await buildEngines();
   focusToField();
