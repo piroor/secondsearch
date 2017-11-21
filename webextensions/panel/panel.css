@@ -4,7 +4,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
+:root {
+  /* https://dxr.mozilla.org/mozilla-central/rev/b056526be38e96b3e381b7e90cd8254ad1d96d9d/browser/themes/windows/browser.css#45 */
+  --toolbar-non-lwt-bgcolor: #f9f9fa;
+  --toolbar-non-lwt-textcolor: #0c0c0d;
+}
+
 body {
+  background: var(--toolbar-non-lwt-bgcolor);
+  color: var(--toolbar-non-lwt-textcolor);
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -107,11 +115,7 @@ body {
   padding: 0.25em 1.2em 0.25em 0.35em; /* right padding should be enough large to show scrollbar */
 }
 
-.search-engines li:hover {
-  background: Highlight;
-  color: HighlightText;
-}
-
+.search-engines li:hover,
 .search-engines li.active {
   background: Highlight;
   color: HighlightText;
