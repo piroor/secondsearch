@@ -26,11 +26,11 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   gRecentlyUsedEngines = document.querySelector('#search-engines-by-recently-used');
   gAllEngines          = document.querySelector('#search-engines-by-name');
-  gActiveEngines       = gRecentlyUsedEngines;
   gEnginesSwitchers = {
     toRecentlyUsed: document.querySelector('#switch-to-recently-used'),
     toAll:          document.querySelector('#switch-to-all')
   };
+  switchToRecentlyUsedEngines();
 }, { once: true });
 
 window.addEventListener('pageshow', async () => {
