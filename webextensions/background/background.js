@@ -113,10 +113,27 @@ const SearchEngines = {
       this.cachedEnginesById[aId].title = aChangeInfo.title;
       this.updateCache();
     }
+  },
+
+  cleanupMissingEngines: async function() {
+    var ids = Object.keys(this.cachedEnginesById);
+    var bookmarks = await Promise.all(ids.map(aId => browser.bookmarks.get(aId).catch(aError => null)));
+    if (bookmarks.length > 0) {
+      if (Array.isArray(bookmarks[0]))
+        bookmarks = Array.prototype.concat.apply([], bookmarks);
+    }
+    if (ids.length < bookmarks.length) {
+      bookmarks = bookmarks.map(aBookmark => aBookmark.id);
+      for (let id of ids) {
+        if (bookmarks.indexOf(id) < 0)
+          delete this.cachedEnginesById[id];
+      }
+      configs.cachedEnginesById = this.cachedEnginesById;
+    }
   }
 };
 
-configs.$loaded.then(() => {
+configs.$loaded.then(async () => {
   configs.lastSearchTerm = '';
   browser.bookmarks.onCreated.addListener(SearchEngines.onBookmarkCreated.bind(SearchEngines));
   browser.bookmarks.onRemoved.addListener(SearchEngines.onBookmarkRemoved.bind(SearchEngines));
@@ -128,6 +145,7 @@ configs.$loaded.then(() => {
   else {
     log('restore engines');
     SearchEngines.cachedEnginesById = configs.cachedEnginesById || {};
+    await SearchEngines.cleanupMissingEngines();
     SearchEngines.recentlyUsedEngines = configs.recentlyUsedEngines || [];
     SearchEngines.updateCache();
   }
