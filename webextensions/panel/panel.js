@@ -54,8 +54,14 @@ window.addEventListener('pageshow', async () => {
   await Promise.all([
     (async () => {
       var recentlyUsedEngines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
+      if (recentlyUsedEngines.length == 0) {
+        document.documentElement.classList.add('no-engine');
+      }
+      else {
+        document.documentElement.classList.remove('no-engine');
       buildEngines(recentlyUsedEngines, gRecentlyUsedEngines);
       buildEngines(recentlyUsedEngines.sort((aA, aB) => aA.title > aB.title), gAllEngines);
+      }
     })(),
     updateUIForCurrentTab()
   ]);

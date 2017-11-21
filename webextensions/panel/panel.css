@@ -11,6 +11,17 @@ body {
   line-height: 1;
 }
 
+#description {
+  display: none;
+  line-height: 1.5;
+  margin: 0.5em;
+}
+
+:root.no-engine #description {
+  display: block;
+  max-width: 30em;
+}
+
 #search-field-container {
   display: flex;
   flex-direction: row;
@@ -39,6 +50,10 @@ body {
   background: Highlight;
   color: HighlightText;
   opacity: 1;
+}
+
+:root.no-engine #search-engines-container {
+  display: none;
 }
 
 #search-engines-container {

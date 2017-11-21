@@ -7,9 +7,10 @@
 
   "searchField.placeholder": { "message": "キーワード検索" },
 
-  "switchToRecentlyUsed.tooltip": { "message": "エンジン一覧を最近使った順に切り替える（Ctrl/⌘-←）" },
-  "switchToAll.tooltip": { "message": "エンジン一覧を名前順に切り替える（Ctrl/⌘-→）" },
+  "switchToRecentlyUsed.tooltip": { "message": "一覧を最近使った順に切り替える（Ctrl/⌘-←）" },
+  "switchToAll.tooltip": { "message": "一覧を名前順に切り替える（Ctrl/⌘-→）" },
 
+  "howToAdd.description": { "message": "キーワード検索用のブックマーク項目がありません。Webページ上の検索ボックスで右クリックして「この検索にキーワードを設定」を選択してブックマークを作成するか、検索語句のプレースホルダとなる「%s」をURLに含めてブックマークを作成すると、この画面から直接検索できるようになります。" },
 
   "config.defaultOpenIn.caption": { "message": "検索結果の既定の開き方" },
   "config.defaultOpenIn.current": { "message": "現在のタブに読み込む" },
