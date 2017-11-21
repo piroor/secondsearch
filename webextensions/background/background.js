@@ -125,17 +125,22 @@ const SearchEngines = {
   },
 
   cleanupMissingEngines: async function() {
-    var ids = Object.keys(this.cachedEnginesById);
+    log('cleanupMissingEngines');
+    var ids = Object.keys(this.cachedEnginesById).sort();
+    log('ids: ', ids);
     var bookmarks = await Promise.all(ids.map(aId => browser.bookmarks.get(aId).catch(aError => null)));
     if (bookmarks.length > 0) {
       if (Array.isArray(bookmarks[0]))
         bookmarks = Array.prototype.concat.apply([], bookmarks);
+      bookmarks = bookmarks.filter(aBookmark => !!aBookmark).map(aBookmark => aBookmark.id).sort();
     }
-    if (ids.length < bookmarks.length) {
-      bookmarks = bookmarks.map(aBookmark => aBookmark.id);
+    log('actual bookmarks: ', bookmarks);
+    if (ids.join('\n') != bookmarks.join('\n')) {
       for (let id of ids) {
-        if (bookmarks.indexOf(id) < 0)
-          delete this.cachedEnginesById[id];
+        if (bookmarks.indexOf(id) > -1)
+          continue;
+        log('delete ', id);
+        delete this.cachedEnginesById[id];
       }
       configs.cachedEnginesById = this.cachedEnginesById;
     }
