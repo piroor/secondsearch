@@ -90,63 +90,63 @@ function onKeyPress(aEvent) {
     !aEvent.shiftKey &&
     !aEvent.metaKey
   );
-    var activeItem = getActiveEngine();
-    switch (aEvent.keyCode) {
-      case KeyEvent.DOM_VK_ESCAPE:
-        if (noModifiers)
-          window.close();
-        return;
+  var activeItem = getActiveEngine();
+  switch (aEvent.keyCode) {
+    case KeyEvent.DOM_VK_ESCAPE:
+      if (noModifiers)
+        window.close();
+      return;
 
-      case KeyEvent.DOM_VK_LEFT:
-        if (!aEvent.altKey &&
-            (aEvent.ctrlKey || aEvent.metaKey) &&
-            !aEvent.shiftKey) {
-          gContainer.classList.remove('by-name');
-          gActiveEngines = gRecentlyUsedEngines;
-        }
-        return;
+    case KeyEvent.DOM_VK_LEFT:
+      if (!aEvent.altKey &&
+          (aEvent.ctrlKey || aEvent.metaKey) &&
+          !aEvent.shiftKey) {
+        gContainer.classList.remove('by-name');
+        gActiveEngines = gRecentlyUsedEngines;
+      }
+      return;
 
-      case KeyEvent.DOM_VK_RIGHT:
-        if (!aEvent.altKey &&
-            (aEvent.ctrlKey || aEvent.metaKey) &&
-            !aEvent.shiftKey) {
-          gContainer.classList.add('by-name');
-          gActiveEngines = gAllEngines;
-        }
-        return;
+    case KeyEvent.DOM_VK_RIGHT:
+      if (!aEvent.altKey &&
+          (aEvent.ctrlKey || aEvent.metaKey) &&
+          !aEvent.shiftKey) {
+        gContainer.classList.add('by-name');
+        gActiveEngines = gAllEngines;
+      }
+      return;
 
-      case KeyEvent.DOM_VK_UP:
-        if (!noModifiers)
-          return;
-        gLastOperatedBy = kOPERATED_BY_KEY;
-        if (activeItem) {
-          activeItem.classList.remove('active');
-          let item = (activeItem.previousSibling || activeItem.parentNode.lastChild);
-          item.classList.add('active');
-          scrollToItem(item);
-        }
-        else if (gActiveEngines.hasChildNodes()) {
-          gActiveEngines.lastChild.classList.add('active');
-          scrollToItem(gActiveEngines.lastChild);
-        }
+    case KeyEvent.DOM_VK_UP:
+      if (!noModifiers)
         return;
+      gLastOperatedBy = kOPERATED_BY_KEY;
+      if (activeItem) {
+        activeItem.classList.remove('active');
+        let item = (activeItem.previousSibling || activeItem.parentNode.lastChild);
+        item.classList.add('active');
+        scrollToItem(item);
+      }
+      else if (gActiveEngines.hasChildNodes()) {
+        gActiveEngines.lastChild.classList.add('active');
+        scrollToItem(gActiveEngines.lastChild);
+      }
+      return;
 
-      case KeyEvent.DOM_VK_DOWN:
-        if (!noModifiers)
-          return;
-        gLastOperatedBy = kOPERATED_BY_KEY;
-        if (activeItem) {
-          activeItem.classList.remove('active');
-          let item = (activeItem.nextSibling || activeItem.parentNode.firstChild);
-          item.classList.add('active');
-          scrollToItem(item);
-        }
-        else if (gActiveEngines.hasChildNodes()) {
-          gActiveEngines.firstChild.classList.add('active');
-          scrollToItem(gActiveEngines.firstChild);
-        }
+    case KeyEvent.DOM_VK_DOWN:
+      if (!noModifiers)
         return;
-    }
+      gLastOperatedBy = kOPERATED_BY_KEY;
+      if (activeItem) {
+        activeItem.classList.remove('active');
+        let item = (activeItem.nextSibling || activeItem.parentNode.firstChild);
+        item.classList.add('active');
+        scrollToItem(item);
+      }
+      else if (gActiveEngines.hasChildNodes()) {
+        gActiveEngines.firstChild.classList.add('active');
+        scrollToItem(gActiveEngines.firstChild);
+      }
+      return;
+  }
 }
 
 function onClick(aEvent) {
