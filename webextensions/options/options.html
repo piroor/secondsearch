@@ -14,6 +14,43 @@
     <link rel="stylesheet" type="text/css" href="options.css"/>
   </head>
   <body>
+
+    <fieldset>
+      <legend>__MSG_config.defaultOpenIn.caption__</legend>
+      <ul>
+        <li><label><input type="radio"
+                          name="defaultOpenIn" value="0">
+              __MSG_config.defaultOpenIn.current__</label></li>
+        <li><label><input type="radio"
+                          name="defaultOpenIn" value="1">
+              __MSG_config.defaultOpenIn.tab__</label>
+            <p class="sub">
+              <label><input id="recycleBlankCurrentTab"
+                            type="checkbox">
+                     __MSG_config.recycleBlankCurrentTab.label__</label></p>
+            <p class="sub">
+              <label>__MSG_config.recycleTabUrlPattern.label__
+                     <input id="recycleTabUrlPattern"
+                            type="text"
+                            size="30"></label></p></li>
+        <li><label><input type="radio"
+                          name="defaultOpenIn" value="2">
+              __MSG_config.defaultOpenIn.window__</label></li>
+      </ul>
+    </fieldset>
+
+    <p><label>__MSG_config.defaultEngine.label__
+              <input id="defaultEngine"
+                     type="text"
+                     size="30"></label></p>
+    <p><label>__MSG_config.favIconProvider.label__
+              <input id="favIconProvider"
+                     type="text"
+                     size="30"></label></p>
+    <p><label><input id="clearFieldAfterSearch"
+                     type="checkbox">
+             __MSG_config.clearFieldAfterSearch.label__</label></p>
+
     <h1>__MSG_config.debug.caption__</h1>
     <p><label><input id="debug"
                      type="checkbox">

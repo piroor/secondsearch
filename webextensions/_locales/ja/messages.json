@@ -1,6 +1,6 @@
 {
   "extensionName": { "message": "セカンドサーチ" },
-  "extensionDescription": { "message": "" },
+  "extensionDescription": { "message": "スマートキーワード（ブックマークキーワード）用の検索ボックスを提供します。" },
 
   "panelTitle": { "message": "キーワード検索" },
   "commandDescription": { "message": "キーワード検索" },
@@ -10,6 +10,16 @@
   "switchToRecentlyUsed.tooltip": { "message": "エンジン一覧を最近使った順に切り替える（Ctrl/⌘-←）" },
   "switchToAll.tooltip": { "message": "エンジン一覧を名前順に切り替える（Ctrl/⌘-→）" },
 
+
+  "config.defaultOpenIn.caption": { "message": "検索結果の既定の開き方" },
+  "config.defaultOpenIn.current": { "message": "現在のタブに読み込む" },
+  "config.defaultOpenIn.tab":     { "message": "新しいタブを開く" },
+  "config.defaultOpenIn.window":  { "message": "新しいウィンドウを開く" },
+  "config.recycleBlankCurrentTab.label": { "message": "現在のタブが空の時は、新しいタブを開かず現在のタブに読み込む" },
+  "config.recycleTabUrlPattern.label": { "message": "URIが以下の正規表現に当てはまるタブも空のタブと見なす:" },
+  "config.defaultEngine.label": { "message": "何も項目が選択されていない時に使う既定の検索エンジン（URI中の「%s」が検索語句に置き換わります）:" },
+  "config.favIconProvider.label": { "message": "アイコンの取得先（URI中の「%s」がブックマークのURIのオリジン部分に置き換わります）:" },
+  "config.clearFieldAfterSearch.label": { "message": "検索を実行したら検索語句を空にする" },
 
   "config.debug.caption": { "message": "開発用" },
   "config.debug.label": { "message": "デバッグモード" },
