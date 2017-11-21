@@ -103,6 +103,7 @@ function onKeyPress(aEvent) {
           !aEvent.shiftKey) {
         gContainer.classList.remove('by-name');
         gActiveEngines = gRecentlyUsedEngines;
+        scrollTo({ position: 0, justNow: true });
       }
       return;
 
@@ -112,6 +113,7 @@ function onKeyPress(aEvent) {
           !aEvent.shiftKey) {
         gContainer.classList.add('by-name');
         gActiveEngines = gAllEngines;
+        scrollTo({ position: 0, justNow: true });
       }
       return;
 
