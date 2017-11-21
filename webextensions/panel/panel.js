@@ -13,6 +13,7 @@ var gContainer;
 var gRecentlyUsedEngines;
 var gAllEngines;
 var gActiveEngines;
+var gEnginesSwitchers;
 var gPageSelection;
 var gCurrentTab;
 var gLastOperatedBy = null;
@@ -26,12 +27,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   gRecentlyUsedEngines = document.querySelector('#search-engines-by-recently-used');
   gAllEngines          = document.querySelector('#search-engines-by-name');
   gActiveEngines       = gRecentlyUsedEngines;
+  gEnginesSwitchers = {
+    toRecentlyUsed: document.querySelector('#switch-to-recently-used'),
+    toAll:          document.querySelector('#switch-to-all')
+  };
 }, { once: true });
 
 window.addEventListener('pageshow', async () => {
   document.addEventListener('keypress', onKeyPress, { capture: true });
-  gContainer.addEventListener('mouseup', onClick, { capture: true });
+  gContainer.addEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.addEventListener('mousemove', onMouseMove);
+  gEnginesSwitchers.toRecentlyUsed.addEventListener('click', onSwitcherClick, { capture: true });
+  gEnginesSwitchers.toAll.addEventListener('click', onSwitcherClick, { capture: true });
 
   gContainer.classList.add('building');
 
@@ -63,8 +70,10 @@ window.addEventListener('pageshow', async () => {
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('keypress', onKeyPress, { capture: true });
-  gContainer.removeEventListener('mouseup', onClick, { capture: true });
+  gContainer.removeEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.removeEventListener('mousemove', onMouseMove);
+  gEnginesSwitchers.toRecentlyUsed.removeEventListener('click', onSwitcherClick, { capture: true });
+  gEnginesSwitchers.toAll.removeEventListener('click', onSwitcherClick, { capture: true });
 }, { once: true });
 
 
@@ -101,9 +110,7 @@ function onKeyPress(aEvent) {
       if (!aEvent.altKey &&
           (aEvent.ctrlKey || aEvent.metaKey) &&
           !aEvent.shiftKey) {
-        gContainer.classList.remove('by-name');
-        gActiveEngines = gRecentlyUsedEngines;
-        scrollTo({ position: 0, justNow: true });
+        switchToRecentlyUsedEngines();
       }
       return;
 
@@ -111,9 +118,7 @@ function onKeyPress(aEvent) {
       if (!aEvent.altKey &&
           (aEvent.ctrlKey || aEvent.metaKey) &&
           !aEvent.shiftKey) {
-        gContainer.classList.add('by-name');
-        gActiveEngines = gAllEngines;
-        scrollTo({ position: 0, justNow: true });
+        switchToAllEngines();
       }
       return;
 
@@ -151,7 +156,7 @@ function onKeyPress(aEvent) {
   }
 }
 
-function onClick(aEvent) {
+function onEngineClick(aEvent) {
   var engine = aEvent.target;
   while (engine.nodeType != Node.ELEMENT_NODE || !engine.hasAttribute('data-id')) {
     engine = engine.parentNode;
@@ -178,12 +183,41 @@ function onClick(aEvent) {
   }
 }
 
+function onSwitcherClick(aEvent) {
+  switch (aEvent.currentTarget.id) {
+    case 'switch-to-recently-used':
+      switchToRecentlyUsedEngines();
+      gField.focus();
+      return;
+
+    case 'switch-to-all':
+      switchToAllEngines();
+      gField.focus();
+      return;
+
+    default:
+      return;
+  }
+}
+
 function onMouseMove(aEvent) {
   gLastOperatedBy = kOPERATED_BY_MOUSE;
 }
 
 function getActiveEngine() {
   return gActiveEngines.querySelector('li.active');
+}
+
+function switchToRecentlyUsedEngines() {
+  document.documentElement.classList.remove('by-name');
+  gActiveEngines = gRecentlyUsedEngines;
+  scrollTo({ position: 0, justNow: true });
+}
+
+function switchToAllEngines() {
+  document.documentElement.classList.add('by-name');
+  gActiveEngines = gAllEngines;
+  scrollTo({ position: 0, justNow: true });
 }
 
 async function updateUIForCurrentTab() {

@@ -7,6 +7,9 @@
 
   "searchField.placeholder": { "message": "キーワード検索" },
 
+  "switchToRecentlyUsed.tooltip": { "message": "エンジン一覧を最近使った順に切り替える（Ctrl/⌘-←）" },
+  "switchToAll.tooltip": { "message": "エンジン一覧を名前順に切り替える（Ctrl/⌘-→）" },
+
 
   "config.debug.caption": { "message": "開発用" },
   "config.debug.label": { "message": "デバッグモード" },

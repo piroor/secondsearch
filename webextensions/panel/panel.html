@@ -15,11 +15,19 @@
     <style type="text/css" id="variables"></style>
   </head>
   <body>
-    <p id="search-field-container"><input id="search-field"
+    <p id="search-field-container">
+      <input id="search-field"
                                           type="text"
                                           autofocus="true"
                                           autocomplete="on"
-                                          placeholder="__MSG_searchField.placeholder__"></p>
+                                          placeholder="__MSG_searchField.placeholder__">
+      <span id="switch-to-recently-used"
+            class="search-engines-switcher"
+            title="__MSG_switchToRecentlyUsed.tooltip__">&lt;</span>
+      <span id="switch-to-all"
+            class="search-engines-switcher"
+            title="__MSG_switchToAll.tooltip__">&gt;</span>
+    </p>
     <div id="search-engines-container">
       <ul id="search-engines-by-recently-used"
           class="search-engines"></ul>

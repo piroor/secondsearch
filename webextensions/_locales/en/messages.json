@@ -7,6 +7,9 @@
 
   "searchField.placeholder": { "message": "Search with Keyword" },
 
+  "switchToRecentlyUsed.tooltip": { "message": "Switch to engines ordeded by Recently Used (Ctrl/⌘ - ←)" },
+  "switchToAll.tooltip": { "message": "Switch to engines ordeded by Name (Ctrl/⌘ - →)" },
+
 
   "config.debug.caption": { "message": "Development" },
   "config.debug.label": { "message": "Debug mode" },
