@@ -11,7 +11,8 @@
     "storage"
   ],
   "icons": {
-    "32": "resources/icon.png"
+    "16": "resources/16x16-light.svg",
+    "32": "resources/32x32-light.svg"
   },
   "background": {
     "scripts": [
@@ -24,7 +25,8 @@
   "browser_action": {
     "default_title": "__MSG_panelTitle__",
     "default_icon": {
-      "32": "resources/icon.png"
+      "16": "resources/16x16-light.svg",
+      "32": "resources/32x32-light.svg"
     },
     "browser_style": true,
     "default_popup": "panel/panel.html"
