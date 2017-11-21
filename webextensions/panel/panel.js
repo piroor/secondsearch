@@ -179,8 +179,11 @@ function whereToOpenIn(aEvent) {
 
 function onEngineClick(aEvent) {
   var engine = aEvent.target;
-  while (engine.nodeType != Node.ELEMENT_NODE || !engine.hasAttribute('data-id')) {
+  while (engine.nodeType != Node.ELEMENT_NODE ||
+         !engine.hasAttribute('data-id')) {
     engine = engine.parentNode;
+    if (!engine)
+      return;
   }
   switch (aEvent.button) {
     case 0:
