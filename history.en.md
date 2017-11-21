@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.0.0 (2017.11.21)
+   * Rebuilt on WebExtensions, as a custom search field addon for bookmarks with keyword.
  - 1.0.2016020401
    * Works correctly for search engines with some missing information (ex. favicon).
  - 1.0.2016020301
