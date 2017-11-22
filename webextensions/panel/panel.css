@@ -9,7 +9,7 @@
   --toolbar-non-lwt-bgcolor: #f9f9fa;
   --toolbar-non-lwt-textcolor: #0c0c0d;
 
-  --bouding-margin: 0.85em;
+  --bounding-margin: 0.85em;
 }
 
 body {
@@ -37,7 +37,7 @@ body {
   flex-direction: row;
   flex-wrap: nowrap;
   margin: 0 0 0.8em;
-  padding: var(--bouding-margin);
+  padding: var(--bounding-margin);
 }
 
 #search-field {
@@ -67,7 +67,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  margin: 0 0 var(--bouding-margin);
+  margin: 0 0 var(--bounding-margin);
   overflow: hidden;
   position: relative;
 }
@@ -115,7 +115,7 @@ body {
   flex-direction: row;
   flex-wrap: nowrap;
   margin: 0;
-  padding: 0.25em calc(var(--bouding-margin) + 0.5em) 0.25em var(--bouding-margin); /* right padding should be enough large to show scrollbar */
+  padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
 }
 
 .search-engines li:hover,
