@@ -41,6 +41,9 @@ body {
 }
 
 #search-field-and-search-button {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
   margin-right: 0.5em;
   position: relative;
 }
