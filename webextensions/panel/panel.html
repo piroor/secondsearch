@@ -16,11 +16,14 @@
   </head>
   <body>
     <p id="search-field-container">
-      <input id="search-field"
-                                          type="text"
-                                          autofocus="true"
-                                          autocomplete="on"
-                                          placeholder="__MSG_searchField.placeholder__">
+      <span id="search-field-and-search-button">
+        <input id="search-field"
+               type="text"
+               autofocus="true"
+               autocomplete="on"
+               placeholder="__MSG_searchField.placeholder__">
+        <button id="do-search-button">__MSG_doSearch.label__</button>
+      </span>
       <span id="switch-to-recently-used"
             class="search-engines-switcher"
             title="__MSG_switchToRecentlyUsed.tooltip__">&lt;</span>

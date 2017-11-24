@@ -9,6 +9,7 @@ gLogContext = 'Panel';
 
 var gStyleVariables;
 var gField;
+var gSearchButton;
 var gContainer;
 var gRecentlyUsedEngines;
 var gAllEngines;
@@ -22,6 +23,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   gStyleVariables = document.querySelector('#variables');
 
   gField = document.querySelector('#search-field');
+  gSearchButton = document.querySelector('#do-search-button');
   gContainer = document.querySelector('#search-engines-container');
 
   gRecentlyUsedEngines = document.querySelector('#search-engines-by-recently-used');
@@ -34,11 +36,17 @@ window.addEventListener('DOMContentLoaded', async () => {
 }, { once: true });
 
 window.addEventListener('pageshow', async () => {
+  document.addEventListener('paste', onPaste);
+  gField.addEventListener('keydown', onKeyDown, { capture: true });
+  gField.addEventListener('compositionstart', onComposition, { capture: true });
+  gField.addEventListener('compositionupdate', onComposition, { capture: true });
+  gField.addEventListener('compositionend', onComposition, { capture: true });
   document.addEventListener('keypress', onKeyPress, { capture: true });
   gContainer.addEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.addEventListener('mousemove', onMouseMove);
   gEnginesSwitchers.toRecentlyUsed.addEventListener('click', onSwitcherClick, { capture: true });
   gEnginesSwitchers.toAll.addEventListener('click', onSwitcherClick, { capture: true });
+  gSearchButton.addEventListener('click', onSearchButtonClick);
 
   document.documentElement.classList.add('building');
 
@@ -75,13 +83,40 @@ window.addEventListener('pageshow', async () => {
 }, { once: true });
 
 window.addEventListener('pagehide', () => {
+  document.removeEventListener('paste', onPaste);
+  gField.removeEventListener('keydown', onKeyDown, { capture: true });
+  gField.removeEventListener('compositionstart', onComposition, { capture: true });
+  gField.removeEventListener('compositionupdate', onComposition, { capture: true });
+  gField.removeEventListener('compositionend', onComposition, { capture: true });
   document.removeEventListener('keypress', onKeyPress, { capture: true });
   gContainer.removeEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.removeEventListener('mousemove', onMouseMove);
   gEnginesSwitchers.toRecentlyUsed.removeEventListener('click', onSwitcherClick, { capture: true });
   gEnginesSwitchers.toAll.removeEventListener('click', onSwitcherClick, { capture: true });
+  gSearchButton.removeEventListener('click', onSearchButtonClick);
 }, { once: true });
 
+
+var gLastKeyboardOperation = 0;
+
+function onPaste(aEvent) {
+  log('paste');
+  if (Date.now() - gLastKeyboardOperation > 200) {
+    gField.classList.add('pasted');
+  }
+}
+
+function onKeyDown(aEvent) {
+  log('keydown');
+  gLastKeyboardOperation = Date.now();
+  gField.classList.remove('pasted');
+}
+
+function onComposition(aEvent) {
+  log(aEvent.type);
+  gLastKeyboardOperation = Date.now();
+  gField.classList.remove('pasted');
+}
 
 function onKeyPress(aEvent) {
   if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
@@ -220,6 +255,11 @@ function onSwitcherClick(aEvent) {
     default:
       return;
   }
+}
+
+function onSearchButtonClick(aEvent) {
+  doSearch({ where: whereToOpenIn(aEvent) });
+  gField.classList.remove('pasted');
 }
 
 function onMouseMove(aEvent) {

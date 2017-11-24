@@ -6,6 +6,7 @@
   "commandDescription": { "message": "Search with Keyword" },
 
   "searchField.placeholder": { "message": "Search with Keyword" },
+  "doSearch.label": { "message": "Search" },
 
   "switchToRecentlyUsed.tooltip": { "message": "Switch to the view ordeded by Recently Used (Ctrl/⌘ - ←)" },
   "switchToAll.tooltip": { "message": "Switch to the view ordeded by Name (Ctrl/⌘ - →)" },
