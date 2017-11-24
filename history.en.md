@@ -1,6 +1,11 @@
 # History
 
  - master/HEAD
+ - 2.1.0 (2017.11.24)
+   * Add margin around UI to match Photon design.
+   * Search with Google by default correctly.
+   * "Search" button is available after copy and paste.
+   * Add ability to keep popup open after search. Moreover, if you do search with Ctrl or Command key, the popup is always kept open.
  - 2.0.1 (2017.11.21)
    * Use background and foreground color same to Photon. This is required to avoid ghost rendering with missing background color on some environment. (I confirmed on Windows 10.)
  - 2.0.0 (2017.11.21)
