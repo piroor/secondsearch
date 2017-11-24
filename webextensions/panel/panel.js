@@ -390,7 +390,7 @@ function addHistory(aTerm) {
   var index = history.indexOf(aTerm);
   if (index > -1) {
     history.splice(index, 1);
-    let item = gHistory.querySelector(`option[value=${JSON.strinfigy(aTerm)}]`);
+    let item = gHistory.querySelector(`option[value=${JSON.stringify(aTerm)}]`);
     if (item)
       gHistory.removeChild(item);
   }
