@@ -9,6 +9,7 @@ gLogContext = 'Panel';
 
 var gStyleVariables;
 var gField;
+var gHistory;
 var gSearchButton;
 var gContainer;
 var gRecentlyUsedEngines;
@@ -23,6 +24,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   gStyleVariables = document.querySelector('#variables');
 
   gField = document.querySelector('#search-field');
+  gHistory = document.querySelector('#search-history');
   gSearchButton = document.querySelector('#do-search-button');
   gContainer = document.querySelector('#search-engines-container');
 
@@ -34,6 +36,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   };
   switchToRecentlyUsedEngines();
 }, { once: true });
+
+configs.$loaded.then(() => {
+  for (let term of configs.history) {
+    let item = document.createElement('option');
+    item.setAttribute('value', term);
+    gHistory.appendChild(item);
+  }
+});
 
 window.addEventListener('pageshow', async () => {
   document.addEventListener('paste', onPaste);
@@ -49,6 +59,15 @@ window.addEventListener('pageshow', async () => {
   gSearchButton.addEventListener('click', onSearchButtonClick);
 
   document.documentElement.classList.add('building');
+
+  if (configs.autocomplete) {
+    gField.setAttribute('autocomplete', 'on');
+    gField.setAttribute('list', gHistory.id);
+  }
+  else {
+    gField.removeAttribute('autocomplete');
+    gField.removeAttribute('list');
+  }
 
   if (configs.clearFieldAfterSearch)
     gField.value = '';
@@ -166,6 +185,8 @@ function onKeyPress(aEvent) {
         gActiveEngines.lastChild.classList.add('active');
         scrollToItem(gActiveEngines.lastChild);
       }
+      aEvent.stopImmediatePropagation();
+      aEvent.stopPropagation();
       return;
 
     case KeyEvent.DOM_VK_DOWN:
@@ -182,6 +203,8 @@ function onKeyPress(aEvent) {
         gActiveEngines.firstChild.classList.add('active');
         scrollToItem(gActiveEngines.firstChild);
       }
+      aEvent.stopImmediatePropagation();
+      aEvent.stopPropagation();
       return;
   }
 }
@@ -326,7 +349,10 @@ async function doSearch(aParams = {}) {
   var url = item && item.getAttribute('data-url');
   if (!url)
     url = configs.defaultEngine;
-  url = url.replace(/%s/gi, gField.value || '');
+  var term = gField.value.trim();
+  url = url.replace(/%s/gi, term || '');
+  if (term)
+    addHistory(term);
   switch (aParams.where) {
     case kOPEN_IN_TAB: {
       let params = {
@@ -357,4 +383,21 @@ async function doSearch(aParams = {}) {
   else
     configs.lastSearchTerm = gField.value;
   window.close();
+}
+
+function addHistory(aTerm) {
+  var history = configs.history;
+  var index = history.indexOf(aTerm);
+  if (index > -1) {
+    history.splice(index, 1);
+    let item = gHistory.querySelector(`option[value=${JSON.strinfigy(aTerm)}]`);
+    if (item)
+      gHistory.removeChild(item);
+  }
+  history.unshift(aTerm);
+  let item = document.createElement('option');
+  item.setAttribute('value', aTerm);
+  gHistory.insertBefore(item, gHistory.firstChild);
+  history = history.slice(0, configs.maxHistoryCount);
+  configs.history = history;
 }

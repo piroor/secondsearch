@@ -57,6 +57,9 @@ function clone(aOriginalObject, aExtraProperties) {
 configs = new Configs({
   cachedEnginesById: null,
   recentlyUsedEngines: [],
+  autocomplete: false,
+  history: [],
+  maxHistoryCount: 100,
   clearFieldAfterSearch: true,
   lastSearchTerm: '',
   recycleBlankCurrentTab: true,
