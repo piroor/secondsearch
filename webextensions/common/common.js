@@ -62,7 +62,7 @@ configs = new Configs({
   recycleBlankCurrentTab: true,
   recycleTabUrlPattern: '^(about:(newtab|home))$',
   defaultOpenIn: kOPEN_IN_TAB,
-  defaultEngine: 'https://www.google.com/?q=%s',
+  defaultEngine: 'https://www.google.com/search?q=%s',
   favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
   focusDelay: 150,
   smoothScrollDuration: 150,
