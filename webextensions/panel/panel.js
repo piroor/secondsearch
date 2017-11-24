@@ -97,24 +97,15 @@ window.addEventListener('pagehide', () => {
 }, { once: true });
 
 
-var gLastKeyboardOperation = 0;
-
 function onPaste(aEvent) {
-  log('paste');
-  if (Date.now() - gLastKeyboardOperation > 200) {
-    gField.classList.add('pasted');
-  }
+  gField.classList.add('pasted');
 }
 
 function onKeyDown(aEvent) {
-  log('keydown');
-  gLastKeyboardOperation = Date.now();
   gField.classList.remove('pasted');
 }
 
 function onComposition(aEvent) {
-  log(aEvent.type);
-  gLastKeyboardOperation = Date.now();
   gField.classList.remove('pasted');
 }
 
