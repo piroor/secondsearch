@@ -134,11 +134,10 @@ function onKeyPress(aEvent) {
     let engine = null;
     if (gLastOperatedBy == kOPERATED_BY_MOUSE || !getActiveEngine())
       engine = document.querySelector('li:hover');
-    doSearch({
-      where: whereToOpenIn(aEvent),
+    doSearch(clone(searchParamsFromEvent(aEvent), {
       save:  true,
       engine
-    });
+    }));
     return;
   }
 
@@ -209,21 +208,34 @@ function onKeyPress(aEvent) {
   }
 }
 
-function whereToOpenIn(aEvent) {
-  if (aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey)
-    return kOPEN_IN_TAB;
+function searchParamsFromEvent(aEvent) {
+  var searchParams = {
+    where:        configs.defaultOpenIn,
+    keepOpen:     false,
+    inBackground: false
+  };
+  if (aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey) {
+    searchParams.where        = kOPEN_IN_TAB;
+    searchParams.keepOpen     = true;
+    searchParams.inBackground = true;
+    return searchParams;
+  }
 
-  if (aEvent.shiftKey)
-    return kOPEN_IN_WINDOW;
+  if (aEvent.shiftKey) {
+    searchParams.where = kOPEN_IN_WINDOW;
+    return searchParams;
+  }
 
   if (configs.recycleBlankCurrentTab &&
       configs.defaultOpenIn == kOPEN_IN_TAB &&
       (gCurrentTab.url == 'about:blank' ||
        (configs.recycleTabUrlPattern &&
-        new RegExp(configs.recycleTabUrlPattern).test(gCurrentTab.url))))
-    return kOPEN_IN_CURRENT;
+        new RegExp(configs.recycleTabUrlPattern).test(gCurrentTab.url)))) {
+    searchParams.where = kOPEN_IN_CURRENT;
+    return searchParams;
+  }
 
-  return configs.defaultOpenIn;
+  return searchParams;
 }
 
 function onEngineClick(aEvent) {
@@ -236,10 +248,9 @@ function onEngineClick(aEvent) {
   }
   switch (aEvent.button) {
     case 0:
-      doSearch({
-        where: whereToOpenIn(aEvent),
+      doSearch(clone(searchParamsFromEvent(aEvent), {
         engine
-      });
+      }));
       break;
 
     case 1:
@@ -272,7 +283,7 @@ function onSwitcherClick(aEvent) {
 }
 
 function onSearchButtonClick(aEvent) {
-  doSearch({ where: whereToOpenIn(aEvent) });
+  doSearch(searchParamsFromEvent(aEvent));
   gField.classList.remove('pasted');
 }
 
@@ -356,7 +367,7 @@ async function doSearch(aParams = {}) {
   switch (aParams.where) {
     case kOPEN_IN_TAB: {
       let params = {
-        active: true,
+        active: !aParams.inBackground,
         url
       };
       if (gPageSelection &&
@@ -378,10 +389,15 @@ async function doSearch(aParams = {}) {
       type: kCOMMAND_NOTIFY_SEARCH_ENGINE_USED,
       id:   item.getAttribute('data-id')
     });
+
+  if (!configs.closeAfterSearch || aParams.keepOpen)
+    return;
+
   if (configs.clearFieldAfterSearch)
     gField.value = '';
   else
     configs.lastSearchTerm = gField.value;
+
   window.close();
 }
 

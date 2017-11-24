@@ -62,6 +62,7 @@ configs = new Configs({
   maxHistoryCount: 100,
   clearFieldAfterSearch: true,
   lastSearchTerm: '',
+  closeAfterSearch: true,
   recycleBlankCurrentTab: true,
   recycleTabUrlPattern: '^(about:(newtab|home))$',
   defaultOpenIn: kOPEN_IN_TAB,
