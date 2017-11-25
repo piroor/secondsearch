@@ -64,7 +64,7 @@ configs = new Configs({
   lastSearchTerm: '',
   closeAfterSearch: true,
   recycleBlankCurrentTab: true,
-  recycleTabUrlPattern: '^(about:(newtab|home))$',
+  recycleTabUrlPattern: '^about:(newtab|home|privatebrowsing)$',
   defaultOpenIn: kOPEN_IN_TAB,
   defaultEngine: 'https://www.google.com/search?q=%s',
   favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
