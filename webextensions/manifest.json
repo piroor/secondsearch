@@ -29,7 +29,19 @@
       "32": "resources/32x32-light.svg"
     },
     "browser_style": true,
-    "default_popup": "panel/panel.html"
+    "default_popup": "panel/panel.html",
+    "theme_icons": [
+      {
+        "light": "resources/16x16-dark.svg",
+        "dark":  "resources/16x16-light.svg",
+        "size": 16
+      },
+      {
+        "light": "resources/32x32-dark.svg",
+        "dark":  "resources/32x32-light.svg",
+        "size": 32
+      }
+    ]
   },
   "commands": {
     "_execute_browser_action": {
