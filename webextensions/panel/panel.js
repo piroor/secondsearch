@@ -211,13 +211,11 @@ function onKeyPress(aEvent) {
 function searchParamsFromEvent(aEvent) {
   var searchParams = {
     where:        configs.defaultOpenIn,
-    keepOpen:     false,
-    inBackground: false
+    keepOpen:     false
   };
   if (aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey) {
-    searchParams.where        = kOPEN_IN_TAB;
-    searchParams.keepOpen     = true;
-    searchParams.inBackground = true;
+    searchParams.where    = configs.accelActionOpenIn;
+    searchParams.keepOpen = configs.accelActionOpenIn == kOPEN_IN_BACKGROUND_TAB;
     return searchParams;
   }
 
@@ -255,7 +253,8 @@ function onEngineClick(aEvent) {
 
     case 1:
       doSearch({
-        where: kOPEN_IN_TAB,
+        where:    configs.accelActionOpenIn,
+        keepOpen: configs.accelActionOpenIn == kOPEN_IN_BACKGROUND_TAB,
         engine
       });
       break;
@@ -365,9 +364,10 @@ async function doSearch(aParams = {}) {
   if (term)
     addHistory(term);
   switch (aParams.where) {
-    case kOPEN_IN_TAB: {
+    case kOPEN_IN_TAB:
+    case kOPEN_IN_BACKGROUND_TAB: {
       let params = {
-        active: !aParams.inBackground,
+        active: aParams.where != kOPEN_IN_BACKGROUND_TAB,
         url
       };
       if (gPageSelection &&

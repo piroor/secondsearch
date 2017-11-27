@@ -11,6 +11,7 @@ const kCOMMAND_NOTIFY_SEARCH_ENGINE_USED = 'secondsearch:search-engine-used';
 const kOPEN_IN_CURRENT = 0;
 const kOPEN_IN_TAB     = 1;
 const kOPEN_IN_WINDOW  = 2;
+const kOPEN_IN_BACKGROUND_TAB = 3;
 
 const kOPERATED_BY_KEY   = 0;
 const kOPERATED_BY_MOUSE = 1;
