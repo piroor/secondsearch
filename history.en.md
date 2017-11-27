@@ -1,6 +1,10 @@
 # History
 
  - master/HEAD
+ - 2.1.1 (2017.11.27)
+   * Expand search field to fill the width of the popup. (regression)
+   * Use white icon for the toolbar button on the "Dark" theme.
+   * Recycle `about:privatebrowsing` tab as a blank tab on a private browsing window.
  - 2.1.0 (2017.11.24)
    * Add margin around UI to match Photon design.
    * Search with Google by default correctly.
