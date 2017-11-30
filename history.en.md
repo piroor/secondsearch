@@ -1,9 +1,11 @@
 # History
 
  - master/HEAD
+ - 2.1.2 (2017.11.30)
    * Search results for actions with accel key (Ctrl or ⌘) is now configurable where to be opened in.
    * When the search field is filled by selected text in the current tab, the "Search" button is automatically shown like for pasted text.
-   * Selection in input field is now detected correctly.
+   * Selection text in any input field is now detected correctly.
+   * Add an option to deactivate "auto fill with selection text" behavior.
  - 2.1.1 (2017.11.27)
    * Expand search field to fill the width of the popup. (regression)
    * Use white icon for the toolbar button on the "Dark" theme.
