@@ -60,6 +60,7 @@ configs = new Configs({
   autocomplete: false,
   history: [],
   maxHistoryCount: 100,
+  fillFieldWithSelectionText: true,
   clearFieldAfterSearch: true,
   lastSearchTerm: '',
   closeAfterSearch: true,

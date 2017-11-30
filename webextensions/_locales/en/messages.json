@@ -24,6 +24,7 @@
   "config.recycleTabUrlPattern.label": { "message": "Recycle more tabs with URI matchis to following regular expression:" },
   "config.defaultEngine.label": { "message": "Default search engine when nothing item is selected (\"%s\" will be replaced to the search term):" },
   "config.favIconProvider.label": { "message": "Icon provider (\"%s\" will be replaced to the origin part of the bookmark's URI:" },
+  "config.fillFieldWithSelectionText.label": { "message": "Fill search term field with the selection text in the current tab" },
   "config.clearFieldAfterSearch.label": { "message": "Clear search term after search" },
   "config.closeAfterSearch.label": { "message": "Close popup after search" },
 
