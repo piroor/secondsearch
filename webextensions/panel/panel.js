@@ -312,7 +312,7 @@ async function updateUIForCurrentTab() {
       currentWindow: true,
       active: true
     }))[0];
-    if (configs.fillFieldWithSelectionText)
+    if (!configs.fillFieldWithSelectionText)
       return;
     gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, {
       code: `(() => {
