@@ -312,8 +312,8 @@ async function updateUIForCurrentTab() {
       currentWindow: true,
       active: true
     }))[0];
-    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: `
-      (() => {
+    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, {
+      code: `(() => {
         var selection = window.getSelection();
         if (selection.rangeCount > 0) {
           let selectionText = selection.toString().trim();
@@ -327,8 +327,9 @@ async function updateUIForCurrentTab() {
 
         var selectionText = (field.value || '').substring(field.selectionStart || 0, field.selectionEnd || 0);
         return selectionText.trim();
-      })();
-    ` });
+      })();`,
+      allFrames: true
+    });
     if (Array.isArray(gPageSelection))
       gPageSelection = gPageSelection.join('');
     gField.value = gPageSelection.trim();
