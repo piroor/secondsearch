@@ -312,6 +312,7 @@ async function updateUIForCurrentTab() {
       currentWindow: true,
       active: true
     }))[0];
+    // TODO: We should detect selection in input field also (not supported for now).
     gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: 'window.getSelection().toString()' });
     if (Array.isArray(gPageSelection))
       gPageSelection = gPageSelection.join('');
