@@ -315,8 +315,9 @@ async function updateUIForCurrentTab() {
     gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: 'window.getSelection().toString()' });
     if (Array.isArray(gPageSelection))
       gPageSelection = gPageSelection.join('');
-    gField.value = gPageSelection;
-    gField.classList.add('pasted');
+    gField.value = gPageSelection.trim();
+    if (gField.value != '')
+      gField.classList.add('pasted');
   }
   catch(e) {
     // if it is a special tab, we cannot execute script.
