@@ -312,8 +312,23 @@ async function updateUIForCurrentTab() {
       currentWindow: true,
       active: true
     }))[0];
-    // TODO: We should detect selection in input field also (not supported for now).
-    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: 'window.getSelection().toString()' });
+    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, { code: `
+      (() => {
+        var selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          let selectionText = selection.toString().trim();
+          if (selectionText != '')
+            return selectionText;
+        }
+
+        var field = document.activeElement;
+        if (!field || !field.matches('input, textarea'))
+          return '';
+
+        var selectionText = (field.value || '').substring(field.selectionStart || 0, field.selectionEnd || 0);
+        return selectionText.trim();
+      })();
+    ` });
     if (Array.isArray(gPageSelection))
       gPageSelection = gPageSelection.join('');
     gField.value = gPageSelection.trim();
