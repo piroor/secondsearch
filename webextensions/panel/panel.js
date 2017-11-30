@@ -316,6 +316,7 @@ async function updateUIForCurrentTab() {
     if (Array.isArray(gPageSelection))
       gPageSelection = gPageSelection.join('');
     gField.value = gPageSelection;
+    gField.classList.add('pasted');
   }
   catch(e) {
     // if it is a special tab, we cannot execute script.
