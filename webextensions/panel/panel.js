@@ -314,6 +314,9 @@ async function updateUIForCurrentTab() {
     }))[0];
     gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, {
       code: `(() => {
+        if (!document.hasFocus())
+          return '';
+
         var selection = window.getSelection();
         if (selection.rangeCount > 0) {
           let selectionText = selection.toString().trim();
