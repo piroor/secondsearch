@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+   * Search results for actions with accel key (Ctrl or ‚åò) is now configurable where to be opened in.
+   * When the search field is filled by selected text in the current tab, the "Search" button is automatically shown like for pasted text.
+   * Selection in input field is now detected correctly.
  - 2.1.1 (2017.11.27)
    * Expand search field to fill the width of the popup. (regression)
    * Use white icon for the toolbar button on the "Dark" theme.
@@ -69,7 +72,7 @@
    * Improved: Make compatible with [Searchbar Autosizer](https://addons.mozilla.org/firefox/addon/searchbar-autosizer/).
    * Improved: Make compatible with [Tab Control](https://addons.mozilla.org/firefox/addon/tab-control/).
    * Improved: Make compatible with [SearchLoad Options](https://addons.mozilla.org/firefox/addon/searchload-options/).
-   * Add Swedish locale (translated by Mikael Hiort af Ornè´£s)
+   * Add Swedish locale (translated by Mikael Hiort af Orn√§s)
  - 0.6.2011052802
    * Improved: Left-click and middle-click on the magnifier button in the search bar now work as you customized in Second Search configuration.
  - 0.6.2011052801
@@ -91,7 +94,7 @@
  - 0.5.2008111401
    * Fixed: It works correctly after you do "search" when the popup was going to be showing.
    * Modified: "by ..." disappeared from the popup.
-   * Updated: hu-HU locale is updated by Mikes Kaszmè´°n Istvè´°n.
+   * Updated: hu-HU locale is updated by Mikes Kaszm√°n Istv√°n.
  - 0.5.2008101401
    * Improved: Shift-Up/Down keys shows the Second Search popup, so, you can use Up/Down keys to select autocomplete item.
    * Improved: Escape key always closes the Second Search popup.
@@ -99,7 +102,7 @@
    * Fixed: Dropping text onto the menu item which is same to the current engine works correctly.
    * Fixed: Popup is correctly shown while dragging on the engine button even if drag-and-drop operation is allowed in the search box.
    * Updated: Works on Minefield 3.1b2pre.
-   * Updated: Hungarian locale is updated. (by Mikes Kaszmè´°n Istvè´°n)
+   * Updated: Hungarian locale is updated. (by Mikes Kaszm√°n Istv√°n)
  - 0.5.2008091601
    * Fixed: "Choose the engine from popup after dropped" works correctly.
  - 0.5.2008091501
@@ -107,7 +110,7 @@
    * Fixed: "Allow drag-and-drop of text in the textbox" works correctly.
  - 0.5.2008090201
    * Fixed: Freezing on finding favicons for smart keywords disappeared.
-   * Updated: Hungarian locale is updated. (by Mikes Kaszmè´°n Istvè´°n)
+   * Updated: Hungarian locale is updated. (by Mikes Kaszm√°n Istv√°n)
  - 0.5.2008090101
    * Improved: Second Search works on the location bar if there is no search bar.
    * Improved: Second Search shows its popup while dragging, for Firefox 3 on Mac OS X.
@@ -144,9 +147,9 @@
    * Fixed: Text in the search bar are cleared after a delay.
    * Fixed: Correctly searches by the engine selected from the popup even if it has no keyword.
  - 0.3.2007052201
-   * Updated: Hungarian locale is updated. (by Mikes Kaszmè´°n Istvè´°n)
+   * Updated: Hungarian locale is updated. (by Mikes Kaszm√°n Istv√°n)
  - 0.3.2007052101
-   * Added: Hungarian locale is available. (by Mikes Kaszmè´°n Istvè´°n)
+   * Added: Hungarian locale is available. (by Mikes Kaszm√°n Istv√°n)
  - 0.3.2007052001
    * Improved: Options to open search results in new tabs and focus it immidiately are available.
  - 0.3.2007051401
