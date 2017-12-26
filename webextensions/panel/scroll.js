@@ -133,7 +133,7 @@ async function scrollToItem(aItem, aOptions = {}) {
   if (scrollToItem.stopped)
     return;
 
-  scrollTo(clone(aOptions, {
+  scrollTo(Object.assign(aOptions, {
     position: gActiveEngines.scrollTop + calculateScrollDeltaForItem(aItem)
   }));
 }

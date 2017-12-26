@@ -134,7 +134,7 @@ function onKeyPress(aEvent) {
     let engine = null;
     if (gLastOperatedBy == kOPERATED_BY_MOUSE || !getActiveEngine())
       engine = document.querySelector('li:hover');
-    doSearch(clone(searchParamsFromEvent(aEvent), {
+    doSearch(Object.assign(searchParamsFromEvent(aEvent), {
       save:  true,
       engine
     }));
@@ -246,7 +246,7 @@ function onEngineClick(aEvent) {
   }
   switch (aEvent.button) {
     case 0:
-      doSearch(clone(searchParamsFromEvent(aEvent), {
+      doSearch(Object.assign(searchParamsFromEvent(aEvent), {
         engine
       }));
       break;
