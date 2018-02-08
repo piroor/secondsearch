@@ -49,6 +49,7 @@ configs = new Configs({
   maxHistoryCount: 100,
   fillFieldWithSelectionText: true,
   clearFieldAfterSearch: true,
+  clearFocusByInput: true,
   lastSearchTerm: '',
   closeAfterSearch: true,
   recycleBlankCurrentTab: true,

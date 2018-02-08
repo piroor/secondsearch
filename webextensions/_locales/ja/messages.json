@@ -25,6 +25,7 @@
   "config.favIconProvider.label": { "message": "アイコンの取得先（URI中の「%s」がブックマークのURIのオリジン部分に置き換わります）:" },
   "config.fillFieldWithSelectionText.label": { "message": "現在のタブで選択されている文字列を検索語句として自動入力する" },
   "config.clearFieldAfterSearch.label": { "message": "検索を実行したら検索語句を空にする" },
+  "config.clearFocusByInput.label": { "message": "入力を開始したら検索エンジンのフォーカス状態をリセットする" },
   "config.closeAfterSearch.label": { "message": "検索を実行したらポップアップを閉じる" },
 
   "config.debug.caption": { "message": "開発用" },

@@ -209,7 +209,7 @@ function onKeyPress(aEvent) {
 
 function onInput() {
   const oldActive = getActiveEngine();
-  if (oldActive)
+  if (oldActive && configs.clearFocusByInput)
     oldActive.classList.remove('active');
 }
 
