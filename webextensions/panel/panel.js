@@ -70,10 +70,15 @@ window.addEventListener('pageshow', async () => {
     gField.removeAttribute('list');
   }
 
-  if (configs.clearFieldAfterSearch)
+  if (configs.clearFieldAfterSearch &&
+      configs.lastSearchTime >= 0 &&
+      Date.now() - configs.lastSearchTime > configs.clearFieldAfterSearchDelay) {
     gField.value = '';
-  else
+  }
+  else {
     gField.value = configs.lastSearchTerm;
+    configs.lastSearchTime = -1;
+  }
 
   gPageSelection = null;
   gCurrentTab = null;
@@ -430,10 +435,8 @@ async function doSearch(aParams = {}) {
   if (!configs.closeAfterSearch || aParams.keepOpen)
     return;
 
-  if (configs.clearFieldAfterSearch)
-    gField.value = '';
-  else
-    configs.lastSearchTerm = gField.value;
+  configs.lastSearchTerm = gField.value;
+  configs.lastSearchTime = Date.now();
 
   window.close();
 }

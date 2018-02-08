@@ -24,7 +24,9 @@
   "config.defaultEngine.label": { "message": "何も項目が選択されていない時に使う既定の検索エンジン（URI中の「%s」が検索語句に置き換わります）:" },
   "config.favIconProvider.label": { "message": "アイコンの取得先（URI中の「%s」がブックマークのURIのオリジン部分に置き換わります）:" },
   "config.fillFieldWithSelectionText.label": { "message": "現在のタブで選択されている文字列を検索語句として自動入力する" },
-  "config.clearFieldAfterSearch.label": { "message": "検索を実行したら検索語句を空にする" },
+  "config.clearFieldAfterSearch.label": { "message": "検索の実行後に検索語句を空にする" },
+  "config.clearFieldAfterSearchDelay.before": { "message": "ただし、" },
+  "config.clearFieldAfterSearchDelay.after": { "message": "ミリ秒以内にもう一度検索しようとした場合を除く" },
   "config.clearFocusByInput.label": { "message": "入力を開始したら検索エンジンのフォーカス状態をリセットする" },
   "config.closeAfterSearch.label": { "message": "検索を実行したらポップアップを閉じる" },
 
