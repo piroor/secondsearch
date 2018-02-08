@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+   * Clear focus on search engine by starting input.
+   * Clear last search term with delay.
  - 2.1.2 (2017.11.30)
    * Search results for actions with accel key (Ctrl or ⌘) is now configurable where to be opened in.
    * When the search field is filled by selected text in the current tab, the "Search" button is automatically shown like for pasted text.
