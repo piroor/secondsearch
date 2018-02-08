@@ -355,7 +355,12 @@ async function updateUIForCurrentTab() {
     });
     if (Array.isArray(gPageSelection))
       gPageSelection = gPageSelection.join('');
-    gField.value = gPageSelection.trim();
+    gPageSelection = gPageSelection.trim();
+    if (gPageSelection != '') {
+      gField.value = gPageSelection;
+      configs.lastSearchTerm = '';
+      configs.lastSearchTime = 0;
+    }
     if (gField.value != '')
       gField.classList.add('pasted');
   }
