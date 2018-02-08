@@ -52,6 +52,7 @@ window.addEventListener('pageshow', async () => {
   gField.addEventListener('compositionupdate', onComposition, { capture: true });
   gField.addEventListener('compositionend', onComposition, { capture: true });
   document.addEventListener('keypress', onKeyPress, { capture: true });
+  gField.addEventListener('input', onInput);
   gContainer.addEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.addEventListener('mousemove', onMouseMove);
   gEnginesSwitchers.toRecentlyUsed.addEventListener('click', onSwitcherClick, { capture: true });
@@ -108,6 +109,7 @@ window.addEventListener('pagehide', () => {
   gField.removeEventListener('compositionupdate', onComposition, { capture: true });
   gField.removeEventListener('compositionend', onComposition, { capture: true });
   document.removeEventListener('keypress', onKeyPress, { capture: true });
+  gField.removeEventListener('input', onInput);
   gContainer.removeEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.removeEventListener('mousemove', onMouseMove);
   gEnginesSwitchers.toRecentlyUsed.removeEventListener('click', onSwitcherClick, { capture: true });
@@ -131,12 +133,9 @@ function onComposition(aEvent) {
 function onKeyPress(aEvent) {
   if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
       aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
-    let engine = null;
-    if (gLastOperatedBy == kOPERATED_BY_MOUSE || !getActiveEngine())
-      engine = document.querySelector('li:hover');
     doSearch(Object.assign(searchParamsFromEvent(aEvent), {
-      save:  true,
-      engine
+      save:   true,
+      engine: getActiveEngine()
     }));
     return;
   }
@@ -206,6 +205,12 @@ function onKeyPress(aEvent) {
       aEvent.stopPropagation();
       return;
   }
+}
+
+function onInput() {
+  const oldActive = getActiveEngine();
+  if (oldActive)
+    oldActive.classList.remove('active');
 }
 
 function searchParamsFromEvent(aEvent) {
@@ -288,6 +293,14 @@ function onSearchButtonClick(aEvent) {
 
 function onMouseMove(aEvent) {
   gLastOperatedBy = kOPERATED_BY_MOUSE;
+  const hoverEngine = aEvent.target.closest('.search-engines li');
+  if (!hoverEngine)
+    return;
+
+  const oldActive = getActiveEngine();
+  if (oldActive)
+    oldActive.classList.remove('active');
+  hoverEngine.classList.add('active');
 }
 
 function getActiveEngine() {

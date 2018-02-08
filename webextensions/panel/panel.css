@@ -136,7 +136,6 @@ body {
   padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
 }
 
-.search-engines li:hover,
 .search-engines li.active {
   background: Highlight;
   color: HighlightText;
