@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 2.1.3 (2018.2.8)
    * Clear focus on search engine by starting input.
    * Clear last search term with delay.
  - 2.1.2 (2017.11.30)
