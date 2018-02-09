@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 2.1.4 (2018.2.9)
+   * Synchronize configurations via Firefox Sync.
+   * Reformat keys of localized messages matching to the [spec](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/i18n/Locale-Specific_Message_reference#Member_details).
  - 2.1.3 (2018.2.8)
    * Clear focus on search engine by starting input.
    * Clear last search term with delay.
