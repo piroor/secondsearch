@@ -30,6 +30,8 @@
   "config_clearFocusByInput_label": { "message": "入力を開始したら検索エンジンのフォーカス状態をリセットする" },
   "config_closeAfterSearch_label": { "message": "検索を実行したらポップアップを閉じる" },
 
+  "config_shortcuts_caption": { "message": "キーボードショートカット" },
+
   "config_debug_caption": { "message": "開発用" },
   "config_debug_label": { "message": "デバッグモード" },
   "config_all_caption": { "message": "すべての設定" }

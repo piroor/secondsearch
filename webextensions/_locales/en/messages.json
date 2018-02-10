@@ -31,6 +31,8 @@
   "config_clearFocusByInput_label": { "message": "Clear focus on search engine by starting of input" },
   "config_closeAfterSearch_label": { "message": "Close popup after search" },
 
+  "config_shortcuts_caption": { "message": "Keyboard shortcuts" },
+
   "config_debug_caption": { "message": "Development" },
   "config_debug_label": { "message": "Debug mode" },
   "config_all_caption": { "message": "All Configs" }
