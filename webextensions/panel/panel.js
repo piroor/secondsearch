@@ -182,8 +182,8 @@ function onKeyPress(aEvent) {
         activeItem.classList.remove('active');
         let item = activeItem.previousSibling;
         if (item) {
-        item.classList.add('active');
-        scrollToItem(item);
+          item.classList.add('active');
+          scrollToItem(item);
         }
       }
       else if (gActiveEngines.hasChildNodes()) {
@@ -202,8 +202,8 @@ function onKeyPress(aEvent) {
         activeItem.classList.remove('active');
         let item = activeItem.nextSibling;
         if (item) {
-        item.classList.add('active');
-        scrollToItem(item);
+          item.classList.add('active');
+          scrollToItem(item);
         }
       }
       else if (gActiveEngines.hasChildNodes()) {
