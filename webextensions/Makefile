@@ -9,17 +9,18 @@ install_dependency:
 	npm install
 
 lint:
-	$(NPM_BIN_DIR)/eslint . --ext=.js –report-unused-disable-directives
+	$(NPM_BIN_DIR)/eslint . --ext=.js --report-unused-disable-directives
 
 format:
-	$(NPM_BIN_DIR)/eslint . --ext=.js –report-unused-disable-directives --fix
+	$(NPM_BIN_DIR)/eslint . --ext=.js --report-unused-disable-directives --fix
 
-xpi: lint ../extlib/webextensions-lib-l10n/Configs.js ../extlib/webextensions-lib-l10n/l10n.js ../extlib/webextensions-lib-options/Options.js
+xpi: lint ../extlib/webextensions-lib-l10n/Configs.js ../extlib/webextensions-lib-l10n/l10n.js ../extlib/webextensions-lib-options/Options.js ../extlib/webextensions-lib-shortcut-customize-ui/ShortcutCustomizeUI.js
 	cd .. && git submodule update
 	mkdir -p common
 	cp ../extlib/webextensions-lib-configs/Configs.js common/
 	cp ../extlib/webextensions-lib-l10n/l10n.js common/
 	cp ../extlib/webextensions-lib-options/Options.js options/
+	cp ../extlib/webextensions-lib-shortcut-customize-ui/ShortcutCustomizeUI.js options/
 	rm -f ./*.xpi
 	zip -r -0 secondsearch-we.xpi manifest.json _locales common background panel options resources >/dev/null 2>/dev/null
 
@@ -30,5 +31,8 @@ xpi: lint ../extlib/webextensions-lib-l10n/Configs.js ../extlib/webextensions-li
 	cd .. && git submodule update --init
 
 ../extlib/webextensions-lib-options/Options.js:
+	cd .. && git submodule update --init
+
+../extlib/webextensions-lib-shortcut-customize-ui/ShortcutCustomizeUI.js:
 	cd .. && git submodule update --init
 

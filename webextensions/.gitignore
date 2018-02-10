@@ -2,6 +2,7 @@
 **/Configs.js
 **/l10n.js
 **/Options.js
+**/ShortcutCustomizeUI.js
 
 # node.js dependency
 node_modules/
