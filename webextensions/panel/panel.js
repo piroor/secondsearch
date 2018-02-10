@@ -180,9 +180,11 @@ function onKeyPress(aEvent) {
       gLastOperatedBy = kOPERATED_BY_KEY;
       if (activeItem) {
         activeItem.classList.remove('active');
-        let item = (activeItem.previousSibling || activeItem.parentNode.lastChild);
+        let item = activeItem.previousSibling;
+        if (item) {
         item.classList.add('active');
         scrollToItem(item);
+        }
       }
       else if (gActiveEngines.hasChildNodes()) {
         gActiveEngines.lastChild.classList.add('active');
@@ -198,9 +200,11 @@ function onKeyPress(aEvent) {
       gLastOperatedBy = kOPERATED_BY_KEY;
       if (activeItem) {
         activeItem.classList.remove('active');
-        let item = (activeItem.nextSibling || activeItem.parentNode.firstChild);
+        let item = activeItem.nextSibling;
+        if (item) {
         item.classList.add('active');
         scrollToItem(item);
+        }
       }
       else if (gActiveEngines.hasChildNodes()) {
         gActiveEngines.firstChild.classList.add('active');
