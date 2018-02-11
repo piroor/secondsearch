@@ -1,6 +1,9 @@
 # 更新履歴
 
  - master/HEAD
+ - 2.1.5 (2018.2.11)
+   * キーボード操作ですべての検索エンジンからフォーカスを外せるように↓
+   * Firefox 60以降においてキーボードショートカットをカスタマイズできるようにした
  - 2.1.4 (2018.2.9)
    * Firefox Syncで設定を同期するようにした
    * 言語リソースのキー名が[仕様](https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/i18n/Locale-Specific_Message_reference#Member_details)に則っていなかったのを修正
