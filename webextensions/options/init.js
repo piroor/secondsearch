@@ -23,7 +23,6 @@ configs.$addObserver(onConfigChanged);
 window.addEventListener('DOMContentLoaded', () => {
   ShortcutCustomizeUI.build().then(aUI => {
     document.getElementById('shortcuts').appendChild(aUI);
-    l10n.updateDocument();
   });
 
   configs.$loaded.then(() => {
