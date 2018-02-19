@@ -55,6 +55,7 @@ window.addEventListener('pageshow', async () => {
   gField.addEventListener('input', onInput);
   gContainer.addEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.addEventListener('mousemove', onMouseMove);
+  gField.parentNode.addEventListener('mousemove', onMouseMove);
   gEnginesSwitchers.toRecentlyUsed.addEventListener('click', onSwitcherClick, { capture: true });
   gEnginesSwitchers.toAll.addEventListener('click', onSwitcherClick, { capture: true });
   gSearchButton.addEventListener('click', onSearchButtonClick);
@@ -117,6 +118,7 @@ window.addEventListener('pagehide', () => {
   gField.removeEventListener('input', onInput);
   gContainer.removeEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.removeEventListener('mousemove', onMouseMove);
+  gField.parentNode.removeEventListener('mousemove', onMouseMove);
   gEnginesSwitchers.toRecentlyUsed.removeEventListener('click', onSwitcherClick, { capture: true });
   gEnginesSwitchers.toAll.removeEventListener('click', onSwitcherClick, { capture: true });
   gSearchButton.removeEventListener('click', onSearchButtonClick);
@@ -302,14 +304,14 @@ function onSearchButtonClick(aEvent) {
 
 function onMouseMove(aEvent) {
   gLastOperatedBy = kOPERATED_BY_MOUSE;
-  const hoverEngine = aEvent.target.closest('.search-engines li');
-  if (!hoverEngine)
-    return;
 
   const oldActive = getActiveEngine();
   if (oldActive)
     oldActive.classList.remove('active');
-  hoverEngine.classList.add('active');
+
+  const hoverEngine = aEvent.target.closest('.search-engines li');
+  if (hoverEngine)
+    hoverEngine.classList.add('active');
 }
 
 function getActiveEngine() {
