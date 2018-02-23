@@ -139,8 +139,7 @@ function onComposition(aEvent) {
 }
 
 function onKeyPress(aEvent) {
-  if (aEvent.keyCode == KeyEvent.DOM_VK_RETURN ||
-      aEvent.keyCode == KeyEvent.DOM_VK_ENTER) {
+  if (aEvent.code == 'Enter') {
     doSearch(Object.assign(searchParamsFromEvent(aEvent), {
       save:   true,
       engine: getActiveEngine()
@@ -155,13 +154,13 @@ function onKeyPress(aEvent) {
     !aEvent.metaKey
   );
   var activeItem = getActiveEngine();
-  switch (aEvent.keyCode) {
-    case KeyEvent.DOM_VK_ESCAPE:
+  switch (aEvent.code) {
+    case 'Escape':
       if (noModifiers)
         window.close();
       return;
 
-    case KeyEvent.DOM_VK_LEFT:
+    case 'ArrowLeft':
       if (!aEvent.altKey &&
           (aEvent.ctrlKey || aEvent.metaKey) &&
           !aEvent.shiftKey) {
@@ -169,7 +168,7 @@ function onKeyPress(aEvent) {
       }
       return;
 
-    case KeyEvent.DOM_VK_RIGHT:
+    case 'ArrowRight':
       if (!aEvent.altKey &&
           (aEvent.ctrlKey || aEvent.metaKey) &&
           !aEvent.shiftKey) {
@@ -177,7 +176,7 @@ function onKeyPress(aEvent) {
       }
       return;
 
-    case KeyEvent.DOM_VK_UP:
+    case 'ArrowUp':
       if (!noModifiers)
         return;
       gLastOperatedBy = kOPERATED_BY_KEY;
@@ -197,7 +196,7 @@ function onKeyPress(aEvent) {
       aEvent.stopPropagation();
       return;
 
-    case KeyEvent.DOM_VK_DOWN:
+    case 'ArrowDown':
       if (!noModifiers)
         return;
       gLastOperatedBy = kOPERATED_BY_KEY;
