@@ -1,6 +1,6 @@
 PACKAGE_NAME = secondsearch
 
-.PHONY: all xpi signed clean
+.PHONY: all xpi signed clean webextensions
 
 all: xpi
 
