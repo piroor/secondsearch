@@ -80,7 +80,6 @@ window.addEventListener('pageshow', async () => {
   }
   else {
     gField.value = configs.lastSearchTerm;
-    configs.lastSearchTime = -1;
   }
 
   gPageSelection = null;
@@ -343,34 +342,30 @@ async function updateUIForCurrentTab() {
     }))[0];
     if (!configs.fillFieldWithSelectionText)
       return;
-    gPageSelection = await browser.tabs.executeScript(gCurrentTab.id, {
+    const selections = await browser.tabs.executeScript(gCurrentTab.id, {
       code: `(() => {
-        if (!document.hasFocus())
-          return '';
+        const focused = document.hasFocus();
 
         var selection = window.getSelection();
         if (selection.rangeCount > 0) {
           let selectionText = selection.toString().trim();
           if (selectionText != '')
-            return selectionText;
+            return { selection: selectionText, focused };
         }
 
         var field = document.activeElement;
         if (!field || !field.matches('input, textarea'))
-          return '';
+          return { selection: '', focused };
 
         var selectionText = (field.value || '').substring(field.selectionStart || 0, field.selectionEnd || 0);
-        return selectionText.trim();
+        return { selection: selectionText.trim(), focused };
       })();`,
       allFrames: true
     });
-    if (Array.isArray(gPageSelection))
-      gPageSelection = gPageSelection.join('');
-    gPageSelection = gPageSelection.trim();
+    const activeSelection = selections.filter(aSelection => aSelection.focused)[0] || selections[0];
+    gPageSelection = activeSelection.selection.trim();
     if (gPageSelection != '') {
       gField.value = gPageSelection;
-      configs.lastSearchTerm = '';
-      configs.lastSearchTime = 0;
     }
     if (gField.value != '')
       gField.classList.add('pasted');
