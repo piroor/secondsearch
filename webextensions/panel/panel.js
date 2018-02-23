@@ -154,7 +154,7 @@ function onKeyPress(aEvent) {
     !aEvent.metaKey
   );
   var activeItem = getActiveEngine();
-  switch (aEvent.code) {
+  switch (aEvent.key) {
     case 'Escape':
       if (noModifiers)
         window.close();
