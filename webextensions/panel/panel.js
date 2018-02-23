@@ -224,6 +224,9 @@ function onInput() {
   const oldActive = getActiveEngine();
   if (oldActive && configs.clearFocusByInput)
     oldActive.classList.remove('active');
+
+  configs.lastSearchTerm = gField.value;
+  configs.lastSearchTime = -1;
 }
 
 function searchParamsFromEvent(aEvent) {
