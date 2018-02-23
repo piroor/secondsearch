@@ -71,6 +71,8 @@ window.addEventListener('pageshow', async () => {
     gField.removeAttribute('list');
   }
 
+  await configs.$loaded;
+
   if (configs.clearFieldAfterSearch &&
       configs.lastSearchTime >= 0 &&
       Date.now() - configs.lastSearchTime > configs.clearFieldAfterSearchDelay) {
