@@ -366,6 +366,7 @@ async function updateUIForCurrentTab() {
     gPageSelection = activeSelection.selection.trim();
     if (gPageSelection != '') {
       gField.value = gPageSelection;
+      gField.select();
     }
     if (gField.value != '')
       gField.classList.add('pasted');
@@ -380,7 +381,8 @@ function focusToField() {
   window.focus();
   setTimeout(() => {
     gField.focus();
-    gField.select();
+    if (configs.lastSearchTime > 0)
+      gField.select();
   }, configs.focusDelay);
 }
 
