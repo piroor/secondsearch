@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 2.1.6 (2018.3.7)
+   * Clear focus of search engine by hovering on the search field. This makes it easy to search pasted text by the default search engine.
+   * Restore last input of the search field when a search action is aborted and the panel is reopened.
  - 2.1.5 (2018.2.11)
    * Allow to unfocus from all search engines by keyboard operation.
    * Keyboard shortcut is now customizable on Firefox 60 and later.
