@@ -51,7 +51,7 @@ window.addEventListener('pageshow', async () => {
   gField.addEventListener('compositionstart', onComposition, { capture: true });
   gField.addEventListener('compositionupdate', onComposition, { capture: true });
   gField.addEventListener('compositionend', onComposition, { capture: true });
-  document.addEventListener('keypress', onKeyPress, { capture: true });
+  document.addEventListener('keyup', onKeyUp, { capture: true });
   gField.addEventListener('input', onInput);
   gContainer.addEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.addEventListener('mousemove', onMouseMove);
@@ -115,7 +115,7 @@ window.addEventListener('pagehide', () => {
   gField.removeEventListener('compositionstart', onComposition, { capture: true });
   gField.removeEventListener('compositionupdate', onComposition, { capture: true });
   gField.removeEventListener('compositionend', onComposition, { capture: true });
-  document.removeEventListener('keypress', onKeyPress, { capture: true });
+  document.removeEventListener('keyup', onKeyUp, { capture: true });
   gField.removeEventListener('input', onInput);
   gContainer.removeEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.removeEventListener('mousemove', onMouseMove);
@@ -138,8 +138,8 @@ function onComposition(aEvent) {
   gField.classList.remove('pasted');
 }
 
-function onKeyPress(aEvent) {
-  if (aEvent.code == 'Enter') {
+function onKeyUp(aEvent) {
+  if (aEvent.key == 'Enter') {
     doSearch(Object.assign(searchParamsFromEvent(aEvent), {
       save:   true,
       engine: getActiveEngine()
