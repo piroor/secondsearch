@@ -134,12 +134,19 @@ function onKeyDown(aEvent) {
   gField.classList.remove('pasted');
 }
 
+var gIsCompositing = false;
+
 function onComposition(aEvent) {
   gField.classList.remove('pasted');
+  setTimeout(() => {
+    gIsCompositing = aEvent.type != 'compositionend';
+  }, 100);
 }
 
 function onKeyUp(aEvent) {
   if (aEvent.key == 'Enter') {
+    if (gIsCompositing)
+      return;
     doSearch(Object.assign(searchParamsFromEvent(aEvent), {
       save:   true,
       engine: getActiveEngine()
