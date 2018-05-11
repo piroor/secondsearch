@@ -47,6 +47,7 @@ configs.$loaded.then(() => {
 
 window.addEventListener('pageshow', async () => {
   document.addEventListener('paste', onPaste);
+  document.addEventListener('submit', onSubmit);
   gField.addEventListener('keydown', onKeyDown, { capture: true });
   gField.addEventListener('compositionstart', onComposition, { capture: true });
   gField.addEventListener('compositionupdate', onComposition, { capture: true });
@@ -111,6 +112,7 @@ window.addEventListener('pageshow', async () => {
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('paste', onPaste);
+  document.removeEventListener('submit', onSubmit);
   gField.removeEventListener('keydown', onKeyDown, { capture: true });
   gField.removeEventListener('compositionstart', onComposition, { capture: true });
   gField.removeEventListener('compositionupdate', onComposition, { capture: true });
@@ -134,25 +136,26 @@ function onKeyDown(aEvent) {
   gField.classList.remove('pasted');
 }
 
-var gIsCompositing = false;
-
 function onComposition(aEvent) {
   gField.classList.remove('pasted');
-  setTimeout(() => {
-    gIsCompositing = aEvent.type != 'compositionend';
-  }, 100);
+}
+
+var gLastEnterEvent;
+
+function onSubmit(aEvent) {
+  doSearch(Object.assign(searchParamsFromEvent(gLastEnterEvent), {
+    save:   true,
+    engine: getActiveEngine()
+  }));
+  gLastEnterEvent = null;
 }
 
 function onKeyUp(aEvent) {
   if (aEvent.key == 'Enter') {
-    if (gIsCompositing)
-      return;
-    doSearch(Object.assign(searchParamsFromEvent(aEvent), {
-      save:   true,
-      engine: getActiveEngine()
-    }));
+    gLastEnterEvent = aEvent;
     return;
   }
+  gLastEnterEvent = null;
 
   var noModifiers = (
     !aEvent.altKey &&
