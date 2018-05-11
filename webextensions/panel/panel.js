@@ -68,7 +68,7 @@ window.addEventListener('pageshow', async () => {
     gField.setAttribute('list', gHistory.id);
   }
   else {
-    gField.removeAttribute('autocomplete');
+    gField.setAttribute('autocomplete', 'off');
     gField.removeAttribute('list');
   }
 
