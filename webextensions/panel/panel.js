@@ -48,11 +48,10 @@ configs.$loaded.then(() => {
 window.addEventListener('pageshow', async () => {
   document.addEventListener('paste', onPaste);
   document.addEventListener('submit', onSubmit);
-  gField.addEventListener('keydown', onKeyDown, { capture: true });
+  document.addEventListener('keydown', onKeyDown, { capture: true });
   gField.addEventListener('compositionstart', onComposition, { capture: true });
   gField.addEventListener('compositionupdate', onComposition, { capture: true });
   gField.addEventListener('compositionend', onComposition, { capture: true });
-  document.addEventListener('keyup', onKeyUp, { capture: true });
   gField.addEventListener('input', onInput);
   gContainer.addEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.addEventListener('mousemove', onMouseMove);
@@ -113,11 +112,10 @@ window.addEventListener('pageshow', async () => {
 window.addEventListener('pagehide', () => {
   document.removeEventListener('paste', onPaste);
   document.removeEventListener('submit', onSubmit);
-  gField.removeEventListener('keydown', onKeyDown, { capture: true });
+  document.removeEventListener('keydown', onKeyDown, { capture: true });
   gField.removeEventListener('compositionstart', onComposition, { capture: true });
   gField.removeEventListener('compositionupdate', onComposition, { capture: true });
   gField.removeEventListener('compositionend', onComposition, { capture: true });
-  document.removeEventListener('keyup', onKeyUp, { capture: true });
   gField.removeEventListener('input', onInput);
   gContainer.removeEventListener('mouseup', onEngineClick, { capture: true });
   gContainer.removeEventListener('mousemove', onMouseMove);
@@ -130,10 +128,6 @@ window.addEventListener('pagehide', () => {
 
 function onPaste(aEvent) {
   gField.classList.add('pasted');
-}
-
-function onKeyDown(aEvent) {
-  gField.classList.remove('pasted');
 }
 
 function onComposition(aEvent) {
@@ -150,7 +144,8 @@ function onSubmit(aEvent) {
   gLastEnterEvent = null;
 }
 
-function onKeyUp(aEvent) {
+function onKeyDown(aEvent) {
+  gField.classList.remove('pasted');
   if (aEvent.key == 'Enter') {
     gLastEnterEvent = aEvent;
     return;
