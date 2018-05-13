@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 2.1.7 (2018.5.14)
    * Handle keyrepeat of arrow keys to select search engines.
  - 2.1.6 (2018.3.7)
    * Clear focus of search engine by hovering on the search field. This makes it easy to search pasted text by the default search engine.
