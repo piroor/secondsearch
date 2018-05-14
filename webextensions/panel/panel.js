@@ -226,7 +226,7 @@ function onKeyDown(aEvent) {
   }
 }
 
-function onInput() {
+function onInput(aEvent) {
   if (aEvent.isComposing)
     return;
 
