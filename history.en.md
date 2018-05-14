@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * Ignore keyboard events while composition via IME.
  - 2.1.7 (2018.5.14)
    * Handle keyrepeat of arrow keys to select search engines.
  - 2.1.6 (2018.3.7)
