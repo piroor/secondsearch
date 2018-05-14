@@ -145,6 +145,9 @@ function onSubmit(aEvent) {
 }
 
 function onKeyDown(aEvent) {
+  if (aEvent.isComposing)
+    return;
+
   gField.classList.remove('pasted');
   if (aEvent.key == 'Enter') {
     gLastEnterEvent = aEvent;
@@ -224,6 +227,9 @@ function onKeyDown(aEvent) {
 }
 
 function onInput() {
+  if (aEvent.isComposing)
+    return;
+
   const oldActive = getActiveEngine();
   if (oldActive && configs.clearFocusByInput)
     oldActive.classList.remove('active');
