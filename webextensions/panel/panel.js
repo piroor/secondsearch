@@ -425,7 +425,7 @@ async function doSearch(aParams = {}) {
   if (!url)
     url = configs.defaultEngine;
   var term = gField.value.trim();
-  url = url.replace(/%s/gi, term || '');
+  url = url.replace(/%s/gi, encodeURIComponent(term) || '');
   if (term)
     addHistory(term);
   switch (aParams.where) {
