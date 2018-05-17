@@ -64,22 +64,11 @@ configs = new Configs({
   smoothScrollDuration: 150,
   debug: false
 }, {
-  syncKeys: `
-    //recentlyUsedEngines
-    autocomplete
-    history
-    fillFieldWithSelectionText
-    clearFieldAfterSearch
-    clearFieldAfterSearchDelay
-    clearFocusByInput
-    closeAfterSearch
-    recycleBlankCurrentTab
-    recycleTabUrlPattern
-    defaultOpenIn
-    accelActionOpenIn
-    defaultEngine
-    favIconProvider
-    focusDelay
-    smoothScrollDuration
+  localKeys: `
+    cachedEnginesById
+    recentlyUsedEngines
+    lastSearchTerm
+    lastSearchTime
+    debug
   `.trim().split('\n').map(aKey => aKey.trim()).filter(aKey => aKey && aKey.indexOf('//') != 0)
 });
