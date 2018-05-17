@@ -13,6 +13,11 @@
 
   "howToAdd_description": { "message": "キーワード検索用のブックマーク項目がありません。Webページ上の検索ボックスで右クリックして「この検索にキーワードを設定」を選択してブックマークを作成するか、検索語句のプレースホルダとなる「%s」をURLに含めてブックマークを作成すると、この画面から直接検索できるようになります。" },
 
+
+  "config_theme_caption": { "message": "配色" },
+  "config_theme_default": { "message": "既定" },
+  "config_theme_dark":    { "message": "Dark" },
+
   "config_defaultOpenIn_caption": { "message": "検索結果の既定の開き方" },
   "config_defaultOpenIn_current": { "message": "現在のタブに読み込む" },
   "config_defaultOpenIn_tab":     { "message": "新しいタブを開く" },

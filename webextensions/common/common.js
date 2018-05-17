@@ -47,6 +47,7 @@ configs = new Configs({
   autocomplete: false,
   history: [],
   maxHistoryCount: 100,
+  theme: 'default',
   fillFieldWithSelectionText: true,
   clearFieldAfterSearch: true,
   clearFieldAfterSearchDelay: 5000,
@@ -67,6 +68,7 @@ configs = new Configs({
   localKeys: `
     cachedEnginesById
     recentlyUsedEngines
+    theme
     lastSearchTerm
     lastSearchTime
     debug

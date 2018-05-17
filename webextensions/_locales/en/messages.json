@@ -14,6 +14,10 @@
   "howToAdd_description": { "message": "There is no bookmark item for keyword search. To start search with keyword, plases right-click on a search field in any webpage and choose \"Add a keyword for this Search\", or just create a bookmark with a URL including \"%s\" as a paceholder for the search term. Then they will be listed here and you can search with keyword directly from this panel." },
 
 
+  "config_theme_caption": { "message": "Color scheme" },
+  "config_theme_default": { "message": "Default" },
+  "config_theme_dark":    { "message": "Dark" },
+
   "config_defaultOpenIn_caption": { "message": "Open search result in" },
   "config_defaultOpenIn_current": { "message": "the Current Tab" },
   "config_defaultOpenIn_tab":     { "message": "a New Tab" },
