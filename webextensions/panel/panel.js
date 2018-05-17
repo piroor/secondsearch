@@ -39,7 +39,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 configs.$loaded.then(() => {
   document.documentElement.dataset.theme = configs.theme;
-  console.log('document.documentElement.dataset.theme ', document.documentElement.dataset.theme);
   for (let term of configs.history) {
     let item = document.createElement('option');
     item.setAttribute('value', term);
