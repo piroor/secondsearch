@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 2.1.9 (2018.5.30)
    * Add ability to switch color scheme to Dark theme.
    * Encode search terms before send.
  - 2.1.8 (2018.5.15)
