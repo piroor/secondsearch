@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+   * Add ability to switch color scheme to Dark theme.
+   * Encode search terms before send.
  - 2.1.8 (2018.5.15)
    * Ignore keyboard events while composition via IME.
  - 2.1.7 (2018.5.14)
