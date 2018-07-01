@@ -15,7 +15,6 @@ format:
 	$(NPM_BIN_DIR)/eslint . --ext=.js --report-unused-disable-directives --fix
 
 xpi: update_extlib install_extlib lint
-	cd .. && git submodule update
 	rm -f ./*.xpi
 	zip -r -0 secondsearch-we.xpi manifest.json _locales common background panel options resources >/dev/null 2>/dev/null
 
