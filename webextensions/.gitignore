@@ -1,8 +1,5 @@
 *.xpi
-**/Configs.js
-**/l10n.js
-**/Options.js
-**/ShortcutCustomizeUI.js
+extlib/*.js
 
 # node.js dependency
 node_modules/

@@ -16,15 +16,14 @@ format:
 
 xpi: update_extlib install_extlib lint
 	rm -f ./*.xpi
-	zip -r -0 secondsearch-we.xpi manifest.json _locales common background panel options resources >/dev/null 2>/dev/null
+	zip -r -0 secondsearch-we.xpi manifest.json common _locales background panel options resources extlib >/dev/null 2>/dev/null
 
 update_extlib:
 	cd .. && git submodule update --init
 
 install_extlib:
-	mkdir -p common
-	cp ../extlib/webextensions-lib-configs/Configs.js common/
-	cp ../extlib/webextensions-lib-l10n/l10n.js common/
-	cp ../extlib/webextensions-lib-options/Options.js options/
-	cp ../extlib/webextensions-lib-shortcut-customize-ui/ShortcutCustomizeUI.js options/
+	cp ../submodules/webextensions-lib-configs/Configs.js extlib/
+	cp ../submodules/webextensions-lib-l10n/l10n.js extlib/
+	cp ../submodules/webextensions-lib-options/Options.js extlib/
+	cp ../submodules/webextensions-lib-shortcut-customize-ui/ShortcutCustomizeUI.js extlib/
 
