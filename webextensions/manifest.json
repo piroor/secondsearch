@@ -32,13 +32,13 @@
     "default_popup": "panel/panel.html",
     "theme_icons": [
       {
-        "light": "resources/16x16-dark.svg",
-        "dark":  "resources/16x16-light.svg",
+        "light": "resources/16x16-dark.svg#toolbar",
+        "dark":  "resources/16x16-light.svg#toolbar",
         "size": 16
       },
       {
-        "light": "resources/32x32-dark.svg",
-        "dark":  "resources/32x32-light.svg",
+        "light": "resources/32x32-dark.svg#toolbar",
+        "dark":  "resources/32x32-light.svg#toolbar",
         "size": 32
       }
     ]
