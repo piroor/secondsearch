@@ -19,7 +19,7 @@
       "common/constants.js",
       "extlib/Configs.js",
       "common/common.js",
-      "extlib/ShortcutCustomizeUI.js"
+      "extlib/ShortcutCustomizeUI.js",
       "background/background.js"
     ]
   },
