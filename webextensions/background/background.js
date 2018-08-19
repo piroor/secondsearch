@@ -163,6 +163,13 @@ configs.$loaded.then(async () => {
     SearchEngines.recentlyUsedEngines = configs.recentlyUsedEngines || [];
     SearchEngines.updateCache();
   }
+
+  const kCONFIGS_VERSION = 1;
+  switch (configs.configsVersion) {
+    case 0:
+      ShortcutCustomizeUI.setDefaultShortcuts();
+  }
+  configs.configsVersion = kCONFIGS_VERSION;
 });
 
 browser.runtime.onMessage.addListener((aMessage, aSender) => {
