@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * The keyboard shortcut is now deassignable by hitting the Escape key on its input field.
  - 2.1.9 (2018.5.30)
    * Add ability to switch color scheme to Dark theme.
    * Encode search terms before send.
