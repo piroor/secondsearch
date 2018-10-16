@@ -203,6 +203,50 @@ const SearchEngines = {
     const engine = params.engineId ? this.cachedEnginesById[params.engineId] : null;
     log('do search by engine: ', engine);
 
+    const useDefaultNativeEngine = !engine && await Permissions.isGranted(Permissions.SEARCH_PERMISSION);
+    const isNativeEngine = engine && /^search-engine:/.test(params.engineId);
+
+    if (useDefaultNativeEngine || isNativeEngine)
+      await this.doSearchByNativeEngine(engine, params);
+    else
+      await this.doSearchByBookmarkEngine(engine, params);
+
+    if (params.save && params.engineId)
+      this.onUsed(params.engineId);
+  },
+  async doSearchByNativeEngine(engine, params) {
+    const searchParams = {
+      query: params.term
+    };
+    if (engine)
+      searchParams.engine = engine.name;
+
+    switch (params.where) {
+      case kOPEN_IN_TAB:
+      case kOPEN_IN_BACKGROUND_TAB: {
+        let tabParams = {
+          active: params.where != kOPEN_IN_BACKGROUND_TAB
+        };
+        if (params.openerTabId)
+          tabParams.openerTabId = params.openerTabId;
+        const tab = await browser.tabs.create(tabParams);
+        searchParams.tabId = tab.id;
+      }; break;
+
+      case kOPEN_IN_WINDOW: {
+        const window = await browser.windows.create({});
+        const tab = window.tabs[0];
+        await wait(configs.newWindowDelay);
+        searchParams.tabId = tab.id;
+      }; break;
+
+      default:
+        searchParams.tabId = params.tabId;
+        break;
+    }
+    await browser.search.search(searchParams);
+  },
+  async doSearchByBookmarkEngine(engine, params) {
     let url = engine ? engine.url : configs.defaultEngine;
     url = url.replace(/%s/gi, encodeURIComponent(params.term) || '');
 
@@ -226,8 +270,6 @@ const SearchEngines = {
         await browser.tabs.update(params.tabId, { url });
         break;
     }
-    if (params.save && params.engineId)
-      this.onUsed(params.engineId);
   }
 };
 

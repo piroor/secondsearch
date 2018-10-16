@@ -63,6 +63,7 @@ configs = new Configs({
   favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
   focusDelay: 150,
   smoothScrollDuration: 150,
+  newWindowDelay: 1000,
   configsVersion: 0,
   debug: false
 }, {
