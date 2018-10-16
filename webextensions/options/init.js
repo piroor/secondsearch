@@ -19,6 +19,18 @@ function onConfigChanged(aKey) {
   }
 }
 
+async function updateDefaultEngineUI() {
+  const field   = document.getElementById('defaultEngine');
+  if (await Permissions.isGranted(Permissions.SEARCH_PERMISSION)) {
+    field.setAttribute('disabled', true);
+    field.parentNode.setAttribute('disabled', true);
+  }
+  else {
+    field.removeAttribute('disabled');
+    field.parentNode.removeAttribute('disabled');
+  }
+}
+
 configs.$addObserver(onConfigChanged);
 window.addEventListener('DOMContentLoaded', () => {
   ShortcutCustomizeUI.build().then(aUI => {
@@ -36,7 +48,9 @@ window.addEventListener('DOMContentLoaded', () => {
     permission: Permissions.SEARCH_PERMISSION,
     onChange() {
       configs.cachedEnginesById = null;
+      updateDefaultEngineUI();
     }
   });
+  updateDefaultEngineUI();
 }, { once: true });
 

@@ -33,3 +33,11 @@ ul p.sub {
   margin-top: 0;
   margin-bottom: 0;
 }
+
+
+label[disabled="true"] {
+  opacity: 0.5;
+}
+label[disabled="true"] input {
+  opacity: 1;
+}
