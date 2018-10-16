@@ -9,6 +9,7 @@
     <script type="application/javascript" src="/common/constants.js"></script>
     <script type="application/javascript" src="/extlib/Configs.js"></script>
     <script type="application/javascript" src="/common/common.js"></script>
+    <script type="application/javascript" src="/common/permissions.js"></script>
     <script type="application/javascript" src="panel.js"></script>
     <script type="application/javascript" src="scroll.js"></script>
     <link rel="stylesheet" type="text/css" href="panel.css"/>
@@ -31,7 +32,12 @@
             class="search-engines-switcher"
             title="__MSG_switchToAll_tooltip__">&gt;</span>
     </form>
-    <p id="description">__MSG_howToAdd_description__</p>
+    <div id="description">
+      <p>__MSG_howToAdd_description__</p>
+      <p><label><input id="searchPermission"
+                       type="checkbox">
+                __MSG_panel_searchPermission_label__</label></p>
+    </div>
     <div id="search-engines-container">
       <ul id="search-engines-by-recently-used"
           class="search-engines"></ul>

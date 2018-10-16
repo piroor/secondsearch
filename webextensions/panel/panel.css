@@ -46,6 +46,10 @@ body {
   margin: 0.5em;
 }
 
+#description p {
+  margin: 0 0 0.5em;
+}
+
 :root.no-engine #description {
   display: block;
   max-width: 30em;
@@ -177,4 +181,12 @@ body {
   flex-grow: 1;
   margin-left: 0.25em;
   white-space: nowrap;
+}
+
+
+label[disabled="true"] {
+  opacity: 0.5;
+}
+label[disabled="true"] input {
+  opacity: 1;
 }
