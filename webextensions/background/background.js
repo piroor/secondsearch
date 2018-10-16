@@ -24,7 +24,7 @@ const SearchEngines = {
     ]);
     configs.cachedEnginesById = this.cachedEnginesById = enginesById;
     this.cachedEngines = engines;
-    console.log('engines ', engines);
+    log('engines ', engines);
     this.sort();
   },
   async collectBookmarksEngines(engines, enginesById) {
@@ -37,7 +37,7 @@ const SearchEngines = {
         bookmark.favIconUrl = this.buildFavIconURI(bookmark);
       bookmark._recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(bookmark.id);
       engines.push(bookmark);
-      this.cachedEnginesById[bookmark.id] = bookmark;
+      enginesById[bookmark.id] = bookmark;
     }
   },
   async collectNativeEngines(engines, enginesById) {
@@ -49,6 +49,7 @@ const SearchEngines = {
       engine.id =
         engine.url = `search-engine:${engine.name}`;
       engine.title = engine.name;
+      engine._recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(engine.id);
       engines.push(engine);
       enginesById[engine.id] = engine;
     }
@@ -63,7 +64,8 @@ const SearchEngines = {
 
     // handle removed engines
     for (const id of Object.keys(this.cachedEnginesById)) {
-      if (id in enginesById)
+      if (!/search-engine:/.test(id) ||
+          id in enginesById)
         continue;
       delete this.cachedEnginesById[id];
       updated = true;
