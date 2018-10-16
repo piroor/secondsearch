@@ -30,6 +30,13 @@ window.addEventListener('DOMContentLoaded', () => {
     onConfigChanged('debug');
   });
 
-  initPermissionCheckbox(document.getElementById('searchPermission'), PERMISSIONS.SEARCH);
+  const searchPermissionCheck = document.getElementById('searchPermission');
+  Permissions.initUI({
+    checkbox: searchPermissionCheck,
+    permission: Permissions.SEARCH_PERMISSION,
+    onChange() {
+      configs.cachedEnginesById = null;
+    }
+  });
 }, { once: true });
 

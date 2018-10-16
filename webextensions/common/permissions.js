@@ -5,23 +5,42 @@
 */
 'use strict';
 
-const PERMISSIONS = {
-  SEARCH: { permissions: ['search'] }
-};
+const Permissions = {
+  SEARCH_PERMISSION: { permissions: ['search'] },
 
-async function initPermissionCheckbox(checkbox, permission) {
-  try {
-    checkbox.checked = await browser.permissions.contains(permission);
-    checkbox.addEventListener('change', async () => {
-      if (!checkbox.checked) {
-        await browser.permissions.remove(permission);
-        return;
-      }
-      checkbox.checked = await browser.permissions.request(permission);
-    });
+  async isGranted(permission) {
+    try {
+      return browser.permissions.contains(permission);
+    }
+    catch(e) {
+      return false;
+    }
+  },
+
+  async initUI(params = {}) {
+    const checkbox   = params.checkbox;
+    const permission = params.permission;
+    const onChange   = params.onChange;
+    try {
+      checkbox.checked = await browser.permissions.contains(permission);
+      let lastState = checkbox.checked;
+      checkbox.addEventListener('change', async () => {
+        if (!checkbox.checked) {
+          await browser.permissions.remove(permission);
+        }
+        else {
+          checkbox.checked = await browser.permissions.request(permission);
+        }
+        if (lastState == checkbox.checked)
+          return;
+        if (typeof onChange == 'function')
+          onChange();
+        lastState = checkbox.checked;
+      });
+    }
+    catch(e) {
+      checkbox.setAttribute('disabled', true);
+      checkbox.parentNode.setAttribute('disabled', true);
+    }
   }
-  catch(e) {
-    checkbox.setAttribute('disabled', true);
-    checkbox.parentNode.setAttribute('disabled', true);
-  }
-}
+};
