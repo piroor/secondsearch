@@ -22,6 +22,7 @@
       "common/constants.js",
       "extlib/Configs.js",
       "common/common.js",
+      "common/permissions.js",
       "extlib/ShortcutCustomizeUI.js",
       "background/background.js"
     ]

@@ -12,12 +12,24 @@ const SearchEngines = {
   cachedEnginesById: null,
   recentlyUsedEngines: [],
 
-  reset: async function() {
+  async reset() {
     log('reset');
-    var bookmarks = await browser.bookmarks.search({ query: '%s' });
-    var engines = [];
+    const engines     = [];
+    const enginesById = {};
+    this.cachedEngines     = [];
     this.cachedEnginesById = {};
-    for (let bookmark of bookmarks) {
+    await Promise.all([
+      this.collectBookmarksEngines(engines, enginesById),
+      this.collectNativeEngines(engines, enginesById)
+    ]);
+    configs.cachedEnginesById = this.cachedEnginesById = enginesById;
+    this.cachedEngines = engines;
+    console.log('engines ', engines);
+    this.sort();
+  },
+  async collectBookmarksEngines(engines, enginesById) {
+    const bookmarks = await browser.bookmarks.search({ query: '%s' });
+    for (const bookmark of bookmarks) {
       if (bookmark.type != 'bookmark' ||
           !/%s/i.test(bookmark.url))
         continue;
@@ -27,13 +39,52 @@ const SearchEngines = {
       engines.push(bookmark);
       this.cachedEnginesById[bookmark.id] = bookmark;
     }
-    configs.cachedEnginesById = this.cachedEnginesById;
-    this.cachedEngines = engines;
-    this.sort();
+  },
+  async collectNativeEngines(engines, enginesById) {
+    const available = await Permissions.isGranted(Permissions.SEARCH_PERMISSION);
+    if (!available)
+      return;
+    const searchEngines = await browser.search.get();
+    for (const engine of searchEngines) {
+      engine.id =
+        engine.url = `search-engine:${engine.name}`;
+      engine.title = engine.name;
+      engines.push(engine);
+      enginesById[engine.id] = engine;
+    }
+  },
+
+  async updateNativeEngines() {
+    const engines     = [];
+    const enginesById = [];
+    await this.collectNativeEngines(engines, enginesById);
+
+    let updated = false;
+
+    // handle removed engines
+    for (const id of Object.keys(this.cachedEnginesById)) {
+      if (id in enginesById)
+        continue;
+      delete this.cachedEnginesById[id];
+      updated = true;
+    }
+
+    // handle added engines
+    for (const engine of engines) {
+      if (engine.id in this.cachedEnginesById)
+        continue;
+      this.cachedEnginesById[engine.id] = engine;
+      updated = true;
+    }
+
+    if (updated) {
+      configs.cachedEnginesById = this.cachedEnginesById
+      this.updateCache();
+    }
   },
 
   buildFavIconURI(aEngine) {
-    var uriMatch = aEngine.url.match(/^(\w+:\/\/[^\/]+)/);
+    const uriMatch = aEngine.url.match(/^(\w+:\/\/[^\/]+)/);
     if (!uriMatch)
       return null;
     return configs.favIconProvider.replace(/%s/gi, uriMatch[1]);
@@ -41,7 +92,7 @@ const SearchEngines = {
 
   updateCache() {
     this.cachedEngines = [];
-    for (let id of Object.keys(this.cachedEnginesById)) {
+    for (const id of Object.keys(this.cachedEnginesById)) {
       this.cachedEngines.push(this.cachedEnginesById[id]);
     }
     SearchEngines.sort();
@@ -49,8 +100,8 @@ const SearchEngines = {
 
   sort() {
     log('sort');
-    for (let id of Object.keys(this.cachedEnginesById)) {
-      let engine = this.cachedEnginesById[id];
+    for (const id of Object.keys(this.cachedEnginesById)) {
+      const engine = this.cachedEnginesById[id];
       engine._recentlyUsedIndex = this.recentlyUsedEngines.indexOf(id);
     }
     log('recentlyUsedEngines sorted');
@@ -124,11 +175,11 @@ const SearchEngines = {
     }
   },
 
-  cleanupMissingEngines: async function() {
+  async cleanupMissingEngines() {
     log('cleanupMissingEngines');
-    var ids = Object.keys(this.cachedEnginesById).sort();
+    const ids = Object.keys(this.cachedEnginesById).sort();
     log('ids: ', ids);
-    var bookmarks = await Promise.all(ids.map(aId => browser.bookmarks.get(aId).catch(aError => null)));
+    let bookmarks = await Promise.all(ids.map(aId => browser.bookmarks.get(aId).catch(aError => null)));
     if (bookmarks.length > 0) {
       if (Array.isArray(bookmarks[0]))
         bookmarks = Array.prototype.concat.apply([], bookmarks);
@@ -136,7 +187,7 @@ const SearchEngines = {
     }
     log('actual bookmarks: ', bookmarks);
     if (ids.join('\n') != bookmarks.join('\n')) {
-      for (let id of ids) {
+      for (const id of ids) {
         if (bookmarks.indexOf(id) > -1)
           continue;
         log('delete ', id);
@@ -170,6 +221,18 @@ configs.$loaded.then(async () => {
       ShortcutCustomizeUI.setDefaultShortcuts();
   }
   configs.configsVersion = kCONFIGS_VERSION;
+
+  configs.$addObserver(key => {
+    switch (key) {
+      case 'cachedEnginesById':
+        if (!configs.cachedEnginesById)
+          SearchEngines.reset();
+        break;
+
+      default:
+        break;
+    }
+  });
 });
 
 browser.runtime.onMessage.addListener((aMessage, aSender) => {
@@ -181,7 +244,8 @@ browser.runtime.onMessage.addListener((aMessage, aSender) => {
   switch (aMessage.type) {
     case kCOMMAND_GET_SEARCH_ENGINES:
       log('get engines , SearchEngines.cachedEngines');
-      return Promise.resolve(SearchEngines.cachedEngines);
+      return SearchEngines.updateNativeEngines()
+               .then(() => SearchEngines.cachedEngines);
 
     case kCOMMAND_NOTIFY_SEARCH_ENGINE_USED:
       log(`on used ${aMessage.id}`);
