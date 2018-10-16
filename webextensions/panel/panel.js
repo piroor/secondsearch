@@ -421,40 +421,29 @@ function buildEngines(aEngines, aContainer) {
 }
 
 async function doSearch(aParams = {}) {
+
+  // I don't know why but both "click" and "submit" events are fired when
+  // I hit the Enter key with highlighted search engine. So we need to
+  // prevent multiple times doSearch()ing.
+  if (doSearch.done)
+    return;
+
+  doSearch.done = true;
+
   var item = aParams.engine || getActiveEngine();
-  var url = item && item.getAttribute('data-url');
-  if (!url)
-    url = configs.defaultEngine;
   var term = gField.value.trim();
-  url = url.replace(/%s/gi, encodeURIComponent(term) || '');
   if (term)
     addHistory(term);
-  switch (aParams.where) {
-    case kOPEN_IN_TAB:
-    case kOPEN_IN_BACKGROUND_TAB: {
-      let params = {
-        active: aParams.where != kOPEN_IN_BACKGROUND_TAB,
-        url
-      };
-      if (gPageSelection &&
-          gPageSelection == gField.value)
-        params.openerTabId = gCurrentTab.id;
-      browser.tabs.create(params);
-    }; break;
 
-    case kOPEN_IN_WINDOW:
-      browser.windows.create({ url });
-      break;
-
-    default:
-      browser.tabs.update(gCurrentTab.id, { url });
-      break;
-  }
-  if (item && (aParams.save || gField.value))
-    browser.runtime.sendMessage({
-      type: kCOMMAND_NOTIFY_SEARCH_ENGINE_USED,
-      id:   item.getAttribute('data-id')
-    });
+  browser.runtime.sendMessage({
+    type:        kCOMMAND_DO_SEARCH,
+    engineId:    item && item.getAttribute('data-id'),
+    where:       aParams.where,
+    term,
+    tabId:       gCurrentTab.id,
+    openerTabId: gPageSelection && gPageSelection == gField.value ? gCurrentTab.id : null,
+    save:        !!(item && (aParams.save || gField.value))
+  });
 
   if (!configs.closeAfterSearch || aParams.keepOpen)
     return;

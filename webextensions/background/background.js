@@ -197,6 +197,37 @@ const SearchEngines = {
       }
       configs.cachedEnginesById = this.cachedEnginesById;
     }
+  },
+
+  async doSearch(params) {
+    const engine = params.engineId ? this.cachedEnginesById[params.engineId] : null;
+    log('do search by engine: ', engine);
+
+    let url = engine ? engine.url : configs.defaultEngine;
+    url = url.replace(/%s/gi, encodeURIComponent(params.term) || '');
+
+    switch (params.where) {
+      case kOPEN_IN_TAB:
+      case kOPEN_IN_BACKGROUND_TAB: {
+        let tabParams = {
+          active: params.where != kOPEN_IN_BACKGROUND_TAB,
+          url
+        };
+        if (params.openerTabId)
+          tabParams.openerTabId = params.openerTabId;
+        await browser.tabs.create(tabParams);
+      }; break;
+
+      case kOPEN_IN_WINDOW:
+        await browser.windows.create({ url });
+        break;
+
+      default:
+        await browser.tabs.update(params.tabId, { url });
+        break;
+    }
+    if (params.save && params.engineId)
+      this.onUsed(params.engineId);
   }
 };
 
@@ -237,21 +268,24 @@ configs.$loaded.then(async () => {
   });
 });
 
-browser.runtime.onMessage.addListener((aMessage, aSender) => {
-  if (!aMessage ||
-      typeof aMessage.type != 'string' ||
-      aMessage.type.indexOf('secondsearch:') != 0)
+browser.runtime.onMessage.addListener((message, sender) => {
+  if (!message ||
+      typeof message.type != 'string' ||
+      message.type.indexOf('secondsearch:') != 0)
     return;
 
-  switch (aMessage.type) {
+  switch (message.type) {
     case kCOMMAND_GET_SEARCH_ENGINES:
       log('get engines , SearchEngines.cachedEngines');
       return SearchEngines.updateNativeEngines()
                .then(() => SearchEngines.cachedEngines);
 
-    case kCOMMAND_NOTIFY_SEARCH_ENGINE_USED:
-      log(`on used ${aMessage.id}`);
-      SearchEngines.onUsed(aMessage.id);
-      break;
+    case kCOMMAND_DO_SEARCH:
+      log('do search ', message);
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          SearchEngines.doSearch(message).then(resolve);
+        }, 100);
+      });
   }
 });
