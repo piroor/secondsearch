@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * Support Firefox's search engines. (You need to activate the feature manually on Firefox 63 and later.)
    * The keyboard shortcut is now deassignable by hitting the Escape key on its input field.
  - 2.1.9 (2018.5.30)
    * Add ability to switch color scheme to Dark theme.
