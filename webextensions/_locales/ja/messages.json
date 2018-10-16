@@ -14,6 +14,8 @@
   "howToAdd_description": { "message": "キーワード検索用のブックマーク項目がありません。Webページ上の検索ボックスで右クリックして「この検索にキーワードを設定」を選択してブックマークを作成するか、検索語句のプレースホルダとなる「%s」をURLに含めてブックマークを作成すると、この画面から直接検索できるようになります。" },
 
 
+  "config_searchPermission_label": { "message": "Firefox自体の検索エンジンも利用する" },
+
   "config_theme_caption": { "message": "配色" },
   "config_theme_default": { "message": "既定" },
   "config_theme_dark":    { "message": "Dark" },

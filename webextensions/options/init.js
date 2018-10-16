@@ -29,5 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
     options.buildUIForAllConfigs(document.querySelector('#debug-configs'));
     onConfigChanged('debug');
   });
+
+  initPermissionCheckbox(document.getElementById('searchPermission'), PERMISSIONS.SEARCH);
 }, { once: true });
 
