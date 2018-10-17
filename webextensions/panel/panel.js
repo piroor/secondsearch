@@ -91,6 +91,7 @@ window.addEventListener('pageshow', async () => {
     (async () => {
       var recentlyUsedEngines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
       if (recentlyUsedEngines.length == 0) {
+        /*
         Permissions.initUI({
           checkbox: document.getElementById('searchPermission'),
           permission: Permissions.SEARCH_PERMISSION,
@@ -99,6 +100,7 @@ window.addEventListener('pageshow', async () => {
             location.reload();
           }
         });
+        */
         document.documentElement.classList.add('no-engine');
       }
       else {

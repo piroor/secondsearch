@@ -8,10 +8,8 @@
     "https://www.google.com/s2/favicons?*",
     "activeTab",
     "bookmarks",
+    "search",
     "storage"
-  ],
-  "optional_permissions": [
-    "search"
   ],
   "icons": {
     "16": "resources/16x16.svg",

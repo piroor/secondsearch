@@ -42,6 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
     onConfigChanged('debug');
   });
 
+  /*
   const searchPermissionCheck = document.getElementById('searchPermission');
   Permissions.initUI({
     checkbox: searchPermissionCheck,
@@ -51,6 +52,7 @@ window.addEventListener('DOMContentLoaded', () => {
       updateDefaultEngineUI();
     }
   });
+  */
   updateDefaultEngineUI();
 }, { once: true });
 
