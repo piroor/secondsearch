@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 2.2.0 (2018.10.17)
    * Support Firefox's search engines. (You need to activate the feature manually on Firefox 63 and later.)
    * The keyboard shortcut is now deassignable by hitting the Escape key on its input field.
    * Drop support for Firefox 59 and older.
