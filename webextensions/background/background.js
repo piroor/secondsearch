@@ -320,7 +320,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
     case kCOMMAND_GET_SEARCH_ENGINES:
       log('get engines , SearchEngines.cachedEngines');
       return SearchEngines.updateNativeEngines()
-               .then(() => SearchEngines.cachedEngines);
+        .then(() => SearchEngines.cachedEngines);
 
     case kCOMMAND_DO_SEARCH:
       log('do search ', message);
