@@ -337,10 +337,5 @@ browser.runtime.onMessage.addListener((message, sender) => {
 // See also: https://github.com/piroor/secondsearch/issues/34
 browser.runtime.getBrowserInfo().then(browserInfo => {
   if (parseInt(browserInfo.version.split('.')[0]) >= 62)
-    browser.browserAction.setIcon({
-      path: {
-        16: '/resources/16x16.svg',
-        32: '/resources/32x32.svg'
-      }
-    });
+    browser.browserAction.setIcon({ path: browser.runtime.getManifest().icons });
 });
