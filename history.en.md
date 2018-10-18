@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * Match color of toolbar button icon to the current theme on Firefox 62 and later.
  - 2.2.0 (2018.10.17)
    * Support Firefox's search engines (on Firefox 63 and later.)
    * The keyboard shortcut is now deassignable by hitting the Escape key on its input field.
