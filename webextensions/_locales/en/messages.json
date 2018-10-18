@@ -21,6 +21,7 @@
   "config_theme_caption": { "message": "Color scheme" },
   "config_theme_default": { "message": "Default" },
   "config_theme_dark":    { "message": "Dark" },
+  "config_applyThemeColorToIcon_label": { "message": "Apply theme color to the toolbar button (*You need to set \"svg.context-properties.content.enabled\" to \"true\" via \"about:config\" on Firefox 62 or later)" },
 
   "config_defaultOpenIn_caption": { "message": "Open search result in" },
   "config_defaultOpenIn_current": { "message": "the Current Tab" },

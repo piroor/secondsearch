@@ -64,6 +64,7 @@ configs = new Configs({
   focusDelay: 150,
   smoothScrollDuration: 150,
   newWindowDelay: 1000,
+  applyThemeColorToIcon: false,
   configsVersion: 0,
   debug: false
 }, {
