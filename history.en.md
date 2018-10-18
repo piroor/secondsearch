@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+ - 2.2.1 (2018.10.18)
    * Match color of toolbar button icon to the current theme on Firefox 62 and later.
  - 2.2.0 (2018.10.17)
    * Support Firefox's search engines (on Firefox 63 and later.)
