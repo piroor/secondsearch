@@ -12,36 +12,36 @@
     "storage"
   ],
   "icons": {
-    "16": "resources/16x16.svg",
-    "32": "resources/32x32.svg"
+    "16": "/resources/16x16.svg",
+    "32": "/resources/32x32.svg"
   },
   "background": {
     "scripts": [
-      "common/constants.js",
-      "extlib/Configs.js",
-      "common/common.js",
-      "common/permissions.js",
-      "extlib/ShortcutCustomizeUI.js",
-      "background/background.js"
+      "/common/constants.js",
+      "/extlib/Configs.js",
+      "/common/common.js",
+      "/common/permissions.js",
+      "/extlib/ShortcutCustomizeUI.js",
+      "/background/background.js"
     ]
   },
   "browser_action": {
     "default_title": "__MSG_panelTitle__",
     "default_icon": {
-      "16": "resources/16x16.svg",
-      "32": "resources/32x32.svg"
+      "16": "/resources/16x16.svg",
+      "32": "/resources/32x32.svg"
     },
     "browser_style": true,
     "default_popup": "panel/panel.html",
     "theme_icons": [
       {
-        "light": "resources/16x16-dark.svg#toolbar",
-        "dark":  "resources/16x16-light.svg#toolbar",
+        "light": "/resources/16x16-dark.svg#toolbar",
+        "dark":  "/resources/16x16-light.svg#toolbar",
         "size": 16
       },
       {
-        "light": "resources/32x32-dark.svg#toolbar",
-        "dark":  "resources/32x32-light.svg#toolbar",
+        "light": "/resources/32x32-dark.svg#toolbar",
+        "dark":  "/resources/32x32-light.svg#toolbar",
         "size": 32
       }
     ]
@@ -52,7 +52,7 @@
     }
   },
   "options_ui": {
-    "page": "options/options.html",
+    "page": "/options/options.html",
     "browser_style": true
   },
   "default_locale": "en",
