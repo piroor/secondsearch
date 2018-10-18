@@ -331,3 +331,16 @@ browser.runtime.onMessage.addListener((message, sender) => {
       });
   }
 });
+
+// This section should be removed and define those context-fill icons
+// statically on manifest.json after Firefox ESR66 (or 67) is released.
+// See also: https://github.com/piroor/secondsearch/issues/34
+browser.runtime.getBrowserInfo().then(browserInfo => {
+  if (parseInt(browserInfo.version.split('.')[0]) >= 62)
+    browser.browserAction.setIcon({
+      path: {
+        16: '/resources/16x16.svg',
+        32: '/resources/32x32.svg'
+      }
+    });
+});
