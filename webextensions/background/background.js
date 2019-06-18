@@ -27,7 +27,6 @@ const SearchEngines = {
       this.collectNativeEngines(engines, enginesById)
     ]);
     configs.cachedEnginesById = this.cachedEnginesById = enginesById;
-    configs.favIconCache = {};
     this.cachedEngines = engines;
     log('engines ', engines);
     this.sort();
@@ -367,10 +366,12 @@ configs.$loaded.then(async () => {
     SearchEngines.updateCache();
   }
 
-  const kCONFIGS_VERSION = 1;
+  const kCONFIGS_VERSION = 2;
   switch (configs.configsVersion) {
     case 0:
       ShortcutCustomizeUI.setDefaultShortcuts();
+    case 1:
+      configs.cachedEnginesById = {}; // clear cache to fetch favicons
   }
   configs.configsVersion = kCONFIGS_VERSION;
 
