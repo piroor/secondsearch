@@ -12,6 +12,10 @@ const SearchEngines = {
   cachedEnginesById: null,
   recentlyUsedEngines: [],
 
+  FAVICON_SIZE: 16,
+  VALID_FAVICON_PATTERN: /^(about|app|chrome|data|file|ftp|https?|moz-extension|resource):/,
+  DRAWABLE_FAVICON_PATTERN: /^(https?|moz-extension|resource):/,
+
   async reset() {
     log('reset');
     const engines     = [];
@@ -23,22 +27,34 @@ const SearchEngines = {
       this.collectNativeEngines(engines, enginesById)
     ]);
     configs.cachedEnginesById = this.cachedEnginesById = enginesById;
+    configs.favIconCache = {};
     this.cachedEngines = engines;
     log('engines ', engines);
     this.sort();
   },
   async collectBookmarksEngines(engines, enginesById) {
     const bookmarks = await browser.bookmarks.search({ query: '%s' });
+    const promisedCompletes = [];
     for (const bookmark of bookmarks) {
       if (bookmark.type != 'bookmark' ||
           !/%s/i.test(bookmark.url))
         continue;
-      if (!bookmark.favIconUrl)
-        bookmark.favIconUrl = this.buildFavIconURI(bookmark);
+      if (!bookmark.favIconUrl) {
+        promisedCompletes.push((async () => {
+          try {
+            const url = await this.getFavIconDataURI(bookmark);
+            if (url)
+              bookmark.favIconUrl = url;
+          }
+          catch(_e) {
+          }
+        })());
+      }
       bookmark._recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(bookmark.id);
       engines.push(bookmark);
       enginesById[bookmark.id] = bookmark;
     }
+    await Promise.all(promisedCompletes);
   },
   async collectNativeEngines(engines, enginesById) {
     const available = await Permissions.isGranted(Permissions.SEARCH_PERMISSION);
@@ -92,6 +108,57 @@ const SearchEngines = {
     return configs.favIconProvider.replace(/%s/gi, uriMatch[1]);
   },
 
+  async getFavIconDataURI(aEngine) {
+    const url = this.buildFavIconURI(aEngine);
+    if (url && url.startsWith('data:'))
+      return url;
+
+    if (!url ||
+        !this.VALID_FAVICON_PATTERN.test(url) ||
+        !this.DRAWABLE_FAVICON_PATTERN.test(url))
+      return null;
+
+    log('getFavIconDataURI: fetch ', url);
+
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.crossOrigin = 'anonymous';
+      image.addEventListener('load', () => {
+        this.setupCanvas();
+        const context = this.canvas.getContext('2d');
+        context.clearRect(0, 0, this.FAVICON_SIZE, this.FAVICON_SIZE);
+        context.drawImage(image, 0, 0, this.FAVICON_SIZE, this.FAVICON_SIZE);
+        try {
+          const dataURI = this.canvas.toDataURL('image/png');
+          log('getFavIconDataURI: data = ', dataURI);
+          resolve(dataURI);
+        }
+        catch(error) {
+          // it can fail due to security reasons
+          log('getFavIconDataURI (after load): ', url, error);
+          resolve(url);
+        }
+      });
+      image.addEventListener('error', error => {
+        log('getFavIconDataURI: ', url, error);
+        reject(error);
+      });
+      image.src = url;
+    });
+  },
+  setupCanvas() {
+    if (this.canvas)
+      return;
+    this.canvas = document.createElement('canvas');
+    this.canvas.width = this.canvas.height = this.FAVICON_SIZE;
+    this.canvas.setAttribute('style', `
+      visibility: hidden;
+      pointer-events: none;
+      position: fixed
+    `);
+    document.body.appendChild(this.canvas);
+  },
+
   updateCache() {
     this.cachedEngines = [];
     for (const id of Object.keys(this.cachedEnginesById)) {
@@ -125,14 +192,19 @@ const SearchEngines = {
     this.sort();
   },
 
-  onBookmarkCreated(aId, aMayBeEngine) {
+  async onBookmarkCreated(aId, aMayBeEngine) {
     if (aMayBeEngine.type != 'bookmark' ||
         !/%s/i.test(aMayBeEngine.url))
       return;
     log('new engine is added: ', aMayBeEngine);
     this.cachedEnginesById[aId] = aMayBeEngine;
-    if (!aMayBeEngine.favIconUrl)
-      aMayBeEngine.favIconUrl = this.buildFavIconURI(aMayBeEngine);
+    if (!aMayBeEngine.favIconUrl) {
+      try {
+        aMayBeEngine.favIconUrl = await this.getFavIconDataURI(aMayBeEngine);
+      }
+      catch(_e) {
+      }
+    }
     configs.cachedEnginesById = this.cachedEnginesById;
     this.updateCache();
   },
@@ -162,8 +234,13 @@ const SearchEngines = {
             bookmark = bookmark[0];
           log('engine is added by changing URL: ', bookmark);
           this.cachedEnginesById[aId] = bookmark;
-          if (!bookmark.favIconUrl)
-            bookmark.favIconUrl = this.buildFavIconURI(bookmark);
+          if (!bookmark.favIconUrl) {
+            try {
+              bookmark.favIconUrl = await this.getFavIconDataURI(bookmark);
+            }
+            catch(_e) {
+            }
+          }
           configs.cachedEnginesById = this.cachedEnginesById;
           this.updateCache();
         })();
