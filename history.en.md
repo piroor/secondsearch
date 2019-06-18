@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.2.3 (2019.6.19)
+   * Cache favicons of search engines.
    * Add ability to export and import all configurations except keyboard shortcuts. (Options => "Development" => "Debug mode" => "All Configs" => "Import/Export")
  - 2.2.2 (2018.10.19)
    * Apply theme color to toolbar button icon only when it is intentionally activated with `svg.context-properties.content.enabled` = `true`.
