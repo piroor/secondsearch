@@ -350,6 +350,7 @@ const SearchEngines = {
 };
 
 configs.$loaded.then(async () => {
+  let isInitialInstall = false;
   configs.lastSearchTerm = '';
   browser.bookmarks.onCreated.addListener(SearchEngines.onBookmarkCreated.bind(SearchEngines));
   browser.bookmarks.onRemoved.addListener(SearchEngines.onBookmarkRemoved.bind(SearchEngines));
@@ -357,6 +358,7 @@ configs.$loaded.then(async () => {
   if (!configs.cachedEnginesById) {
     log('initial install');
     SearchEngines.reset();
+    isInitialInstall = true;
   }
   else {
     log('restore engines');
@@ -371,7 +373,8 @@ configs.$loaded.then(async () => {
     case 0:
       ShortcutCustomizeUI.setDefaultShortcuts();
     case 1:
-      configs.cachedEnginesById = {}; // clear cache to fetch favicons
+      if (!isInitialInstall)
+        SearchEngines.reset(); // clear cache to fetch favicons
   }
   configs.configsVersion = kCONFIGS_VERSION;
 
