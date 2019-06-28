@@ -121,7 +121,8 @@ const SearchEngines = {
 
     return new Promise((resolve, reject) => {
       const image = new Image();
-      image.crossOrigin = 'anonymous';
+      if (/^https?:/.test(url))
+        image.crossOrigin = 'anonymous';
       image.addEventListener('load', () => {
         this.setupCanvas();
         const context = this.canvas.getContext('2d');
