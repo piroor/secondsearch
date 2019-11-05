@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+   * Add a button to the options page, to refresh the list of search engines from bookmark keywords.
+   * Show the list of search engines sorted by name with correct width (full width to fill the panel).
+   * Show scrollbar with narrow width.
  - 2.2.3 (2019.6.19)
    * Cache favicons of search engines.
    * Add ability to export and import all configurations except keyboard shortcuts. (Options => "Development" => "Debug mode" => "All Configs" => "Import/Export")
