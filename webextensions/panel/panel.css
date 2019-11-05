@@ -141,6 +141,7 @@ body {
   padding: 0;
   transition: left ease 0.15s,
               opacity ease 0.15s;
+  width: var(--panel-width);
 }
 
 :root.by-name .search-engines#search-engines-by-recently-used {
