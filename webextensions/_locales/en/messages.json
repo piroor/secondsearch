@@ -40,6 +40,10 @@
   "config_clearFocusByInput_label": { "message": "Clear focus on search engine by starting of input" },
   "config_closeAfterSearch_label": { "message": "Close popup after search" },
 
+  "config_bookmarks_caption":                { "message": "Search Engines from Bookmark Keywords" },
+  "config_bookmarks_clearCache_description": { "message": "This addon lists bookmarks with their own keyword as virtual search engines, but sometimes they are missing due to Firefox Sync and other triggers. You'll see flush old information and refreshed the list of such bookmarks, by clicking following button." },
+  "config_bookmarks_clearCache_label":       { "message": "Refresh Search Engines from Bookmarks" },
+
   "config_shortcuts_caption": { "message": "Keyboard shortcuts" },
 
   "config_debug_caption": { "message": "Development" },

@@ -54,5 +54,18 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   */
   updateDefaultEngineUI();
+
+  const clearCache = () => {
+    configs.cachedEnginesById = null;
+  };
+  const clearCacheButton = document.getElementById('clearCache');
+  clearCache.addEventListener('click', event => {
+    if (event.button == 0)
+      clearCache();
+  });
+  clearCache.addEventListener('keydown', event => {
+    if (event.key =='Enter')
+      clearCache();
+  });
 }, { once: true });
 

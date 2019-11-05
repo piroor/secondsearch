@@ -40,6 +40,10 @@
   "config_clearFocusByInput_label": { "message": "入力を開始したら検索エンジンのフォーカス状態をリセットする" },
   "config_closeAfterSearch_label": { "message": "検索を実行したらポップアップを閉じる" },
 
+  "config_bookmarks_caption":                { "message": "ブックマークキーワードからの検索エンジン" },
+  "config_bookmarks_clearCache_description": { "message": "このアドオンはキーワード付きのブックマークを仮想敵な検索エンジンとして一覧に表示しますが、Firefox Syncやその他の理由により、いくつかのブックマークが認識されなくなる場合があります。その場合、以下のボタンをクリックする事でキャッシュを消去し、強制的にそのようなブックマークの情報を再スキャンさせることができます。" },
+  "config_bookmarks_clearCache_label":       { "message": "ブックマークからの検索エンジンの情報を更新する" },
+
   "config_shortcuts_caption": { "message": "キーボードショートカット" },
 
   "config_debug_caption": { "message": "開発用" },
