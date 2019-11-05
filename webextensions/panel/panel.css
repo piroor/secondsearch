@@ -139,6 +139,7 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   padding: 0;
+  scrollbar-width: thin;
   transition: left ease 0.15s,
               opacity ease 0.15s;
   width: var(--panel-width);
