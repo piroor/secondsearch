@@ -59,11 +59,11 @@ window.addEventListener('DOMContentLoaded', () => {
     configs.cachedEnginesById = null;
   };
   const clearCacheButton = document.getElementById('clearCache');
-  clearCache.addEventListener('click', event => {
+  clearCacheButton.addEventListener('click', event => {
     if (event.button == 0)
       clearCache();
   });
-  clearCache.addEventListener('keydown', event => {
+  clearCacheButton.addEventListener('keydown', event => {
     if (event.key =='Enter')
       clearCache();
   });
