@@ -17,7 +17,7 @@ format: install_dependency
 
 xpi: update_extlib install_extlib lint
 	rm -f ./*.xpi
-	zip -r -0 secondsearch-we.xpi manifest.json common _locales background panel options resources extlib >/dev/null -x '*/.*' 2>/dev/null
+	zip -r -9 secondsearch-we.xpi manifest.json common _locales background panel options resources extlib >/dev/null -x '*/.*' 2>/dev/null
 
 update_extlib:
 	cd .. && git submodule update --init
