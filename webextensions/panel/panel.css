@@ -8,9 +8,9 @@
   /* https://dxr.mozilla.org/mozilla-central/rev/b056526be38e96b3e381b7e90cd8254ad1d96d9d/browser/themes/windows/browser.css#45 */
   --focused-item-bgcolor: var(--in-content-item-selected);
   --focused-item-textcolor: var(--in-content-selected-text);
-  --search-field-bordercolor: var(--in-content-box-background);
-  --searfh-field-bgcolor: var(--in-content-box-border-color-mixed);
-  --searfh-field-textcolor: var(--in-content-text-color);
+  --search-field-bordercolor: var(--in-content-box-border-color-mixed);
+  --search-field-bgcolor: var(--in-content-box-background);
+  --search-field-textcolor: var(--in-content-text-color);
   --bounding-margin: 0.85em;
 }
 
@@ -70,10 +70,10 @@ body {
   min-width: 10em;
 }
 :root:not([theme="default"]) #search-field {
-  background: var(--searfh-field-bgcolor);
+  background: var(--search-field-bgcolor);
   border: 1px solid var(--search-field-bordercolor);
   border-radius: 0.2em;
-  color: var(--searfh-field-textcolor);
+  color: var(--search-field-textcolor);
   padding: 0.3em 0.5em;
 }
 
