@@ -6,25 +6,18 @@
 
 :root {
   /* https://dxr.mozilla.org/mozilla-central/rev/b056526be38e96b3e381b7e90cd8254ad1d96d9d/browser/themes/windows/browser.css#45 */
-  --toolbar-non-lwt-bgcolor: #f9f9fa;
-  --toolbar-non-lwt-textcolor: #0c0c0d;
-  --focused-item-bgcolor: Highlight;
-  --focused-item-textcolor: HighlightText;
-  --search-field-bordercolor: -moz-fieldText;
-  --searfh-field-bgcolor: -moz-field;
-  --searfh-field-textcolor: -moz-fieldText;
-
+  --focused-item-bgcolor: var(--in-content-item-selected);
+  --focused-item-textcolor: var(--in-content-selected-text);
+  --search-field-bordercolor: var(--in-content-box-background);
+  --searfh-field-bgcolor: var(--in-content-box-border-color-mixed);
+  --searfh-field-textcolor: var(--in-content-text-color);
   --bounding-margin: 0.85em;
 }
 
 :root[data-theme="dark"] {
-  --toolbar-non-lwt-bgcolor: #474749;
-  --toolbar-non-lwt-textcolor: #f9f9fa;
-  --focused-item-bgcolor: #707071;
-  --focused-item-textcolor: #f9f9fa;
-  --search-field-bordercolor: #3c3c3d;
-  --searfh-field-bgcolor: #707071;
-  --searfh-field-textcolor: #f9f9fa;
+    --in-content-box-background: #202023;
+    --in-content-box-border-color-mixed: rgb(calc((42 * 0.8) + (249 * 0.2)), calc((42 * 0.8) + (249 * 0.2)), calc((46 * 0.8) + (250 * 0.2)));
+    --in-content-text-color: var(--text-color);
 /*
   --tab-active-marker: #0a84ff;
   --tab-active-marker-inactive: rgba(255, 255, 255, 0.2);
@@ -32,8 +25,8 @@
 }
 
 body {
-  background: var(--toolbar-non-lwt-bgcolor);
-  color: var(--toolbar-non-lwt-textcolor);
+  background: var(--bg-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
