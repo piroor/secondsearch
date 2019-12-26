@@ -185,3 +185,9 @@ label[disabled="true"] {
 label[disabled="true"] input {
   opacity: 1;
 }
+
+
+input:focus {
+  border-color: var(--in-content-border-focus);
+  box-shadow: none;
+}
