@@ -1,5 +1,5 @@
 {
-  "extensionName": { "message": "セカンドサーチ" },
+  "extensionName": { "message": "Second Search - セカンドサーチ" },
   "extensionDescription": { "message": "スマートキーワード（ブックマークキーワード）用の検索ボックスを提供します。" },
 
   "panelTitle": { "message": "キーワード検索" },
