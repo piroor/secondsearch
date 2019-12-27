@@ -1,6 +1,10 @@
 # History
 
  - master/HEAD
+ - 2.3.0 (2019.12.27)
+   * Support Dark mode of the platform.
+   * Better coloring with Photon and Dark color scheme.
+   * Clear cache for keywords correctly.
  - 2.2.4 (2019.11.5)
    * Add a button to the options page, to refresh the list of search engines from bookmark keywords.
    * Show the list of search engines sorted by name with correct width (full width to fill the panel).
