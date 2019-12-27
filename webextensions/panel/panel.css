@@ -104,9 +104,11 @@ body {
 }
 
 #do-search-button {
+  bottom: 1px;
   display: none;
   position: absolute;
-  right: 0;
+  right: 1px;
+  top: 1px;
 }
 #search-field.pasted ~ #do-search-button {
   display: inline;
