@@ -6,8 +6,8 @@
 
 :root {
   /* https://dxr.mozilla.org/mozilla-central/rev/b056526be38e96b3e381b7e90cd8254ad1d96d9d/browser/themes/windows/browser.css#45 */
-  --focused-item-bgcolor: var(--in-content-item-selected);
-  --focused-item-textcolor: var(--in-content-selected-text);
+  --focused-item-bgcolor: var(--in-content-button-background);
+  --focused-item-textcolor: var(--in-content-text-color);
   --search-field-bordercolor: var(--in-content-box-border-color-mixed);
   --search-field-bgcolor: var(--in-content-box-background);
   --search-field-textcolor: var(--in-content-text-color);
@@ -24,8 +24,6 @@
   --in-content-box-background: var(--dark-popup);
   --in-content-box-border-color-mixed: var(--dark-popup-border);
   --in-content-text-color: var(--dark-popup-text);
-  --focused-item-bgcolor: var(--in-content-button-background);
-  --focused-item-textcolor: var(--in-content-text-color);
   --search-field-bordercolor: var(--dark-toolbar-field-border);
   --search-field-bgcolor: var(--dark-toolbar-field);
   --search-field-textcolor: var(--dark-toolbar-field-text);
@@ -41,8 +39,6 @@
     --in-content-box-background: var(--dark-popup);
     --in-content-box-border-color-mixed: var(--dark-popup-border);
     --in-content-text-color: var(--dark-popup-text);
-    --focused-item-bgcolor: var(--in-content-button-background);
-    --focused-item-textcolor: var(--in-content-text-color);
     --search-field-bordercolor: var(--dark-toolbar-field-border);
     --search-field-bgcolor: var(--dark-toolbar-field);
     --search-field-textcolor: var(--dark-toolbar-field-text);
