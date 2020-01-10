@@ -32,15 +32,15 @@ async function updateDefaultEngineUI() {
 }
 
 configs.$addObserver(onConfigChanged);
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   ShortcutCustomizeUI.build().then(aUI => {
     document.getElementById('shortcuts').appendChild(aUI);
   });
 
-  configs.$loaded.then(() => {
-    options.buildUIForAllConfigs(document.querySelector('#debug-configs'));
-    onConfigChanged('debug');
-  });
+  await configs.$loaded;
+
+  options.buildUIForAllConfigs(document.querySelector('#debug-configs'));
+  onConfigChanged('debug');
 
   /*
   const searchPermissionCheck = document.getElementById('searchPermission');
@@ -67,5 +67,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (event.key =='Enter')
       clearCache();
   });
+
+  document.documentElement.classList.add('initialized');
 }, { once: true });
 
