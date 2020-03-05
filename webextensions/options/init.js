@@ -33,10 +33,6 @@ async function updateDefaultEngineUI() {
 
 configs.$addObserver(onConfigChanged);
 window.addEventListener('DOMContentLoaded', async () => {
-  ShortcutCustomizeUI.build().then(aUI => {
-    document.getElementById('shortcuts').appendChild(aUI);
-  });
-
   await configs.$loaded;
 
   options.buildUIForAllConfigs(document.querySelector('#debug-configs'));
