@@ -223,7 +223,7 @@ function onKeyDown(event) {
         gActiveEngines.scroll.scrollToItem(gActiveEngines.lastChild);
       }
       event.stopImmediatePropagation();
-      event.stopPropagation();
+      event.preventDefault();
       return;
 
     case 'ArrowDown':
@@ -242,7 +242,7 @@ function onKeyDown(event) {
         gActiveEngines.scroll.scrollToItem(gActiveEngines.firstChild);
       }
       event.stopImmediatePropagation();
-      event.stopPropagation();
+      event.preventDefault();
       return;
   }
 }
