@@ -5,20 +5,25 @@
 */
 'use strict';
 
+import Scroll from '/extlib/scroll.js';
+
+/* global gLogContext, configs */ // eslint-disable-line no-unused-vars
+/* global kCOMMAND_DO_SEARCH, kCOMMAND_GET_SEARCH_ENGINES */
+/* global kOPEN_IN_CURRENT, kOPEN_IN_TAB, kOPEN_IN_BACKGROUND_TAB, kOPEN_IN_WINDOW */
+
 gLogContext = 'Panel';
 
-var gStyleVariables;
-var gField;
-var gHistory;
-var gSearchButton;
-var gContainer;
-var gRecentlyUsedEngines;
-var gAllEngines;
-var gActiveEngines;
-var gEnginesSwitchers;
-var gPageSelection;
-var gCurrentTab;
-var gLastOperatedBy = null;
+let gStyleVariables;
+let gField;
+let gHistory;
+let gSearchButton;
+let gContainer;
+let gRecentlyUsedEngines;
+let gAllEngines;
+let gActiveEngines;
+let gEnginesSwitchers;
+let gPageSelection;
+let gCurrentTab;
 
 window.addEventListener('DOMContentLoaded', async () => {
   gStyleVariables = document.querySelector('#variables');
@@ -30,6 +35,14 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   gRecentlyUsedEngines = document.querySelector('#search-engines-by-recently-used');
   gAllEngines          = document.querySelector('#search-engines-by-name');
+
+  gRecentlyUsedEngines.scroll = new Scroll(gRecentlyUsedEngines, {
+    duration: configs.smoothScrollDuration
+  });
+  gAllEngines.scroll = new Scroll(gAllEngines, {
+    duration: configs.smoothScrollDuration
+  });
+
   gEnginesSwitchers = {
     toRecentlyUsed: document.querySelector('#switch-to-recently-used'),
     toAll:          document.querySelector('#switch-to-all')
@@ -39,8 +52,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 configs.$loaded.then(() => {
   document.documentElement.dataset.theme = configs.theme;
-  for (let term of configs.history) {
-    let item = document.createElement('option');
+  for (const term of configs.history) {
+    const item = document.createElement('option');
     item.setAttribute('value', term);
     gHistory.appendChild(item);
   }
@@ -85,11 +98,10 @@ window.addEventListener('pageshow', async () => {
 
   gPageSelection = null;
   gCurrentTab = null;
-  gLastOperatedBy = kOPERATED_BY_KEY;
-  
+
   await Promise.all([
     (async () => {
-      var recentlyUsedEngines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
+      const recentlyUsedEngines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
       if (recentlyUsedEngines.length == 0) {
         /*
         Permissions.initUI({
@@ -137,17 +149,17 @@ window.addEventListener('pagehide', () => {
 }, { once: true });
 
 
-function onPaste(aEvent) {
+function onPaste(_event) {
   gField.classList.add('pasted');
 }
 
-function onComposition(aEvent) {
+function onComposition(_event) {
   gField.classList.remove('pasted');
 }
 
-var gLastEnterEvent;
+let gLastEnterEvent;
 
-function onSubmit(aEvent) {
+function onSubmit(_event) {
   doSearch(Object.assign(searchParamsFromEvent(gLastEnterEvent), {
     save:   true,
     engine: getActiveEngine()
@@ -155,42 +167,42 @@ function onSubmit(aEvent) {
   gLastEnterEvent = null;
 }
 
-function onKeyDown(aEvent) {
-  if (aEvent.isComposing)
+function onKeyDown(event) {
+  if (event.isComposing)
     return;
 
   gField.classList.remove('pasted');
-  if (aEvent.key == 'Enter') {
-    gLastEnterEvent = aEvent;
+  if (event.key == 'Enter') {
+    gLastEnterEvent = event;
     return;
   }
   gLastEnterEvent = null;
 
-  var noModifiers = (
-    !aEvent.altKey &&
-    !aEvent.ctrlKey &&
-    !aEvent.shiftKey &&
-    !aEvent.metaKey
+  const noModifiers = (
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.metaKey
   );
-  var activeItem = getActiveEngine();
-  switch (aEvent.key) {
+  const activeItem = getActiveEngine();
+  switch (event.key) {
     case 'Escape':
       if (noModifiers)
         window.close();
       return;
 
     case 'ArrowLeft':
-      if (!aEvent.altKey &&
-          (aEvent.ctrlKey || aEvent.metaKey) &&
-          !aEvent.shiftKey) {
+      if (!event.altKey &&
+          (event.ctrlKey || event.metaKey) &&
+          !event.shiftKey) {
         switchToRecentlyUsedEngines();
       }
       return;
 
     case 'ArrowRight':
-      if (!aEvent.altKey &&
-          (aEvent.ctrlKey || aEvent.metaKey) &&
-          !aEvent.shiftKey) {
+      if (!event.altKey &&
+          (event.ctrlKey || event.metaKey) &&
+          !event.shiftKey) {
         switchToAllEngines();
       }
       return;
@@ -198,47 +210,45 @@ function onKeyDown(aEvent) {
     case 'ArrowUp':
       if (!noModifiers)
         return;
-      gLastOperatedBy = kOPERATED_BY_KEY;
       if (activeItem) {
         activeItem.classList.remove('active');
-        let item = activeItem.previousSibling;
+        const item = activeItem.previousSibling;
         if (item) {
           item.classList.add('active');
-          scrollToItem(item);
+          gActiveEngines.scroll.scrollToItem(item);
         }
       }
       else if (gActiveEngines.hasChildNodes()) {
         gActiveEngines.lastChild.classList.add('active');
-        scrollToItem(gActiveEngines.lastChild);
+        gActiveEngines.scroll.scrollToItem(gActiveEngines.lastChild);
       }
-      aEvent.stopImmediatePropagation();
-      aEvent.stopPropagation();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
       return;
 
     case 'ArrowDown':
       if (!noModifiers)
         return;
-      gLastOperatedBy = kOPERATED_BY_KEY;
       if (activeItem) {
         activeItem.classList.remove('active');
-        let item = activeItem.nextSibling;
+        const item = activeItem.nextSibling;
         if (item) {
           item.classList.add('active');
-          scrollToItem(item);
+          gActiveEngines.scroll.scrollToItem(item);
         }
       }
       else if (gActiveEngines.hasChildNodes()) {
         gActiveEngines.firstChild.classList.add('active');
-        scrollToItem(gActiveEngines.firstChild);
+        gActiveEngines.scroll.scrollToItem(gActiveEngines.firstChild);
       }
-      aEvent.stopImmediatePropagation();
-      aEvent.stopPropagation();
+      event.stopImmediatePropagation();
+      event.stopPropagation();
       return;
   }
 }
 
-function onInput(aEvent) {
-  if (aEvent.isComposing)
+function onInput(event) {
+  if (event.isComposing)
     return;
 
   const oldActive = getActiveEngine();
@@ -249,18 +259,18 @@ function onInput(aEvent) {
   configs.lastSearchTime = -1;
 }
 
-function searchParamsFromEvent(aEvent) {
-  var searchParams = {
+function searchParamsFromEvent(event) {
+  const searchParams = {
     where:        configs.defaultOpenIn,
     keepOpen:     false
   };
-  if (aEvent.altKey || aEvent.ctrlKey || aEvent.metaKey) {
+  if (event.altKey || event.ctrlKey || event.metaKey) {
     searchParams.where    = configs.accelActionOpenIn;
     searchParams.keepOpen = configs.accelActionOpenIn == kOPEN_IN_BACKGROUND_TAB;
     return searchParams;
   }
 
-  if (aEvent.shiftKey) {
+  if (event.shiftKey) {
     searchParams.where = kOPEN_IN_WINDOW;
     return searchParams;
   }
@@ -277,17 +287,17 @@ function searchParamsFromEvent(aEvent) {
   return searchParams;
 }
 
-function onEngineClick(aEvent) {
-  var engine = aEvent.target;
+function onEngineClick(event) {
+  let engine = event.target;
   while (engine.nodeType != Node.ELEMENT_NODE ||
          !engine.hasAttribute('data-id')) {
     engine = engine.parentNode;
     if (!engine)
       return;
   }
-  switch (aEvent.button) {
+  switch (event.button) {
     case 0:
-      doSearch(Object.assign(searchParamsFromEvent(aEvent), {
+      doSearch(Object.assign(searchParamsFromEvent(event), {
         engine
       }));
       break;
@@ -305,8 +315,8 @@ function onEngineClick(aEvent) {
   }
 }
 
-function onSwitcherClick(aEvent) {
-  switch (aEvent.currentTarget.id) {
+function onSwitcherClick(event) {
+  switch (event.currentTarget.id) {
     case 'switch-to-recently-used':
       switchToRecentlyUsedEngines();
       gField.focus();
@@ -322,19 +332,17 @@ function onSwitcherClick(aEvent) {
   }
 }
 
-function onSearchButtonClick(aEvent) {
-  doSearch(searchParamsFromEvent(aEvent));
+function onSearchButtonClick(event) {
+  doSearch(searchParamsFromEvent(event));
   gField.classList.remove('pasted');
 }
 
-function onMouseMove(aEvent) {
-  gLastOperatedBy = kOPERATED_BY_MOUSE;
-
+function onMouseMove(event) {
   const oldActive = getActiveEngine();
   if (oldActive)
     oldActive.classList.remove('active');
 
-  const hoverEngine = aEvent.target.closest('.search-engines li');
+  const hoverEngine = event.target.closest('.search-engines li');
   if (hoverEngine)
     hoverEngine.classList.add('active');
 }
@@ -346,13 +354,13 @@ function getActiveEngine() {
 function switchToRecentlyUsedEngines() {
   document.documentElement.classList.remove('by-name');
   gActiveEngines = gRecentlyUsedEngines;
-  scrollTo({ position: 0, justNow: true });
+  gActiveEngines.scroll.scrollTo({ position: 0, justNow: true });
 }
 
 function switchToAllEngines() {
   document.documentElement.classList.add('by-name');
   gActiveEngines = gAllEngines;
-  scrollTo({ position: 0, justNow: true });
+  gActiveEngines.scroll.scrollTo({ position: 0, justNow: true });
 }
 
 async function updateUIForCurrentTab() {
@@ -367,18 +375,18 @@ async function updateUIForCurrentTab() {
       code: `(() => {
         const focused = document.hasFocus();
 
-        var selection = window.getSelection();
+        let selection = window.getSelection();
         if (selection.rangeCount > 0) {
           let selectionText = selection.toString().trim();
           if (selectionText != '')
             return { selection: selectionText, focused };
         }
 
-        var field = document.activeElement;
+        let field = document.activeElement;
         if (!field || !field.matches('input, textarea'))
           return { selection: '', focused };
 
-        var selectionText = (field.value || '').substring(field.selectionStart || 0, field.selectionEnd || 0);
+        let selectionText = (field.value || '').substring(field.selectionStart || 0, field.selectionEnd || 0);
         return { selection: selectionText.trim(), focused };
       })();`,
       allFrames: true
@@ -392,9 +400,9 @@ async function updateUIForCurrentTab() {
     if (gField.value != '')
       gField.classList.add('pasted');
   }
-  catch(e) {
+  catch(_error) {
     // if it is a special tab, we cannot execute script.
-    //console.log(e);
+    //console.log(error);
   }
 }
 
@@ -408,19 +416,19 @@ function focusToField() {
 }
 
 function buildEngines(aEngines, aContainer) {
-  var items = document.createDocumentFragment();
-  for (let engine of aEngines) {
-    let item = document.createElement('li');
+  const items = document.createDocumentFragment();
+  for (const engine of aEngines) {
+    const item = document.createElement('li');
     item.setAttribute('data-id', engine.id);
     item.setAttribute('data-url', engine.url);
 
-    let favicon = document.createElement('img');
+    const favicon = document.createElement('img');
     favicon.classList.add('favicon');
     if (engine.favIconUrl)
       favicon.setAttribute('src', engine.favIconUrl);
     item.appendChild(favicon);
 
-    let label = document.createElement('span');
+    const label = document.createElement('span');
     label.classList.add('label');
     label.textContent = engine.title;
     item.appendChild(label);
@@ -440,8 +448,8 @@ async function doSearch(aParams = {}) {
 
   doSearch.done = true;
 
-  var item = aParams.engine || getActiveEngine();
-  var term = gField.value.trim();
+  const item = aParams.engine || getActiveEngine();
+  const term = gField.value.trim();
   if (term)
     addHistory(term);
 
@@ -465,16 +473,16 @@ async function doSearch(aParams = {}) {
 }
 
 function addHistory(aTerm) {
-  var history = configs.history;
-  var index = history.indexOf(aTerm);
+  let history = configs.history;
+  const index = history.indexOf(aTerm);
   if (index > -1) {
     history.splice(index, 1);
-    let item = gHistory.querySelector(`option[value=${JSON.stringify(aTerm)}]`);
+    const item = gHistory.querySelector(`option[value=${JSON.stringify(aTerm)}]`);
     if (item)
       gHistory.removeChild(item);
   }
   history.unshift(aTerm);
-  let item = document.createElement('option');
+  const item = document.createElement('option');
   item.setAttribute('value', aTerm);
   gHistory.insertBefore(item, gHistory.firstChild);
   history = history.slice(0, configs.maxHistoryCount);
