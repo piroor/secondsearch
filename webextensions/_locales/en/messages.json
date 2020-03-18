@@ -30,7 +30,7 @@
   "config_defaultOpenIn_window":  { "message": "aNew Window" },
   "config_accelActionOpenIn_caption": { "message": "Open search result for actions with accel key (Ctrl/⌘) in" },
   "config_recycleBlankCurrentTab_label": { "message": "Recycle current blank tab, instead of new tab" },
-  "config_recycleTabUrlPattern_label": { "message": "Recycle more tabs with URI matchis to following regular expression:" },
+  "config_recycleTabUrlPattern_label": { "message": "Recycle more tabs with URI matches to following regular expression:" },
   "config_defaultEngine_label": { "message": "Default search engine when nothing item is selected (\"%s\" will be replaced to the search term):" },
   "config_favIconProvider_label": { "message": "Icon provider (\"%s\" will be replaced to the origin part of the bookmark's URI:" },
   "config_fillFieldWithSelectionText_label": { "message": "Fill search term field with the selection text in the current tab" },
