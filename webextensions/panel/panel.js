@@ -160,10 +160,11 @@ function onComposition(_event) {
 let gLastEnterEvent;
 
 function onSubmit(_event) {
-  doSearch(Object.assign(searchParamsFromEvent(gLastEnterEvent), {
+  doSearch({
+    ...searchParamsFromEvent(gLastEnterEvent),
     save:   true,
     engine: getActiveEngine()
-  }));
+  });
   gLastEnterEvent = null;
 }
 
@@ -297,9 +298,10 @@ function onEngineClick(event) {
   }
   switch (event.button) {
     case 0:
-      doSearch(Object.assign(searchParamsFromEvent(event), {
+      doSearch({
+        ...searchParamsFromEvent(event),
         engine
-      }));
+      });
       break;
 
     case 1:
