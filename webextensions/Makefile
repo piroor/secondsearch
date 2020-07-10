@@ -23,9 +23,9 @@ update_extlib:
 	cd .. && git submodule update --init
 
 install_extlib:
+	rm -rf extlib/*.js
 	cp ../submodules/webextensions-lib-configs/Configs.js extlib/
 	cp ../submodules/webextensions-lib-l10n/l10n.js extlib/
 	cp ../submodules/webextensions-lib-options/Options.js extlib/
-	cp ../submodules/webextensions-lib-shortcut-customize-ui/ShortcutCustomizeUI.js extlib/
 	cp ../submodules/webextensions-lib-scroll/scroll.js extlib/
 
