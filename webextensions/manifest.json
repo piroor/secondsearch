@@ -21,7 +21,6 @@
       "/extlib/Configs.js",
       "/common/common.js",
       "/common/permissions.js",
-      "/extlib/ShortcutCustomizeUI.js",
       "/background/background.js"
     ]
   },
@@ -48,7 +47,10 @@
   },
   "commands": {
     "_execute_browser_action": {
-      "description": "__MSG_commandDescription__ (Ctrl+Shift+L)"
+      "description": "__MSG_commandDescription__",
+      "suggested_key": {
+        "default": "Ctrl+Shift+L"
+      }
     }
   },
   "options_ui": {
