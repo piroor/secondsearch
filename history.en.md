@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.3.1 (2020.7.29)
+   * Define default keyboard shortcut statically.
  - 2.3.0 (2019.12.27)
    * Support Dark mode of the platform.
    * Better coloring with Photon and Dark color scheme.
