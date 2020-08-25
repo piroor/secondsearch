@@ -372,7 +372,6 @@ configs.$loaded.then(async () => {
   const kCONFIGS_VERSION = 2;
   switch (configs.configsVersion) {
     case 0:
-      ShortcutCustomizeUI.setDefaultShortcuts();
     case 1:
       if (!isInitialInstall)
         SearchEngines.reset(); // clear cache to fetch favicons
