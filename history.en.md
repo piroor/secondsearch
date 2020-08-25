@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.3.2 (2020.8.26)
+   * Fix initialization error on the first startup.
  - 2.3.1 (2020.7.29)
    * Define default keyboard shortcut statically.
  - 2.3.0 (2019.12.27)
