@@ -4,6 +4,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
+@import url(/resources/ui-base.css);
+@import url(/resources/ui-color.css);
+
 :root {
   /* https://dxr.mozilla.org/mozilla-central/rev/b056526be38e96b3e381b7e90cd8254ad1d96d9d/browser/themes/windows/browser.css#45 */
   --focused-item-bgcolor: var(--in-content-button-background);
@@ -188,6 +191,8 @@ body {
 .search-engines li.active {
   background: var(--focused-item-bgcolor);
   color: var(--focused-item-textcolor);
+  /* This is for the high contrast mode. The color will be overriden with the text color on the mode so it will provide better visibility for the active item. */
+  outline: 1px solid var(--focused-item-bgcolor);
 }
 
 .favicon {

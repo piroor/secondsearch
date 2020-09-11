@@ -30,7 +30,7 @@
       "16": "/resources/16x16.svg",
       "32": "/resources/32x32.svg"
     },
-    "browser_style": true,
+    "browser_style": false,
     "default_popup": "panel/panel.html",
     "theme_icons": [
       {
@@ -55,7 +55,7 @@
   },
   "options_ui": {
     "page": "/options/options.html",
-    "browser_style": true
+    "browser_style": false
   },
   "default_locale": "en",
   "applications": {
