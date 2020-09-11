@@ -298,11 +298,13 @@ const SearchEngines = {
     if (engine)
       searchParams.engine = engine.name;
 
+    const url = 'about:blank';
     switch (params.where) {
       case kOPEN_IN_TAB:
       case kOPEN_IN_BACKGROUND_TAB: {
         let tabParams = {
-          active: params.where != kOPEN_IN_BACKGROUND_TAB
+          active: params.where != kOPEN_IN_BACKGROUND_TAB,
+          url
         };
         if (params.openerTabId)
           tabParams.openerTabId = params.openerTabId;
@@ -311,7 +313,7 @@ const SearchEngines = {
       }; break;
 
       case kOPEN_IN_WINDOW: {
-        const window = await browser.windows.create({});
+        const window = await browser.windows.create({ url });
         const tab = window.tabs[0];
         await wait(configs.newWindowDelay);
         searchParams.tabId = tab.id;
