@@ -198,8 +198,10 @@ body {
 .search-engines li.active {
   background: var(--focused-item-bgcolor);
   color: var(--focused-item-textcolor);
+
   /* This is for the high contrast mode. The color will be overriden with the text color on the mode so it will provide better visibility for the active item. */
-  outline: 1px solid var(--focused-item-bgcolor);
+  text-decoration: underline;
+  text-decoration-color: transparent;
 }
 
 .favicon {
