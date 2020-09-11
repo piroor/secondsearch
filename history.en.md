@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 2.3.3 (2020.9.11)
+   * Better visibility on the high contrast mode.
+   * Reduce animation effect if it is reduced by the platform setting.
  - 2.3.2 (2020.8.26)
    * Fix initialization error on the first startup.
  - 2.3.1 (2020.7.29)
