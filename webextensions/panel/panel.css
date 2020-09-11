@@ -165,6 +165,13 @@ body {
   width: var(--panel-width);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .search-engines {
+    transition: none;
+  }
+}
+
+
 :root.by-name .search-engines#search-engines-by-recently-used {
   opacity: 0;
   pointer-events: none;
