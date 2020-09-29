@@ -1,6 +1,7 @@
 # History
 
  - master/HEAD
+   * Fix wrong behaviors of "All Configs" UI: apply imported configs to options UI immediately and treat decimal values as valid for some numeric options.
  - 2.3.3 (2020.9.11)
    * Better visibility on the high contrast mode.
    * Reduce animation effect if it is reduced by the platform setting.
