@@ -224,6 +224,7 @@ function onKeyDown(event) {
       }
       else if (gActiveEngines.hasChildNodes()) {
         gActiveEngines.lastChild.classList.add('active');
+        gActiveEngines.lastChild.setAttribute('aria-selected', 'true');
         gActiveEngines.scroll.scrollToItem(gActiveEngines.lastChild);
       }
       event.stopImmediatePropagation();
@@ -235,9 +236,11 @@ function onKeyDown(event) {
         return;
       if (activeItem) {
         activeItem.classList.remove('active');
+        activeItem.setAttribute('aria-selected', 'false');
         const item = activeItem.nextSibling;
         if (item) {
           item.classList.add('active');
+          item.setAttribute('aria-selected', 'true');
           gActiveEngines.scroll.scrollToItem(item);
         }
       }
@@ -256,8 +259,10 @@ function onInput(event) {
     return;
 
   const oldActive = getActiveEngine();
-  if (oldActive && configs.clearFocusByInput)
+  if (oldActive && configs.clearFocusByInput) {
     oldActive.classList.remove('active');
+    oldActive.setAttribute('aria-selected', 'false');
+  }
 
   configs.lastSearchTerm = gField.value;
   configs.lastSearchTime = -1;
@@ -344,12 +349,16 @@ function onSearchButtonClick(event) {
 
 function onMouseMove(event) {
   const oldActive = getActiveEngine();
-  if (oldActive)
+  if (oldActive) {
     oldActive.classList.remove('active');
+    oldActive.setAttribute('aria-selected', 'false');
+  }
 
   const hoverEngine = event.target.closest('.search-engines li');
-  if (hoverEngine)
+  if (hoverEngine) {
     hoverEngine.classList.add('active');
+    hoverEngine.setAttribute('aria-selected', 'true');
+  }
 }
 
 function getActiveEngine() {
@@ -358,12 +367,16 @@ function getActiveEngine() {
 
 function switchToRecentlyUsedEngines() {
   document.documentElement.classList.remove('by-name');
+  gEnginesSwitchers.toRecentlyUsed.setAttribute('aria-disabled', 'true');
+  gEnginesSwitchers.toAll.setAttribute('aria-disabled', 'false');
   gActiveEngines = gRecentlyUsedEngines;
   gActiveEngines.scroll.scrollTo({ position: 0, justNow: true });
 }
 
 function switchToAllEngines() {
   document.documentElement.classList.add('by-name');
+  gEnginesSwitchers.toAll.setAttribute('aria-disabled', 'true');
+  gEnginesSwitchers.toRecentlyUsed.setAttribute('aria-disabled', 'false');
   gActiveEngines = gAllEngines;
   gActiveEngines.scroll.scrollTo({ position: 0, justNow: true });
 }
