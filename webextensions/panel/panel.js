@@ -213,9 +213,12 @@ function onKeyDown(event) {
         return;
       if (activeItem) {
         activeItem.classList.remove('active');
+        activeItem.setAttribute('aria-selected', 'false');
         const item = activeItem.previousSibling;
         if (item) {
           item.classList.add('active');
+          item.setAttribute('aria-selected', 'true');
+          item.parentNode.setAttribute('aria-activedescendant', item.id);
           gActiveEngines.scroll.scrollToItem(item);
         }
       }
@@ -421,8 +424,11 @@ function buildEngines(aEngines, aContainer) {
   const items = document.createDocumentFragment();
   for (const engine of aEngines) {
     const item = document.createElement('li');
+    item.id = `${aContainer.id}:engine:${engine.id}`;
     item.setAttribute('data-id', engine.id);
     item.setAttribute('data-url', engine.url);
+    item.setAttribute('role', 'option');
+    item.setAttribute('aria-selected', 'false');
 
     const favicon = document.createElement('img');
     favicon.classList.add('favicon');
