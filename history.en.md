@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 2.3.4 (2021.11.30)
+   * Open search result tabs more certainly with native saerch engines.
+   * Add debug options UI to change delay for new tabs and new windows.
    * Fix wrong behaviors of "All Configs" UI: apply imported configs to options UI immediately and treat decimal values as valid for some numeric options.
  - 2.3.3 (2020.9.11)
    * Better visibility on the high contrast mode.
