@@ -61,7 +61,7 @@ configs.$loaded.then(() => {
 
 window.addEventListener('pageshow', async () => {
   document.addEventListener('paste', onPaste);
-  document.addEventListener('submit', onSubmit);
+  document.addEventListener('submit', onSubmit, { capture: true });
   document.addEventListener('keydown', onKeyDown, { capture: true });
   gField.addEventListener('compositionstart', onComposition, { capture: true });
   gField.addEventListener('compositionupdate', onComposition, { capture: true });
@@ -134,7 +134,7 @@ window.addEventListener('pageshow', async () => {
 
 window.addEventListener('pagehide', () => {
   document.removeEventListener('paste', onPaste);
-  document.removeEventListener('submit', onSubmit);
+  document.removeEventListener('submit', onSubmit, { capture: true });
   document.removeEventListener('keydown', onKeyDown, { capture: true });
   gField.removeEventListener('compositionstart', onComposition, { capture: true });
   gField.removeEventListener('compositionupdate', onComposition, { capture: true });
@@ -159,13 +159,16 @@ function onComposition(_event) {
 
 let gLastEnterEvent;
 
-function onSubmit(_event) {
+function onSubmit(event) {
+  event.preventDefault();
+  event.stopPropagation();
   doSearch({
     ...searchParamsFromEvent(gLastEnterEvent),
     save:   true,
     engine: getActiveEngine()
   });
   gLastEnterEvent = null;
+  return false;
 }
 
 function onKeyDown(event) {
@@ -273,13 +276,13 @@ function searchParamsFromEvent(event) {
     where:        configs.defaultOpenIn,
     keepOpen:     false
   };
-  if (event.altKey || event.ctrlKey || event.metaKey) {
+  if (event && (event.altKey || event.ctrlKey || event.metaKey)) {
     searchParams.where    = configs.accelActionOpenIn;
     searchParams.keepOpen = configs.accelActionOpenIn == kOPEN_IN_BACKGROUND_TAB;
     return searchParams;
   }
 
-  if (event.shiftKey) {
+  if (event && event.shiftKey) {
     searchParams.where = kOPEN_IN_WINDOW;
     return searchParams;
   }
@@ -474,7 +477,7 @@ async function doSearch(aParams = {}) {
   if (term)
     addHistory(term);
 
-  browser.runtime.sendMessage({
+  await browser.runtime.sendMessage({
     type:        kCOMMAND_DO_SEARCH,
     engineId:    item && item.getAttribute('data-id'),
     where:       aParams.where,

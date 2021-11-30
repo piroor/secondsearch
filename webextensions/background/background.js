@@ -282,6 +282,8 @@ const SearchEngines = {
 
     const useDefaultNativeEngine = !engine && await Permissions.isGranted(Permissions.SEARCH_PERMISSION);
     const isNativeEngine = engine && /^search-engine:/.test(params.engineId);
+    log('useDefaultNativeEngine: ', useDefaultNativeEngine);
+    log('isNativeEngine: ', isNativeEngine);
 
     if (useDefaultNativeEngine || isNativeEngine)
       await this.doSearchByNativeEngine(engine, params);
@@ -323,6 +325,9 @@ const SearchEngines = {
         searchParams.tabId = params.tabId;
         break;
     }
+    if (configs.nativeSearchDelayForNewTab > 0)
+      await new Promise(resolve => setTimeout(resolve, configs.nativeSearchDelayForNewTab));
+    log('browser.search.search() called with params: ', searchParams);
     await browser.search.search(searchParams);
   },
   async doSearchByBookmarkEngine(engine, params) {
