@@ -20,14 +20,24 @@ function onConfigChanged(aKey) {
 }
 
 async function updateDefaultEngineUI() {
-  const field   = document.getElementById('defaultEngine');
+  const engineField = document.getElementById('defaultEngine');
+  const tabDelayField = document.getElementById('newTabDelay');
+  const windowDelayField = document.getElementById('newWindowDelay');
   if (await Permissions.isGranted(Permissions.SEARCH_PERMISSION)) {
-    field.setAttribute('disabled', true);
-    field.parentNode.setAttribute('disabled', true);
+    engineField.setAttribute('disabled', true);
+    engineField.parentNode.setAttribute('disabled', true);
+    tabDelayField.removeAttribute('disabled');
+    tabDelayField.parentNode.removeAttribute('disabled');
+    windowDelayField.removeAttribute('disabled');
+    windowDelayField.parentNode.removeAttribute('disabled');
   }
   else {
-    field.removeAttribute('disabled');
-    field.parentNode.removeAttribute('disabled');
+    engineField.removeAttribute('disabled');
+    engineField.parentNode.removeAttribute('disabled');
+    tabDelayField.setAttribute('disabled', true);
+    tabDelayField.parentNode.setAttribute('disabled', true);
+    windowDelayField.setAttribute('disabled', true);
+    windowDelayField.parentNode.setAttribute('disabled', true);
   }
 }
 

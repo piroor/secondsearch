@@ -39,6 +39,10 @@
   "config_clearFieldAfterSearchDelay_after": { "message": "ミリ秒以内にもう一度検索しようとした場合を除く" },
   "config_clearFocusByInput_label": { "message": "入力を開始したら検索エンジンのフォーカス状態をリセットする" },
   "config_closeAfterSearch_label": { "message": "検索を実行したらポップアップを閉じる" },
+  "config_newTabDelay_before": { "message": "新しいタブで検索を実行するまでの遅延:" },
+  "config_newTabDelay_after": { "message": "ミリ秒（ネイティブの検索エンジンでの検索結果のタブが意図せず空になってしまう場合、数値を増やして下さい）" },
+  "config_newWindowDelay_before": { "message": "新しいウィンドウで検索を実行するまでの遅延:" },
+  "config_newWindowDelay_after": { "message": "ミリ秒（ネイティブの検索エンジンでの検索結果のウィンドウが意図せず空になってしまう場合、数値を増やして下さい）" },
 
   "config_bookmarks_caption":                { "message": "ブックマークキーワードからの検索エンジン" },
   "config_bookmarks_clearCache_description": { "message": "このアドオンはキーワード付きのブックマークを仮想敵な検索エンジンとして一覧に表示しますが、Firefox Syncやその他の理由により、いくつかのブックマークが認識されなくなる場合があります。その場合、以下のボタンをクリックする事でキャッシュを消去し、強制的にそのようなブックマークの情報を再スキャンさせることができます。" },

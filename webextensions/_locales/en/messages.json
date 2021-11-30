@@ -39,6 +39,10 @@
   "config_clearFieldAfterSearchDelay_after": { "message": "msec." },
   "config_clearFocusByInput_label": { "message": "Clear focus on search engine by starting of input" },
   "config_closeAfterSearch_label": { "message": "Close popup after search" },
+  "config_newTabDelay_before": { "message": "Delay to start search in a new tab:" },
+  "config_newTabDelay_after": { "message": "msec. (*Please increase this if the search result tab becomes blank unexpectedly for native search engines.)" },
+  "config_newWindowDelay_before": { "message": "Delay to start search in a new window:" },
+  "config_newWindowDelay_after": { "message": "msec. (*Please increase this if the search result window becomes blank unexpectedly for native search engines.)" },
 
   "config_bookmarks_caption":                { "message": "Search Engines from Bookmark Keywords" },
   "config_bookmarks_clearCache_description": { "message": "This addon lists bookmarks with their own keyword as virtual search engines, but sometimes they are missing due to Firefox Sync and other triggers. You'll see flush old information and refreshed the list of such bookmarks, by clicking following button." },
