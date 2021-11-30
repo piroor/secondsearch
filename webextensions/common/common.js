@@ -62,9 +62,9 @@ configs = new Configs({
   defaultEngine: 'https://www.google.com/search?q=%s',
   favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
   focusDelay: 150,
-  nativeSearchDelayForNewTab: 100,
   smoothScrollDuration: 150,
   newWindowDelay: 1000,
+  newTabDelay: 100,
   applyThemeColorToIcon: false,
   configsVersion: 0,
   debug: false

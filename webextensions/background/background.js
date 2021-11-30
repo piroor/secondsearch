@@ -312,12 +312,15 @@ const SearchEngines = {
           tabParams.openerTabId = params.openerTabId;
         const tab = await browser.tabs.create(tabParams);
         searchParams.tabId = tab.id;
+        if (configs.newTabDelay > 0)
+          await wait(configs.newTabDelay);
       }; break;
 
       case kOPEN_IN_WINDOW: {
         const window = await browser.windows.create({ url });
         const tab = window.tabs[0];
-        await wait(configs.newWindowDelay);
+        if (configs.newWindowDelay > 0)
+          await wait(configs.newWindowDelay);
         searchParams.tabId = tab.id;
       }; break;
 
@@ -325,8 +328,6 @@ const SearchEngines = {
         searchParams.tabId = params.tabId;
         break;
     }
-    if (configs.nativeSearchDelayForNewTab > 0)
-      await new Promise(resolve => setTimeout(resolve, configs.nativeSearchDelayForNewTab));
     log('browser.search.search() called with params: ', searchParams);
     await browser.search.search(searchParams);
   },
