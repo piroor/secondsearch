@@ -1,6 +1,10 @@
 # History
 
  - master/HEAD
+ - 2.3.5 (2022.7.21)
+   * Give more host permission to fetch favicons.
+   * Expose some options for default search engine as regular options.
+   * Hide deactivated options for default search engines.
  - 2.3.4 (2021.11.30)
    * Open search result tabs more certainly with native saerch engines.
    * Add debug options UI to change delay for new tabs and new windows.
