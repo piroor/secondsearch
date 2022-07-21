@@ -56,3 +56,10 @@ label[disabled="true"] {
 label[disabled="true"] input {
   opacity: 1;
 }
+
+.default-search-options label[disabled="true"],
+.default-search-options label[disabled="true"] input {
+  display: none;
+  -moz-user-focus: ignore;
+  -moz-user-input: disabled;
+}
