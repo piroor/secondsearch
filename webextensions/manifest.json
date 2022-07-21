@@ -6,6 +6,7 @@
   "description": "__MSG_extensionDescription__",
   "permissions": [
     "https://www.google.com/s2/favicons?*",
+    "https://*.gstatic.com/favicon*",
     "activeTab",
     "bookmarks",
     "search",
