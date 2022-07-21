@@ -12,6 +12,9 @@
     "search",
     "storage"
   ],
+  "optional_permissions": [
+    "<all_urls>"
+  ],
   "icons": {
     "16": "/resources/16x16.svg",
     "32": "/resources/32x32.svg"

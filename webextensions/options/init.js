@@ -74,6 +74,16 @@ window.addEventListener('DOMContentLoaded', async () => {
       clearCache();
   });
 
+  const allUrlsPermissionCheck = document.getElementById('allUrlsPermission');
+  Permissions.initUI({
+    checkbox: allUrlsPermissionCheck,
+    permission: Permissions.ALL_URLS,
+    onChange() {
+      if (allUrlsPermissionCheck.checked)
+        clearCache();
+    }
+  });
+
   document.documentElement.classList.add('initialized');
 }, { once: true });
 

@@ -50,6 +50,8 @@
 
   "config_shortcuts_caption": { "message": "キーボードショートカット" },
 
+  "config_allUrlsPermission_label": { "message": "初期設定のアイコン取得先以外へのクロスオリジンアクセスを許可する（アイコンを取得できない場合に有効にして下さい）" },
+
   "config_debug_caption": { "message": "開発用" },
   "config_debug_label": { "message": "デバッグモード" },
   "config_all_caption": { "message": "すべての設定" }
