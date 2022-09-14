@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.3.7 (2022.9.15)
+   * Apply theme color to the toolbar button icon.
  - 2.3.6 (2022.7.21)
    * Add an option to grant cross origin access to arbitrary host as a workaround about unfetchable favicons.
  - 2.3.5 (2022.7.21)
