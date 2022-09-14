@@ -1,9 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 14.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 43363)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="レイヤー_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
-<g fill="context-fill" fill-opacity="context-fill-opacity" fill-rule="evenodd">
+<style>
+	g:target {
+		fill-rule: evenodd;
+	}
+	g.theme:target {
+		fill: transparent /* TO BE REPLACED WITH THEME COLOR */;
+	}
+	g.bright:target {
+		fill: #0C0C0D;
+	}
+	g.dark:target {
+		fill: #F9F9FA;
+	}
+	g:not(:target) {
+		display: none;
+	}
+</style>
+<symbol id="icon">
 <path d="M20.453,19.719l0.245-0.345c0.351-0.492,0.642-1.007,0.903-1.531l-3.506,1.838
 	c-0.349,0.188-0.762,0.293-1.177,0.293c-0.15,0-0.301-0.014-0.449-0.041c-0.146-0.025-0.285-0.068-0.42-0.117
 	c-1.333,0.884-2.929,1.401-4.645,1.401c-4.652,0-8.437-3.785-8.437-8.438c0-4.652,3.785-8.436,8.437-8.436
@@ -18,5 +35,23 @@
 	c0.069,0.386-0.085,0.765-0.4,0.993c-0.179,0.13-0.387,0.198-0.603,0.198h-0.001c-0.176,0-0.333-0.039-0.479-0.113l-4.891-2.567
 	l-4.885,2.562C17.251,18.433,17.086,18.474,16.918,18.474L16.918,18.474z M18.279,15.589l4.006-2.103l4.019,2.101l-0.768-4.459
 	l3.24-3.16l-4.488-0.65l-2.005-4.06l-1.999,4.06l-4.486,0.651l3.25,3.16L18.279,15.589z"/>
+</symbol>
+<g id="toolbar-theme" class="theme" fill-opacity="0.8">
+	<use href="#icon"/>
+</g>
+<g id="default-theme" class="theme" fill-opacity="1">
+	<use href="#icon"/>
+</g>
+<g id="toolbar-bright" class="bright" fill-opacity="0.8">
+	<use href="#icon"/>
+</g>
+<g id="default-bright" class="bright" fill-opacity="1">
+	<use href="#icon"/>
+</g>
+<g id="toolbar-dark" class="dark" fill-opacity="0.8">
+	<use href="#icon"/>
+</g>
+<g id="default-dark" class="dark" fill-opacity="1">
+	<use href="#icon"/>
 </g>
 </svg>

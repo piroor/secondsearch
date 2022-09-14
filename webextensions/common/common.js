@@ -48,6 +48,7 @@ configs = new Configs({
   history: [],
   maxHistoryCount: 100,
   theme: 'default',
+  iconColor: 'auto',
   fillFieldWithSelectionText: true,
   clearFieldAfterSearch: true,
   clearFieldAfterSearchDelay: 5000,

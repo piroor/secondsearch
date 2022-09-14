@@ -421,17 +421,85 @@ browser.runtime.onMessage.addListener((message, sender) => {
   }
 });
 
-// This section should be removed and define those context-fill icons
-// statically on manifest.json after Firefox ESR66 (or 67) is released.
-// See also: https://github.com/piroor/secondsearch/issues/34
-async function applyThemeColorToIcon() {
-  const browserInfo = await browser.runtime.getBrowserInfo();
-  if (configs.applyThemeColorToIcon &&
-      parseInt(browserInfo.version.split('.')[0]) >= 62)
-    browser.browserAction.setIcon({ path: browser.runtime.getManifest().icons });
+
+const mDarkModeMatchMedia = window.matchMedia('(prefers-color-scheme: dark)');
+
+const ORIGINAL_ICONS = {
+  16: '/resources/16x16.svg',
+  32: '/resources/32x32.svg',
+};
+const ICONS = JSON.parse(JSON.stringify(ORIGINAL_ICONS));
+
+async function updateIconForBrowserTheme(theme) {
+  // generate icons with theme specific color
+  switch (configs.iconColor) {
+    case 'auto': {
+      if (!theme) {
+        const window = await browser.windows.getLastFocused();
+        theme = await browser.theme.getCurrent(window.id);
+      }
+
+      log('updateIconForBrowserTheme: colors: ', theme.colors);
+      if (theme.colors) {
+        const actionIconColor = theme.colors.icons || theme.colors.toolbar_text || theme.colors.tab_text || theme.colors.textcolor;
+        log(' => ', { actionIconColor }, theme.colors);
+        await Promise.all(Array.from(Object.entries(ORIGINAL_ICONS), async ([state, url]) => {
+          const request = new XMLHttpRequest();
+          await new Promise((resolve, _reject) => {
+            request.open('GET', url, true);
+            request.addEventListener('load', resolve, { once: true });
+            request.overrideMimeType('text/plain');
+            request.send(null);
+          });
+          const actionIconSource = request.responseText.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, actionIconColor);
+          ICONS[state] = `data:image/svg+xml,${escape(actionIconSource)}#toolbar-theme`;
+        }));
+      }
+      else if (mDarkModeMatchMedia.matches) { // dark mode
+        for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
+          ICONS[state] = `${url}#toolbar-dark`;
+        }
+      }
+      else {
+        for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
+          ICONS[state] = `${url}#toolbar-bright`;
+        }
+      }
+    }; break;
+
+    case 'bright':
+      for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
+        ICONS[state] = `${url}#toolbar-bright`;
+      }
+      break;
+
+    case 'dark':
+      for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
+        ICONS[state] = `${url}#toolbar-dark`;
+      }
+      break;
+  }
+
+  log('updateIconForBrowserTheme: applying icons: ', ICONS);
+
+  await browser.browserAction.setIcon({
+    path: ICONS,
+  });
 }
-configs.$addObserver(key => {
-  if (key == 'applyThemeColorToIcon')
-    applyThemeColorToIcon();
+
+browser.theme.onUpdated.addListener(updateInfo => {
+  updateIconForBrowserTheme(updateInfo.theme);
 });
-configs.$loaded.then(applyThemeColorToIcon);
+
+mDarkModeMatchMedia.addListener(async _event => {
+  updateIconForBrowserTheme();
+});
+
+configs.$addObserver(key => {
+  switch (key) {
+    case 'iconColor':
+      updateIconForBrowserTheme();
+      break;
+  }
+});
+configs.$loaded.then(() => updateIconForBrowserTheme());

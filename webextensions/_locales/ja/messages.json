@@ -21,7 +21,11 @@
   "config_theme_caption": { "message": "配色" },
   "config_theme_default": { "message": "既定" },
   "config_theme_dark":    { "message": "Dark" },
-  "config_applyThemeColorToIcon_label": { "message": "ツールバーのボタンにテーマの配色を反映する（※Firefox 62以降で、「about:config」で「svg.context-properties.content.enabled」を「true」に設定する必要があります）" },
+
+  "config_iconColor_caption": { "message": "ツールバーアイコンの色:" },
+  "config_iconColor_auto":    { "message": "自動" },
+  "config_iconColor_bright":  { "message": "明るいテーマ用" },
+  "config_iconColor_dark":    { "message": "暗いテーマ用" },
 
   "config_defaultOpenIn_caption": { "message": "検索結果の既定の開き方" },
   "config_defaultOpenIn_current": { "message": "現在のタブに読み込む" },
