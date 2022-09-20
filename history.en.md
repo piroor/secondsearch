@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.3.8 (2022.9.21)
+   * Apply theme color to the toolbar icon more certainly.
  - 2.3.7 (2022.9.15)
    * Apply theme color to the toolbar button icon.
  - 2.3.6 (2022.7.21)
