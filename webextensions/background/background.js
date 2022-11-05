@@ -443,14 +443,9 @@ async function updateIconForBrowserTheme(theme) {
       if (theme.colors) {
         const actionIconColor = theme.colors.icons || theme.colors.toolbar_text || theme.colors.tab_text || theme.colors.tab_background_text || theme.colors.bookmark_text || theme.colors.textcolor;
         await Promise.all(Array.from(Object.entries(ORIGINAL_ICONS), async ([state, url]) => {
-          const request = new XMLHttpRequest();
-          await new Promise((resolve, _reject) => {
-            request.open('GET', url, true);
-            request.addEventListener('load', resolve, { once: true });
-            request.overrideMimeType('text/plain');
-            request.send(null);
-          });
-          const actionIconSource = request.responseText.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, actionIconColor);
+          const response = await fetch(url);
+          const body = await response.text();
+          const actionIconSource = body.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, actionIconColor);
           ICONS[state] = `data:image/svg+xml,${escape(actionIconSource)}#toolbar-theme`;
         }));
       }
