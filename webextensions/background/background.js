@@ -311,48 +311,41 @@ const SearchEngines = {
         };
         if (params.openerTabId)
           tabParams.openerTabId = params.openerTabId;
-        // The new tab will be loaded with "about:bank" twice until it becomes available to be a new search tab,
-        // so we cannot do search simply after only one "completely loaded" event.
         const tab = await browser.tabs.create(tabParams);
         searchParams.tabId = tab.id;
-        await new Promise(async (resolve, _reject) => {
-          this.nativeSearchTabLastStatus.set(tab.id, null);
-          if (configs.newTabDelay > 0)
-            await wait(configs.newTabDelay);
-          const startAt = Date.now();
-          while (this.nativeSearchTabLastStatus.get(tab.id) != 'complete' &&
-                 Date.now() - startAt <= configs.searchTimeout) {
-            await wait(100);
-          }
-          this.nativeSearchTabLastStatus.delete(tab.id);
-          resolve();
-        });
+        this.nativeSearchTabLastStatus.set(tab.id, null);
+        if (configs.newTabDelay > 0)
+          await wait(configs.newTabDelay);
       }; break;
 
       case kOPEN_IN_WINDOW: {
-        // The new tab will be loaded with "about:bank" twice until it becomes available to be a new search tab,
-        // so we cannot do search simply after only one "completely loaded" event.
         const window = await browser.windows.create({ url });
         const tab = window.tabs[0];
         searchParams.tabId = tab.id;
-        await new Promise(async (resolve, _reject) => {
-          this.nativeSearchTabLastStatus.set(tab.id, null);
-          if (configs.newWindowDelay > 0)
-            await wait(configs.newWindowDelay);
-          const startAt = Date.now();
-          while (this.nativeSearchTabLastStatus.get(tab.id) != 'complete' &&
-                 Date.now() - startAt <= configs.searchTimeout) {
-            await wait(100);
-          }
-          this.nativeSearchTabLastStatus.delete(tab.id);
-          resolve();
-        });
+        this.nativeSearchTabLastStatus.set(tab.id, null);
+        if (configs.newWindowDelay > 0)
+          await wait(configs.newWindowDelay);
       }; break;
 
       default:
         searchParams.tabId = params.tabId;
         break;
     }
+
+    if (this.nativeSearchTabLastStatus.has(searchParams.tabId)) {
+      // The new tab will be loaded with "about:bank" twice until it becomes available to be a new search tab,
+      // so we cannot do search simply after only one "completely loaded" event.
+      await new Promise(async (resolve, _reject) => {
+        const startAt = Date.now();
+        while (this.nativeSearchTabLastStatus.get(searchParams.tabId) != 'complete' &&
+               Date.now() - startAt <= configs.searchTimeout) {
+          await wait(100);
+        }
+        this.nativeSearchTabLastStatus.delete(searchParams.tabId);
+        resolve();
+      });
+    }
+
     log('browser.search.search() called with params: ', searchParams);
     await browser.search.search(searchParams);
   },
