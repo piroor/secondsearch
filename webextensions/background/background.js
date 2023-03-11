@@ -300,6 +300,7 @@ const SearchEngines = {
     if (engine)
       searchParams.engine = engine.name;
 
+    log('doSearchByNativeEngine ', engine, params);
     const url = 'about:blank';
     switch (params.where) {
       case kOPEN_IN_TAB:
@@ -310,18 +311,42 @@ const SearchEngines = {
         };
         if (params.openerTabId)
           tabParams.openerTabId = params.openerTabId;
+        // The new tab will be loaded with "about:bank" twice until it becomes available to be a new search tab,
+        // so we cannot do search simply after only one "completely loaded" event.
         const tab = await browser.tabs.create(tabParams);
         searchParams.tabId = tab.id;
-        if (configs.newTabDelay > 0)
-          await wait(configs.newTabDelay);
+        await new Promise(async (resolve, _reject) => {
+          this.nativeSearchTabLastStatus.set(tab.id, null);
+          if (configs.newTabDelay > 0)
+            await wait(configs.newTabDelay);
+          const startAt = Date.now();
+          while (this.nativeSearchTabLastStatus.get(tab.id) != 'complete' &&
+                 Date.now() - startAt <= configs.searchTimeout) {
+            await wait(100);
+          }
+          this.nativeSearchTabLastStatus.delete(tab.id);
+          resolve();
+        });
       }; break;
 
       case kOPEN_IN_WINDOW: {
+        // The new tab will be loaded with "about:bank" twice until it becomes available to be a new search tab,
+        // so we cannot do search simply after only one "completely loaded" event.
         const window = await browser.windows.create({ url });
         const tab = window.tabs[0];
-        if (configs.newWindowDelay > 0)
-          await wait(configs.newWindowDelay);
         searchParams.tabId = tab.id;
+        await new Promise(async (resolve, _reject) => {
+          this.nativeSearchTabLastStatus.set(tab.id, null);
+          if (configs.newWindowDelay > 0)
+            await wait(configs.newWindowDelay);
+          const startAt = Date.now();
+          while (this.nativeSearchTabLastStatus.get(tab.id) != 'complete' &&
+                 Date.now() - startAt <= configs.searchTimeout) {
+            await wait(100);
+          }
+          this.nativeSearchTabLastStatus.delete(tab.id);
+          resolve();
+        });
       }; break;
 
       default:
@@ -335,6 +360,7 @@ const SearchEngines = {
     let url = engine ? engine.url : configs.defaultEngine;
     url = url.replace(/%s/gi, encodeURIComponent(params.term) || '');
 
+    log('doSearchByBookmarkEngine ', engine, params);
     switch (params.where) {
       case kOPEN_IN_TAB:
       case kOPEN_IN_BACKGROUND_TAB: {
@@ -355,7 +381,14 @@ const SearchEngines = {
         await browser.tabs.update(params.tabId, { url });
         break;
     }
-  }
+  },
+
+  nativeSearchTabLastStatus: new Map(),
+  onTabUpdated(tabId, updateInfo, tab) {
+    if (!this.nativeSearchTabLastStatus.has(tabId))
+      return;
+    this.nativeSearchTabLastStatus.set(tabId, updateInfo.status);
+  },
 };
 
 configs.$loaded.then(async () => {
@@ -364,6 +397,9 @@ configs.$loaded.then(async () => {
   browser.bookmarks.onCreated.addListener(SearchEngines.onBookmarkCreated.bind(SearchEngines));
   browser.bookmarks.onRemoved.addListener(SearchEngines.onBookmarkRemoved.bind(SearchEngines));
   browser.bookmarks.onChanged.addListener(SearchEngines.onBookmarkChanged.bind(SearchEngines));
+  browser.tabs.onUpdated.addListener(SearchEngines.onTabUpdated.bind(SearchEngines), {
+    properties: ['status'],
+  });
   if (!configs.cachedEnginesById) {
     log('initial install');
     SearchEngines.reset();

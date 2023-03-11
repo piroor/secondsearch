@@ -66,6 +66,7 @@ configs = new Configs({
   smoothScrollDuration: 150,
   newWindowDelay: 1000,
   newTabDelay: 100,
+  searchTimeout: 2000,
   applyThemeColorToIcon: false,
   configsVersion: 0,
   debug: false
