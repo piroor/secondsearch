@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.3.9 (2023.3.12)
+   * Search in new tabs more certainly.
  - 2.3.8 (2022.9.21)
    * Apply theme color to the toolbar icon more certainly.
  - 2.3.7 (2022.9.15)
