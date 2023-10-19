@@ -4,17 +4,25 @@
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
 <style>
+	:root {
+		color-scheme: light dark;
+	}
 	g:target {
 		fill-rule: evenodd;
 	}
 	g.theme:target {
 		fill: transparent /* TO BE REPLACED WITH THEME COLOR */;
 	}
-	g.bright:target {
+	g.prefer-color-scheme:target {
 		fill: #0C0C0D;
 	}
-	g.dark:target {
-		fill: #F9F9FA;
+	@media (prefers-color-scheme: dark) {
+		g.prefer-color-scheme:target {
+			fill: #F9F9FA;
+		}
+	}
+	g.mask {
+		fill: black;
 	}
 	g:not(:target) {
 		display: none;
@@ -42,16 +50,10 @@
 <g id="default-theme" class="theme" fill-opacity="1">
 	<use href="#icon"/>
 </g>
-<g id="toolbar-bright" class="bright" fill-opacity="0.8">
+<g id="toolbar" class="prefer-color-scheme" fill-opacity="0.8">
 	<use href="#icon"/>
 </g>
-<g id="default-bright" class="bright" fill-opacity="1">
-	<use href="#icon"/>
-</g>
-<g id="toolbar-dark" class="dark" fill-opacity="0.8">
-	<use href="#icon"/>
-</g>
-<g id="default-dark" class="dark" fill-opacity="1">
+<g id="default" class="prefer-color-scheme" fill-opacity="1">
 	<use href="#icon"/>
 </g>
 </svg>

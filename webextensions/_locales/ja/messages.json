@@ -22,11 +22,6 @@
   "config_theme_default": { "message": "既定" },
   "config_theme_dark":    { "message": "Dark" },
 
-  "config_iconColor_caption": { "message": "ツールバーアイコンの色:" },
-  "config_iconColor_auto":    { "message": "自動" },
-  "config_iconColor_bright":  { "message": "明るいテーマ用" },
-  "config_iconColor_dark":    { "message": "暗いテーマ用" },
-
   "config_defaultOpenIn_caption": { "message": "検索結果の既定の開き方" },
   "config_defaultOpenIn_current": { "message": "現在のタブに読み込む" },
   "config_defaultOpenIn_tab":     { "message": "新しいタブを開く" },

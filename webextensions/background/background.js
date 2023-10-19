@@ -461,8 +461,6 @@ const ICONS = JSON.parse(JSON.stringify(ORIGINAL_ICONS));
 
 async function updateIconForBrowserTheme(theme) {
   // generate icons with theme specific color
-  switch (configs.iconColor) {
-    case 'auto': {
       if (!theme) {
         const window = await browser.windows.getLastFocused();
         theme = await browser.theme.getCurrent(window.id);
@@ -478,30 +476,11 @@ async function updateIconForBrowserTheme(theme) {
           ICONS[state] = `data:image/svg+xml,${escape(actionIconSource)}#toolbar-theme`;
         }));
       }
-      else if (mDarkModeMatchMedia.matches) { // dark mode
-        for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
-          ICONS[state] = `${url}#toolbar-dark`;
-        }
-      }
       else {
         for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
-          ICONS[state] = `${url}#toolbar-bright`;
+          ICONS[state] = `${url}#toolbar`;
         }
       }
-    }; break;
-
-    case 'bright':
-      for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
-        ICONS[state] = `${url}#toolbar-bright`;
-      }
-      break;
-
-    case 'dark':
-      for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
-        ICONS[state] = `${url}#toolbar-dark`;
-      }
-      break;
-  }
 
   log('updateIconForBrowserTheme: applying icons: ', ICONS);
 
@@ -518,11 +497,12 @@ mDarkModeMatchMedia.addListener(async _event => {
   updateIconForBrowserTheme();
 });
 
+/*
 configs.$addObserver(key => {
   switch (key) {
-    case 'iconColor':
-      updateIconForBrowserTheme();
+    default;
       break;
   }
 });
+*/
 configs.$loaded.then(() => updateIconForBrowserTheme());
