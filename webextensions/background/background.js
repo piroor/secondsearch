@@ -461,26 +461,26 @@ const ICONS = JSON.parse(JSON.stringify(ORIGINAL_ICONS));
 
 async function updateIconForBrowserTheme(theme) {
   // generate icons with theme specific color
-      if (!theme) {
-        const window = await browser.windows.getLastFocused();
-        theme = await browser.theme.getCurrent(window.id);
-      }
+  if (!theme) {
+    const window = await browser.windows.getLastFocused();
+    theme = await browser.theme.getCurrent(window.id);
+  }
 
-      log('updateIconForBrowserTheme: ', theme);
-      if (theme.colors) {
-        const actionIconColor = theme.colors.icons || theme.colors.toolbar_text || theme.colors.tab_text || theme.colors.tab_background_text || theme.colors.bookmark_text || theme.colors.textcolor;
-        await Promise.all(Array.from(Object.entries(ORIGINAL_ICONS), async ([state, url]) => {
-          const response = await fetch(url);
-          const body = await response.text();
-          const actionIconSource = body.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, actionIconColor);
-          ICONS[state] = `data:image/svg+xml,${escape(actionIconSource)}#toolbar-theme`;
-        }));
-      }
-      else {
-        for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
-          ICONS[state] = `${url}#toolbar`;
-        }
-      }
+  log('updateIconForBrowserTheme: ', theme);
+  if (theme.colors) {
+    const actionIconColor = theme.colors.icons || theme.colors.toolbar_text || theme.colors.tab_text || theme.colors.tab_background_text || theme.colors.bookmark_text || theme.colors.textcolor;
+    await Promise.all(Array.from(Object.entries(ORIGINAL_ICONS), async ([state, url]) => {
+      const response = await fetch(url);
+      const body = await response.text();
+      const actionIconSource = body.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, actionIconColor);
+      ICONS[state] = `data:image/svg+xml,${escape(actionIconSource)}#toolbar-theme`;
+    }));
+  }
+  else {
+    for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
+      ICONS[state] = `${url}#toolbar`;
+    }
+  }
 
   log('updateIconForBrowserTheme: applying icons: ', ICONS);
 
