@@ -18,6 +18,8 @@
   ],
   "icons": {
     "16": "/resources/16x16.svg#default",
+    "20": "/resources/16x16.svg#default",
+    "24": "/resources/32x32.svg#default",
     "32": "/resources/32x32.svg#default"
   },
   "background": {
