@@ -14,11 +14,11 @@
 		fill: transparent /* TO BE REPLACED WITH THEME COLOR */;
 	}
 	g.prefer-color-scheme:target {
-		fill: #0C0C0D;
+		fill: #0C0C0D; /* --grey-90 at https://searchfox.org/mozilla-central/rev/d6576544301cacc0e393fbc919c53e4e6b0d46ec/devtools/client/themes/variables.css#128 */
 	}
 	@media (prefers-color-scheme: dark) {
 		g.prefer-color-scheme:target {
-			fill: #F9F9FA;
+			fill: #B1B1B3; /* --grey-40 at https://searchfox.org/mozilla-central/rev/d6576544301cacc0e393fbc919c53e4e6b0d46ec/devtools/client/themes/variables.css#254 */
 		}
 	}
 	g.mask {
@@ -41,16 +41,16 @@
 	c0.234-0.169,0.352-0.456,0.301-0.741l-0.443-2.592l1.889-1.832C15.979,4.223,16.053,3.918,15.963,3.643z M12.25,5.727l0.32,1.861
 	l-1.678-0.877l-1.67,0.877l0.32-1.861L8.188,4.408l1.871-0.271l0.834-1.693l0.836,1.693l1.873,0.271L12.25,5.727z"/>
 </symbol>
-<g id="toolbar-theme" class="theme" fill-opacity="0.8">
+<g id="toolbar-theme" class="theme">
 	<use href="#icon"/>
 </g>
-<g id="default-theme" class="theme" fill-opacity="1">
+<g id="default-theme" class="theme">
 	<use href="#icon"/>
 </g>
-<g id="toolbar" class="prefer-color-scheme" fill-opacity="0.8">
+<g id="toolbar" class="prefer-color-scheme">
 	<use href="#icon"/>
 </g>
-<g id="default" class="prefer-color-scheme" fill-opacity="1">
+<g id="default" class="prefer-color-scheme">
 	<use href="#icon"/>
 </g>
 </svg>
