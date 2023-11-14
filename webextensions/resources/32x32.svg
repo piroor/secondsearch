@@ -13,11 +13,15 @@
 	g.theme:target {
 		fill: transparent /* TO BE REPLACED WITH THEME COLOR */;
 	}
-	g.prefer-color-scheme:target {
+	g.prefer-color-scheme.default:target {
+		fill: rgb(21, 20, 26); /* https://searchfox.org/mozilla-central/rev/d6576544301cacc0e393fbc919c53e4e6b0d46ec/toolkit/themes/shared/in-content/common-shared.css#16 */
+	}
+	g.prefer-color-scheme.toolbar:target {
 		fill: rgb(91, 91, 102); /* https://searchfox.org/mozilla-central/rev/d6576544301cacc0e393fbc919c53e4e6b0d46ec/browser/themes/shared/browser-custom-colors.css#74 */
 	}
 	@media (prefers-color-scheme: dark) {
-		g.prefer-color-scheme:target {
+		g.prefer-color-scheme.default:target,
+		g.prefer-color-scheme.toolbar:target {
 			fill: rgb(251, 251, 254); /* https://searchfox.org/mozilla-central/rev/d6576544301cacc0e393fbc919c53e4e6b0d46ec/browser/themes/shared/browser-custom-colors.css#74 */
 		}
 	}
@@ -44,16 +48,16 @@
 	l-4.885,2.562C17.251,18.433,17.086,18.474,16.918,18.474L16.918,18.474z M18.279,15.589l4.006-2.103l4.019,2.101l-0.768-4.459
 	l3.24-3.16l-4.488-0.65l-2.005-4.06l-1.999,4.06l-4.486,0.651l3.25,3.16L18.279,15.589z"/>
 </symbol>
-<g id="toolbar-theme" class="theme">
+<g id="toolbar-theme" class="theme toolbar">
 	<use href="#icon"/>
 </g>
-<g id="default-theme" class="theme">
+<g id="default-theme" class="theme default">
 	<use href="#icon"/>
 </g>
-<g id="toolbar" class="prefer-color-scheme">
+<g id="toolbar" class="prefer-color-scheme toolbar">
 	<use href="#icon"/>
 </g>
-<g id="default" class="prefer-color-scheme">
+<g id="default" class="prefer-color-scheme default">
 	<use href="#icon"/>
 </g>
 </svg>
