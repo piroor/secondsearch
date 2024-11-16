@@ -7,7 +7,7 @@
 
 import Scroll from '/extlib/scroll.js';
 
-/* global gLogContext, configs */ // eslint-disable-line no-unused-vars
+/* global gLogContext, configs */
 /* global kCOMMAND_DO_SEARCH, kCOMMAND_GET_SEARCH_ENGINES */
 /* global kOPEN_IN_CURRENT, kOPEN_IN_TAB, kOPEN_IN_BACKGROUND_TAB, kOPEN_IN_WINDOW */
 
