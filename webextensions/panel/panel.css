@@ -142,13 +142,6 @@ body {
   content: ">";
 }
 
-:root.rtl #switch-to-recently-used::before {
-  content: ">";
-}
-:root.rtl #switch-to-all::before {
-  content: "<";
-}
-
 #search-engines-container {
   display: flex;
   flex-direction: column;
