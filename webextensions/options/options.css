@@ -14,6 +14,10 @@
   opacity: 0;
 }
 
+:root.rtl {
+  direction: rtl;
+}
+
 body {
   background: var(--bg-color);
   color: var(--text-color);
@@ -31,7 +35,7 @@ body {
 
 
 p, ul {
-  margin: 0 0 0.5em 0;
+  margin: 0 0 0.5em;
   padding: 0;
 }
 
@@ -41,12 +45,11 @@ ul li {
 }
 
 p.sub {
-  margin-left: 2em;
+  margin-inline-start: 2em;
 }
 
 ul p.sub {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-block: 0;
 }
 
 

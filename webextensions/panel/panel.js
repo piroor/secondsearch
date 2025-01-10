@@ -48,6 +48,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     toAll:          document.querySelector('#switch-to-all')
   };
   switchToRecentlyUsedEngines();
+
+  document.documentElement.classList.toggle('rtl', isRTL());
 }, { once: true });
 
 configs.$loaded.then(() => {
@@ -199,7 +201,10 @@ function onKeyDown(event) {
       if (!event.altKey &&
           (event.ctrlKey || event.metaKey) &&
           !event.shiftKey) {
-        switchToRecentlyUsedEngines();
+        if (isRTL())
+          switchToAllEngines();
+        else
+          switchToRecentlyUsedEngines();
       }
       return;
 
@@ -207,7 +212,10 @@ function onKeyDown(event) {
       if (!event.altKey &&
           (event.ctrlKey || event.metaKey) &&
           !event.shiftKey) {
-        switchToAllEngines();
+        if (isRTL())
+          switchToRecentlyUsedEngines();
+        else
+          switchToAllEngines();
       }
       return;
 

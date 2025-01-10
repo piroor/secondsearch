@@ -49,6 +49,10 @@
   }
 }
 
+:root.rtl {
+  direction: rtl;
+}
+
 body {
   background: var(--bg-color);
   color: var(--text-color);
@@ -85,7 +89,7 @@ body {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  margin-right: 0.5em;
+  margin-inline-end: 0.5em;
   position: relative;
 }
 
@@ -106,7 +110,7 @@ body {
   bottom: 1px;
   display: none;
   position: absolute;
-  right: 1px;
+  inset-inline-end: 1px;
   top: 1px;
 }
 #search-field.pasted ~ #do-search-button {
@@ -129,6 +133,20 @@ body {
   background: var(--focused-item-bgcolor);
   color: var(--focused-item-textcolor);
   opacity: 1;
+}
+
+#switch-to-recently-used::before {
+  content: "<";
+}
+#switch-to-all::before {
+  content: ">";
+}
+
+:root.rtl #switch-to-recently-used::before {
+  content: ">";
+}
+:root.rtl #switch-to-all::before {
+  content: "<";
 }
 
 #search-engines-container {
@@ -160,7 +178,7 @@ body {
   overflow-y: auto;
   padding: 0;
   scrollbar-width: thin;
-  transition: left ease 0.15s,
+  transition: inset-inline-start ease 0.15s,
               opacity ease 0.15s;
   width: var(--panel-width);
 }
@@ -178,12 +196,12 @@ body {
 }
 
 .search-engines#search-engines-by-name {
-  left: var(--panel-width, 200%);
+  inset-inline-start: var(--panel-width, 200%);
   opacity: 0;
   position: absolute;
 }
 :root.by-name .search-engines#search-engines-by-name {
-  left: 0;
+  inset-inline-start: 0;
   opacity: 1;
 }
 
@@ -192,7 +210,8 @@ body {
   flex-direction: row;
   flex-wrap: nowrap;
   margin: 0;
-  padding: 0.25em calc(var(--bounding-margin) + 0.5em) 0.25em var(--bounding-margin); /* right padding should be enough large to show scrollbar */
+  padding-block: 0.25em;
+  padding-inline: var(--bounding-margin) calc(var(--bounding-margin) + 0.5em); /* right padding should be enough large to show scrollbar */
 }
 
 .search-engines li.active {
@@ -212,7 +231,7 @@ body {
 
 .label {
   flex-grow: 1;
-  margin-left: 0.25em;
+  margin-inline-start: 0.25em;
   white-space: nowrap;
 }
 

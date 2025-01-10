@@ -80,3 +80,25 @@ configs = new Configs({
     debug
   `.trim().split('\n').map(aKey => aKey.trim()).filter(aKey => aKey && aKey.indexOf('//') != 0)
 });
+
+const RTL_LANGUAGES = new Set([
+  'ar',
+  'he',
+  'fa',
+  'ur',
+  'ps',
+  'sd',
+  'ckb',
+  'prs',
+  'rhg',
+]);
+
+function isRTL() {
+  const lang = (
+    navigator.language ||
+    navigator.userLanguage ||
+    //(new Intl.DateTimeFormat()).resolvedOptions().locale ||
+    ''
+  ).split('-')[0];
+  return RTL_LANGUAGES.has(lang);
+}
