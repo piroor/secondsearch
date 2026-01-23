@@ -5,14 +5,14 @@
 */
 'use strict';
 
-const kCOMMAND_GET_SEARCH_ENGINES = 'secondsearch:get-search-engines';
-const kCOMMAND_DO_SEARCH = 'secondsearch:do-search';
+export const kCOMMAND_GET_SEARCH_ENGINES = 'secondsearch:get-search-engines';
+export const kCOMMAND_DO_SEARCH = 'secondsearch:do-search';
 
-const kOPEN_IN_CURRENT = 0;
-const kOPEN_IN_TAB     = 1;
-const kOPEN_IN_WINDOW  = 2;
-const kOPEN_IN_BACKGROUND_TAB = 3;
+export const kOPEN_IN_CURRENT = 0;
+export const kOPEN_IN_TAB = 1;
+export const kOPEN_IN_WINDOW = 2;
+export const kOPEN_IN_BACKGROUND_TAB = 3;
 
-const kOPERATED_BY_KEY   = 0;
-const kOPERATED_BY_MOUSE = 1;
+export const kOPERATED_BY_KEY = 0;
+export const kOPERATED_BY_MOUSE = 1;
 

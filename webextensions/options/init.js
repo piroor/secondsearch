@@ -5,8 +5,18 @@
 */
 'use strict';
 
-gLogContext = 'Options';
-var options = new Options(configs);
+import {
+  configs,
+  isRTL,
+  setLogContext,
+} from '/common/common.js';
+import Permissions from '/common/permissions.js';
+
+import '/extlib/l10n.js';
+import Options from '/extlib/Options.js';
+
+setLogContext('Options');
+const options = new Options(configs);
 
 function onConfigChanged(aKey) {
   switch (aKey) {
@@ -71,13 +81,13 @@ window.addEventListener('DOMContentLoaded', async () => {
       clearCache();
   });
   clearCacheButton.addEventListener('keydown', event => {
-    if (event.key =='Enter')
+    if (event.key == 'Enter')
       clearCache();
   });
 
   const allUrlsPermissionCheck = document.getElementById('allUrlsPermission');
   Permissions.initUI({
-    checkbox: allUrlsPermissionCheck,
+    checkbox:   allUrlsPermissionCheck,
     permission: Permissions.ALL_URLS,
     onChange() {
       if (allUrlsPermissionCheck.checked)

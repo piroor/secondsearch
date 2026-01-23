@@ -7,21 +7,21 @@
 
 const Permissions = {
   SEARCH_PERMISSION: { permissions: ['search'] },
-  ALL_URLS: { origins: ['<all_urls>'] },
+  ALL_URLS:          { origins: ['<all_urls>'] },
 
   async isGranted(permission) {
     try {
       return browser.permissions.contains(permission);
     }
-    catch(e) {
+    catch(_error) {
       return false;
     }
   },
 
   async initUI(params = {}) {
-    const checkbox   = params.checkbox;
+    const checkbox = params.checkbox;
     const permission = params.permission;
-    const onChange   = params.onChange;
+    const onChange = params.onChange;
     try {
       checkbox.checked = await browser.permissions.contains(permission);
       let lastState = checkbox.checked;
@@ -39,9 +39,11 @@ const Permissions = {
         lastState = checkbox.checked;
       });
     }
-    catch(e) {
+    catch(_error) {
       checkbox.setAttribute('disabled', true);
       checkbox.parentNode.setAttribute('disabled', true);
     }
   }
 };
+
+export default Permissions;

@@ -5,22 +5,31 @@
 */
 'use strict';
 
-gLogContext = 'BG';
+import {
+  configs,
+  log,
+  setLogContext,
+  wait,
+} from '/common/common.js';
+import Permissions from '/common/permissions.js';
+import * as Constants from '/common/constants.js';
+
+setLogContext('BG');
 
 const SearchEngines = {
-  cachedEngines: null,
-  cachedEnginesById: null,
+  cachedEngines:       null,
+  cachedEnginesById:   null,
   recentlyUsedEngines: [],
 
-  FAVICON_SIZE: 16,
-  VALID_FAVICON_PATTERN: /^(about|app|chrome|data|file|ftp|https?|moz-extension|resource):/,
+  FAVICON_SIZE:             16,
+  VALID_FAVICON_PATTERN:    /^(about|app|chrome|data|file|ftp|https?|moz-extension|resource):/,
   DRAWABLE_FAVICON_PATTERN: /^(https?|moz-extension|resource):/,
 
   async reset() {
     log('reset');
-    const engines     = [];
+    const engines = [];
     const enginesById = {};
-    this.cachedEngines     = [];
+    this.cachedEngines = [];
     this.cachedEnginesById = {};
     await Promise.all([
       this.collectBookmarksEngines(engines, enginesById),
@@ -49,7 +58,7 @@ const SearchEngines = {
           }
         })());
       }
-      bookmark._recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(bookmark.id);
+      bookmark.$recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(bookmark.id);
       engines.push(bookmark);
       enginesById[bookmark.id] = bookmark;
     }
@@ -64,14 +73,14 @@ const SearchEngines = {
       engine.id =
         engine.url = `search-engine:${engine.name}`;
       engine.title = engine.name;
-      engine._recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(engine.id);
+      engine.$recentlyUsedIndex = configs.recentlyUsedEngines.indexOf(engine.id);
       engines.push(engine);
       enginesById[engine.id] = engine;
     }
   },
 
   async updateNativeEngines() {
-    const engines     = [];
+    const engines = [];
     const enginesById = [];
     await this.collectNativeEngines(engines, enginesById);
 
@@ -100,15 +109,15 @@ const SearchEngines = {
     }
   },
 
-  buildFavIconURI(aEngine) {
-    const uriMatch = aEngine.url.match(/^(\w+:\/\/[^\/]+)/);
+  buildFavIconURI(engine) {
+    const uriMatch = engine.url.match(/^(\w+:\/\/[^\/]+)/);
     if (!uriMatch)
       return null;
     return configs.favIconProvider.replace(/%s/gi, uriMatch[1]);
   },
 
-  async getFavIconDataURI(aEngine) {
-    const url = this.buildFavIconURI(aEngine);
+  async getFavIconDataURI(engine) {
+    const url = this.buildFavIconURI(engine);
     if (url && url.startsWith('data:'))
       return url;
 
@@ -171,36 +180,36 @@ const SearchEngines = {
     log('sort');
     for (const id of Object.keys(this.cachedEnginesById)) {
       const engine = this.cachedEnginesById[id];
-      engine._recentlyUsedIndex = this.recentlyUsedEngines.indexOf(id);
+      engine.$recentlyUsedIndex = this.recentlyUsedEngines.indexOf(id);
     }
     log('recentlyUsedEngines sorted');
     this.cachedEngines.sort((aA, aB) =>
-      aA._recentlyUsedIndex < 0 && aB._recentlyUsedIndex > -1 ?
+      aA.$recentlyUsedIndex < 0 && aB.$recentlyUsedIndex > -1 ?
         1 :
-        aA._recentlyUsedIndex > -1 && aB._recentlyUsedIndex < 0 ?
+        aA.$recentlyUsedIndex > -1 && aB.$recentlyUsedIndex < 0 ?
           -1 :
-          aA._recentlyUsedIndex - aB._recentlyUsedIndex ||
-            aA.title > aB.title);
+          aA.$recentlyUsedIndex - aB.$recentlyUsedIndex ||
+          aA.title > aB.title);
     log('cachedEngines sorted');
   },
 
-  onUsed(aRecentlyUsedId) {
-    this.recentlyUsedEngines = this.recentlyUsedEngines.filter(aId => aId != aRecentlyUsedId);
-    this.recentlyUsedEngines.unshift(aRecentlyUsedId);
+  onUsed(recentlyUsedId) {
+    this.recentlyUsedEngines = this.recentlyUsedEngines.filter(id => id != recentlyUsedId);
+    this.recentlyUsedEngines.unshift(recentlyUsedId);
     log('updated recently used engines: ', this.recentlyUsedEngines);
     configs.recentlyUsedEngines = this.recentlyUsedEngines;
     this.sort();
   },
 
-  async onBookmarkCreated(aId, aMayBeEngine) {
-    if (aMayBeEngine.type != 'bookmark' ||
-        !/%s/i.test(aMayBeEngine.url))
+  async onBookmarkCreated(id, mayBeEngine) {
+    if (mayBeEngine.type != 'bookmark' ||
+        !/%s/i.test(mayBeEngine.url))
       return;
-    log('new engine is added: ', aMayBeEngine);
-    this.cachedEnginesById[aId] = aMayBeEngine;
-    if (!aMayBeEngine.favIconUrl) {
+    log('new engine is added: ', mayBeEngine);
+    this.cachedEnginesById[id] = mayBeEngine;
+    if (!mayBeEngine.favIconUrl) {
       try {
-        aMayBeEngine.favIconUrl = await this.getFavIconDataURI(aMayBeEngine);
+        mayBeEngine.favIconUrl = await this.getFavIconDataURI(mayBeEngine);
       }
       catch(_e) {
       }
@@ -209,31 +218,31 @@ const SearchEngines = {
     this.updateCache();
   },
 
-  onBookmarkRemoved(aId, aRemoveInfo) {
-    if (aId in this.cachedEnginesById) {
-      log('engine is removed: ', this.cachedEnginesById[aId]);
-      delete this.cachedEnginesById[aId];
+  onBookmarkRemoved(id, _removeInfo) {
+    if (id in this.cachedEnginesById) {
+      log('engine is removed: ', this.cachedEnginesById[id]);
+      delete this.cachedEnginesById[id];
       configs.cachedEnginesById = this.cachedEnginesById;
       this.updateCache();
     }
   },
 
-  onBookmarkChanged(aId, aChangeInfo) {
-    if ('url' in aChangeInfo) {
-      if (aId in this.cachedEnginesById &&
-          !/%s/i.test(aChangeInfo.url)) {
-        log('engine is removed by changing URL: ', this.cachedEnginesById[aId]);
-        delete this.cachedEnginesById[aId];
+  onBookmarkChanged(id, changeInfo) {
+    if ('url' in changeInfo) {
+      if (id in this.cachedEnginesById &&
+          !/%s/i.test(changeInfo.url)) {
+        log('engine is removed by changing URL: ', this.cachedEnginesById[id]);
+        delete this.cachedEnginesById[id];
         configs.cachedEnginesById = this.cachedEnginesById;
         this.updateCache();
       }
-      else if (/%s/i.test(aChangeInfo.url)) {
+      else if (/%s/i.test(changeInfo.url)) {
         (async () => {
-          let bookmark = await browser.bookmarks.get(aId);
+          let bookmark = await browser.bookmarks.get(id);
           if (Array.isArray(bookmark))
             bookmark = bookmark[0];
           log('engine is added by changing URL: ', bookmark);
-          this.cachedEnginesById[aId] = bookmark;
+          this.cachedEnginesById[id] = bookmark;
           if (!bookmark.favIconUrl) {
             try {
               bookmark.favIconUrl = await this.getFavIconDataURI(bookmark);
@@ -246,9 +255,9 @@ const SearchEngines = {
         })();
       }
     }
-    if ('title' in aChangeInfo &&
-        aId in this.cachedEnginesById) {
-      this.cachedEnginesById[aId].title = aChangeInfo.title;
+    if ('title' in changeInfo &&
+        id in this.cachedEnginesById) {
+      this.cachedEnginesById[id].title = changeInfo.title;
       configs.cachedEnginesById = this.cachedEnginesById;
       this.updateCache();
     }
@@ -258,7 +267,7 @@ const SearchEngines = {
     log('cleanupMissingEngines');
     const ids = Object.keys(this.cachedEnginesById).sort();
     log('ids: ', ids);
-    let bookmarks = await Promise.all(ids.map(aId => browser.bookmarks.get(aId).catch(aError => null)));
+    let bookmarks = await Promise.all(ids.map(id => browser.bookmarks.get(id).catch(_error => null)));
     if (bookmarks.length > 0) {
       if (Array.isArray(bookmarks[0]))
         bookmarks = Array.prototype.concat.apply([], bookmarks);
@@ -303,10 +312,10 @@ const SearchEngines = {
     log('doSearchByNativeEngine ', engine, params);
     const url = 'about:blank';
     switch (params.where) {
-      case kOPEN_IN_TAB:
-      case kOPEN_IN_BACKGROUND_TAB: {
-        let tabParams = {
-          active: params.where != kOPEN_IN_BACKGROUND_TAB,
+      case Constants.kOPEN_IN_TAB:
+      case Constants.kOPEN_IN_BACKGROUND_TAB: {
+        const tabParams = {
+          active: params.where != Constants.kOPEN_IN_BACKGROUND_TAB,
           url
         };
         if (params.openerTabId)
@@ -318,7 +327,7 @@ const SearchEngines = {
           await wait(configs.newTabDelay);
       }; break;
 
-      case kOPEN_IN_WINDOW: {
+      case Constants.kOPEN_IN_WINDOW: {
         const window = await browser.windows.create({ url });
         const tab = window.tabs[0];
         searchParams.tabId = tab.id;
@@ -355,10 +364,10 @@ const SearchEngines = {
 
     log('doSearchByBookmarkEngine ', engine, params);
     switch (params.where) {
-      case kOPEN_IN_TAB:
-      case kOPEN_IN_BACKGROUND_TAB: {
-        let tabParams = {
-          active: params.where != kOPEN_IN_BACKGROUND_TAB,
+      case Constants.kOPEN_IN_TAB:
+      case Constants.kOPEN_IN_BACKGROUND_TAB: {
+        const tabParams = {
+          active: params.where != Constants.kOPEN_IN_BACKGROUND_TAB,
           url
         };
         if (params.openerTabId)
@@ -366,7 +375,7 @@ const SearchEngines = {
         await browser.tabs.create(tabParams);
       }; break;
 
-      case kOPEN_IN_WINDOW:
+      case Constants.kOPEN_IN_WINDOW:
         await browser.windows.create({ url });
         break;
 
@@ -377,7 +386,7 @@ const SearchEngines = {
   },
 
   nativeSearchTabLastStatus: new Map(),
-  onTabUpdated(tabId, updateInfo, tab) {
+  onTabUpdated(tabId, updateInfo, _tab) {
     if (!this.nativeSearchTabLastStatus.has(tabId))
       return;
     this.nativeSearchTabLastStatus.set(tabId, updateInfo.status);
@@ -428,21 +437,21 @@ configs.$loaded.then(async () => {
   });
 });
 
-browser.runtime.onMessage.addListener((message, sender) => {
+browser.runtime.onMessage.addListener((message, _sender) => {
   if (!message ||
       typeof message.type != 'string' ||
       message.type.indexOf('secondsearch:') != 0)
     return;
 
   switch (message.type) {
-    case kCOMMAND_GET_SEARCH_ENGINES:
+    case Constants.kCOMMAND_GET_SEARCH_ENGINES:
       log('get engines , SearchEngines.cachedEngines');
       return SearchEngines.updateNativeEngines()
         .then(() => SearchEngines.cachedEngines);
 
-    case kCOMMAND_DO_SEARCH:
+    case Constants.kCOMMAND_DO_SEARCH:
       log('do search ', message);
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve, _reject) => {
         setTimeout(() => {
           SearchEngines.doSearch(message).then(resolve);
         }, 100);
@@ -506,3 +515,4 @@ configs.$addObserver(key => {
 });
 */
 configs.$loaded.then(() => updateIconForBrowserTheme());
+

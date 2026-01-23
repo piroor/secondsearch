@@ -5,13 +5,17 @@
 */
 'use strict';
 
+import {
+  configs,
+  isRTL,
+  setLogContext,
+} from '/common/common.js';
+import * as Constants from '/common/constants.js';
+
+import '/extlib/l10n.js';
 import Scroll from '/extlib/scroll.js';
 
-/* global gLogContext, configs */
-/* global kCOMMAND_DO_SEARCH, kCOMMAND_GET_SEARCH_ENGINES */
-/* global kOPEN_IN_CURRENT, kOPEN_IN_TAB, kOPEN_IN_BACKGROUND_TAB, kOPEN_IN_WINDOW */
-
-gLogContext = 'Panel';
+setLogContext('Panel');
 
 let gStyleVariables;
 let gField;
@@ -34,7 +38,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   gContainer = document.querySelector('#search-engines-container');
 
   gRecentlyUsedEngines = document.querySelector('#search-engines-by-recently-used');
-  gAllEngines          = document.querySelector('#search-engines-by-name');
+  gAllEngines = document.querySelector('#search-engines-by-name');
 
   gRecentlyUsedEngines.scroll = new Scroll(gRecentlyUsedEngines, {
     duration: configs.smoothScrollDuration
@@ -103,7 +107,7 @@ window.addEventListener('pageshow', async () => {
 
   await Promise.all([
     (async () => {
-      const recentlyUsedEngines = await browser.runtime.sendMessage({ type: kCOMMAND_GET_SEARCH_ENGINES });
+      const recentlyUsedEngines = await browser.runtime.sendMessage({ type: Constants.kCOMMAND_GET_SEARCH_ENGINES });
       if (recentlyUsedEngines.length == 0) {
         /*
         Permissions.initUI({
@@ -281,26 +285,26 @@ function onInput(event) {
 
 function searchParamsFromEvent(event) {
   const searchParams = {
-    where:        configs.defaultOpenIn,
-    keepOpen:     false
+    where:    configs.defaultOpenIn,
+    keepOpen: false
   };
   if (event && (event.altKey || event.ctrlKey || event.metaKey)) {
-    searchParams.where    = configs.accelActionOpenIn;
-    searchParams.keepOpen = configs.accelActionOpenIn == kOPEN_IN_BACKGROUND_TAB;
+    searchParams.where = configs.accelActionOpenIn;
+    searchParams.keepOpen = configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB;
     return searchParams;
   }
 
   if (event && event.shiftKey) {
-    searchParams.where = kOPEN_IN_WINDOW;
+    searchParams.where = Constants.kOPEN_IN_WINDOW;
     return searchParams;
   }
 
   if (configs.recycleBlankCurrentTab &&
-      configs.defaultOpenIn == kOPEN_IN_TAB &&
+      configs.defaultOpenIn == Constants.kOPEN_IN_TAB &&
       (gCurrentTab.url == 'about:blank' ||
        (configs.recycleTabUrlPattern &&
         new RegExp(configs.recycleTabUrlPattern).test(gCurrentTab.url)))) {
-    searchParams.where = kOPEN_IN_CURRENT;
+    searchParams.where = Constants.kOPEN_IN_CURRENT;
     return searchParams;
   }
 
@@ -326,7 +330,7 @@ function onEngineClick(event) {
     case 1:
       doSearch({
         where:    configs.accelActionOpenIn,
-        keepOpen: configs.accelActionOpenIn == kOPEN_IN_BACKGROUND_TAB,
+        keepOpen: configs.accelActionOpenIn == Constants.kOPEN_IN_BACKGROUND_TAB,
         engine
       });
       break;
@@ -396,7 +400,7 @@ async function updateUIForCurrentTab() {
   try {
     gCurrentTab = (await browser.tabs.query({
       currentWindow: true,
-      active: true
+      active:        true
     }))[0];
     if (!configs.fillFieldWithSelectionText)
       return;
@@ -486,7 +490,7 @@ async function doSearch(aParams = {}) {
     addHistory(term);
 
   await browser.runtime.sendMessage({
-    type:        kCOMMAND_DO_SEARCH,
+    type:        Constants.kCOMMAND_DO_SEARCH,
     engineId:    item && item.getAttribute('data-id'),
     where:       aParams.where,
     term,

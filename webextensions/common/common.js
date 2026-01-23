@@ -5,71 +5,41 @@
 */
 'use strict';
 
-var configs;
-var gLogContext = '?';
+import * as Constants from './constants.js';
 
-function log(aMessage, ...aArgs)
-{
-  if (!configs || !configs.debug)
-    return;
+import Configs from '/extlib/Configs.js';
 
-  var nest   = (new Error()).stack.split('\n').length;
-  var indent = '';
-  for (let i = 0; i < nest; i++) {
-    indent += ' ';
-  }
-  console.log(`ss<${gLogContext}>: ${indent}${aMessage}`, ...aArgs);
-}
+let mLogContext = '?';
 
-async function wait(aTask = 0, aTimeout = 0) {
-  if (typeof aTask != 'function') {
-    aTimeout = aTask;
-    aTask    = null;
-  }
-  return new Promise((aResolve, aReject) => {
-    setTimeout(async () => {
-      if (aTask)
-        await aTask();
-      aResolve();
-    }, aTimeout);
-  });
-}
-
-function nextFrame() {
-  return new Promise((aResolve, aReject) => {
-    window.requestAnimationFrame(aResolve);
-  });
-}
-
-configs = new Configs({
-  cachedEnginesById: null,
-  recentlyUsedEngines: [],
-  autocomplete: false,
-  history: [],
-  maxHistoryCount: 100,
-  theme: 'default',
-  iconColor: 'auto',
+export const configs = new Configs({
+  cachedEnginesById:          null,
+  recentlyUsedEngines:        [],
+  autocomplete:               false,
+  history:                    [],
+  maxHistoryCount:            100,
+  theme:                      'default',
+  iconColor:                  'auto',
   fillFieldWithSelectionText: true,
-  clearFieldAfterSearch: true,
+  clearFieldAfterSearch:      true,
   clearFieldAfterSearchDelay: 5000,
-  clearFocusByInput: true,
-  lastSearchTerm: '',
-  lastSearchTime: 0,
-  closeAfterSearch: true,
-  recycleBlankCurrentTab: true,
-  recycleTabUrlPattern: '^about:(newtab|home|privatebrowsing)$',
-  defaultOpenIn: kOPEN_IN_TAB,
-  accelActionOpenIn: kOPEN_IN_BACKGROUND_TAB,
-  defaultEngine: 'https://www.google.com/search?q=%s',
-  favIconProvider: `https://www.google.com/s2/favicons?domain=%s`,
-  focusDelay: 150,
-  smoothScrollDuration: 150,
-  newWindowDelay: 1000,
-  newTabDelay: 100,
-  searchTimeout: 2000,
-  applyThemeColorToIcon: false,
-  configsVersion: 0,
-  debug: false
+  clearFocusByInput:          true,
+  lastSearchTerm:             '',
+  lastSearchTime:             0,
+  closeAfterSearch:           true,
+  recycleBlankCurrentTab:     true,
+  recycleTabUrlPattern:       '^about:(newtab|home|privatebrowsing)$',
+  defaultOpenIn:              Constants.kOPEN_IN_TAB,
+  accelActionOpenIn:          Constants.kOPEN_IN_BACKGROUND_TAB,
+  defaultEngine:              'https://www.google.com/search?q=%s',
+  favIconProvider:            `https://www.google.com/s2/favicons?domain=%s`,
+  focusDelay:                 150,
+  smoothScrollDuration:       150,
+  newWindowDelay:             1000,
+  newTabDelay:                100,
+  searchTimeout:              2000,
+  applyThemeColorToIcon:      false,
+  configsVersion:             0,
+  debug:                      false
 }, {
   localKeys: `
     cachedEnginesById
@@ -80,6 +50,42 @@ configs = new Configs({
     debug
   `.trim().split('\n').map(aKey => aKey.trim()).filter(aKey => aKey && aKey.indexOf('//') != 0)
 });
+
+export function setLogContext(context) {
+  mLogContext = context;
+}
+
+export function log(aMessage, ...aArgs) {
+  if (!configs.debug)
+    return;
+
+  const nest = (new Error()).stack.split('\n').length;
+  let indent = '';
+  for (let i = 0; i < nest; i++) {
+    indent += ' ';
+  }
+  console.log(`ss<${mLogContext}>: ${indent}${aMessage}`, ...aArgs);
+}
+
+export async function wait(task = 0, timeout = 0) {
+  if (typeof task != 'function') {
+    timeout = task;
+    task = null;
+  }
+  return new Promise((resolve, _reject) => {
+    setTimeout(async () => {
+      if (task)
+        await task();
+      resolve();
+    }, timeout);
+  });
+}
+
+export function nextFrame() {
+  return new Promise((resolve, _reject) => {
+    window.requestAnimationFrame(resolve);
+  });
+}
 
 const RTL_LANGUAGES = new Set([
   'ar',
@@ -93,7 +99,7 @@ const RTL_LANGUAGES = new Set([
   'rhg',
 ]);
 
-function isRTL() {
+export function isRTL() {
   const lang = (
     navigator.language ||
     navigator.userLanguage ||

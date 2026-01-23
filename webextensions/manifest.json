@@ -23,13 +23,7 @@
     "32": "/resources/32x32.svg#default"
   },
   "background": {
-    "scripts": [
-      "/common/constants.js",
-      "/extlib/Configs.js",
-      "/common/common.js",
-      "/common/permissions.js",
-      "/background/background.js"
-    ]
+    "page": "background/background.html"
   },
   "browser_action": {
     "default_title": "__MSG_panelTitle__",
