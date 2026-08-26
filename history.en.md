@@ -1,6 +1,8 @@
 # History
 
  - master/HEAD
+ - 2.3.10 (2026.8.26)
+   * Add support for "Nova" theme of Firefox 155 and later.
  - 2.3.9 (2023.3.12)
    * Search in new tabs more certainly.
  - 2.3.8 (2022.9.21)
