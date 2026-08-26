@@ -18,7 +18,6 @@ export const configs = new Configs({
   history:                    [],
   maxHistoryCount:            100,
   theme:                      'default',
-  iconColor:                  'auto',
   fillFieldWithSelectionText: true,
   clearFieldAfterSearch:      true,
   clearFieldAfterSearchDelay: 5000,
@@ -85,6 +84,14 @@ export function nextFrame() {
   return new Promise((resolve, _reject) => {
     window.requestAnimationFrame(resolve);
   });
+}
+
+export function getCurrentIconTheme() {
+  const matched = navigator.userAgent.match(/Firefox\/(\d+)\.\d+/);
+  const version = matched ? parseInt(matched[1]) : 0;
+  if (version >= 155)
+    return 'nova';
+  return 'proton';
 }
 
 const RTL_LANGUAGES = new Set([

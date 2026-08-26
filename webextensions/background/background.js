@@ -10,6 +10,7 @@ import {
   log,
   setLogContext,
   wait,
+  getCurrentIconTheme,
 } from '/common/common.js';
 import Permissions from '/common/permissions.js';
 import * as Constants from '/common/constants.js';
@@ -462,14 +463,15 @@ browser.runtime.onMessage.addListener((message, _sender) => {
 
 const mDarkModeMatchMedia = window.matchMedia('(prefers-color-scheme: dark)');
 
-const ORIGINAL_ICONS = {
-  16: '/resources/16x16.svg',
-  32: '/resources/32x32.svg',
+const BASE_ICONS = {
+  '16': '/resources/16x16.svg',
+  '32': '/resources/32x32.svg',
 };
-const ICONS = JSON.parse(JSON.stringify(ORIGINAL_ICONS));
 
 async function updateIconForBrowserTheme(theme) {
   // generate icons with theme specific color
+  const toolbarIcons = {};
+
   if (!theme) {
     const window = await browser.windows.getLastFocused();
     theme = await browser.theme.getCurrent(window.id);
@@ -477,25 +479,35 @@ async function updateIconForBrowserTheme(theme) {
 
   log('updateIconForBrowserTheme: ', theme);
   if (theme.colors) {
-    const actionIconColor = theme.colors.icons || theme.colors.toolbar_text || theme.colors.tab_text || theme.colors.tab_background_text || theme.colors.bookmark_text || theme.colors.textcolor;
-    await Promise.all(Array.from(Object.entries(ORIGINAL_ICONS), async ([state, url]) => {
+    const isNativeVerticalTabs = 'verticalTabs' in browser.browserSettings ? (await browser.browserSettings.verticalTabs.get({})).value : false;
+    const toolbarIconColor = theme.colors.icons || (
+      isNativeVerticalTabs ?
+        'CanvasText' : // --toolbarbutton-icon-fill in https://searchfox.org/firefox-main/rev/91c8ca3faa6ccbb72d65d89401fd31fd3313afc4/toolkit/themes/shared/design-system/dist/tokens-platform.css#225
+        theme.colors.toolbar_text || theme.colors.tab_text || theme.colors.tab_background_text || theme.colors.bookmark_text || theme.colors.textcolor
+    );
+    log(' => ', { toolbarIconColor }, theme.colors);
+    await Promise.all(Array.from(Object.entries(BASE_ICONS), async ([size, url]) => {
       const response = await fetch(url);
       const body = await response.text();
-      const actionIconSource = body.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, actionIconColor);
-      ICONS[state] = `data:image/svg+xml,${escape(actionIconSource)}#toolbar-theme`;
+      const toolbarIconSource = body.replace(/transparent\s*\/\*\s*TO BE REPLACED WITH THEME COLOR\s*\*\//g, toolbarIconColor);
+      toolbarIcons[size] = `data:image/svg+xml,${escape(toolbarIconSource)}#toolbar-theme`;
     }));
   }
   else {
-    for (const [state, url] of Object.entries(ORIGINAL_ICONS)) {
-      ICONS[state] = `${url}#toolbar`;
+    const themeSuffix = getCurrentIconTheme();
+    for (const [size, url] of Object.entries(BASE_ICONS)) {
+      toolbarIcons[size] = `${url}#toolbar-${themeSuffix}`;
     }
   }
 
-  log('updateIconForBrowserTheme: applying icons: ', ICONS);
-
-  await browser.browserAction.setIcon({
-    path: ICONS,
+  log('updateIconForBrowserTheme: applying icons: ', {
+    toolbarIcons,
   });
+
+  await Promise.all([
+    browser.action?.setIcon({ path: toolbarIcons }), // Manifest v3
+    browser.browserAction?.setIcon({ path: toolbarIcons }), // Manifest v2
+  ]);
 }
 
 browser.theme.onUpdated.addListener(updateInfo => {

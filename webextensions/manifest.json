@@ -9,6 +9,7 @@
     "https://*.gstatic.com/favicon*",
     "activeTab",
     "bookmarks",
+    "browserSettings",
     "search",
     "storage",
     "theme"
@@ -17,10 +18,10 @@
     "<all_urls>"
   ],
   "icons": {
-    "16": "/resources/16x16.svg#default",
-    "20": "/resources/16x16.svg#default",
-    "24": "/resources/32x32.svg#default",
-    "32": "/resources/32x32.svg#default"
+    "16": "/resources/16x16.svg#default-proton",
+    "20": "/resources/16x16.svg#default-proton",
+    "24": "/resources/32x32.svg#default-proton",
+    "32": "/resources/32x32.svg#default-proton"
   },
   "background": {
     "page": "background/background.html"
@@ -28,8 +29,8 @@
   "browser_action": {
     "default_title": "__MSG_panelTitle__",
     "default_icon": {
-      "16": "/resources/16x16.svg#toolbar",
-      "32": "/resources/32x32.svg#toolbar"
+      "16": "/resources/16x16.svg#toolbar-proton",
+      "32": "/resources/32x32.svg#toolbar-proton"
     },
     "browser_style": false,
     "default_popup": "panel/panel.html"
@@ -50,7 +51,7 @@
   "applications": {
     "gecko": {
       "id": "{0AE5CAA4-8BAB-11DB-AF59-ED4B56D89593}",
-      "strict_min_version": "67.0"
+      "strict_min_version": "140.0"
     }
   }
 }
