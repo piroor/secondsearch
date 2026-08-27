@@ -9,13 +9,13 @@
     "https://*.gstatic.com/favicon*",
     "activeTab",
     "bookmarks",
-    "browserSettings",
     "search",
     "storage",
     "theme"
   ],
   "optional_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "browserSettings"
   ],
   "icons": {
     "16": "/resources/16x16.svg#default-proton",

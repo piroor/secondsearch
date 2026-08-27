@@ -21,6 +21,7 @@
   "config_theme_caption": { "message": "Color scheme" },
   "config_theme_default": { "message": "Default" },
   "config_theme_dark":    { "message": "Dark" },
+  "config_browserSettingsPermission_label": { "message": "Apply more suitable color to the toolbar icon, based on the status of the native vertical tabs (*You need to allow reading browser settings)" },
 
   "config_defaultOpenIn_caption": { "message": "Open search result in" },
   "config_defaultOpenIn_current": { "message": "the Current Tab" },

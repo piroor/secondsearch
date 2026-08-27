@@ -8,6 +8,7 @@
 const Permissions = {
   SEARCH_PERMISSION: { permissions: ['search'] },
   ALL_URLS:          { origins: ['<all_urls>'] },
+  BROWSER_SETTINGS:  { permissions: ['browserSettings'] },
 
   async isGranted(permission) {
     try {

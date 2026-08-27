@@ -21,6 +21,7 @@
   "config_theme_caption": { "message": "配色" },
   "config_theme_default": { "message": "既定" },
   "config_theme_dark":    { "message": "Dark" },
+  "config_browserSettingsPermission_label": { "message": "ブラウザー側の垂直タブバーの状態に応じてツールバーのアイコンを適切な色で表示する（※ブラウザーの設定の読み取りを許可する必要があります）" },
 
   "config_defaultOpenIn_caption": { "message": "検索結果の既定の開き方" },
   "config_defaultOpenIn_current": { "message": "現在のタブに読み込む" },

@@ -95,6 +95,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  Permissions.initUI({
+    checkbox:   document.querySelector('#browserSettingsPermissionGranted'),
+    permission: Permissions.BROWSER_SETTINGS,
+  });
+
   document.documentElement.classList.add('initialized');
 }, { once: true });
 
