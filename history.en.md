@@ -1,6 +1,9 @@
 # History
 
  - master/HEAD
+ - 2.3.11 (2026.8.27)
+   * Apply colors defined in browser's themes more correctly.
+   * Make "browserSettings" permission optional.
  - 2.3.10 (2026.8.26)
    * Add support for "Nova" theme of Firefox 155 and later.
  - 2.3.9 (2023.3.12)
